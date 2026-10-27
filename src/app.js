@@ -392,6 +392,201 @@ function renderInsights() {
   $('insightList').innerHTML = out.map(function (x) { return '<li><span class="ic">' + x[0] + '</span><span>' + x[1] + '</span></li>'; }).join('');
 }
 
+// ---------- product suggestions (public catalogs; not the demo dataset) ----------
+var SUG_GROUPS = [
+  ['missing_format', 'Missing formats', 'Formats most roster stores sell that this store does not list.'],
+  ['merch', 'Merch types to add', 'Apparel and goods that are common across the roster.'],
+  ['pricing', 'Pricing gaps', 'Median price versus the roster. Prices are compared in USD only.'],
+  ['bundle', 'Bundles', 'Music plus merch bundles, such as an LP and a tee.'],
+  ['signed_color', 'Signed or colored vinyl', 'Signed physical items and colored or variant pressings.'],
+  ['trending', 'Trending items', 'Products added in the last 90 days. Titles link to the live store page.'],
+  ['restock', 'Restock', 'In-stock rate against the roster median.'],
+  ['stale', 'Catalog freshness', 'Nothing new in the last 90 days.']
+];
+var EV_LABEL = {
+  artist_physical_skus: 'Physical music SKUs', peer_pct_with_signed: 'Vinyl sellers with signed',
+  music: 'Music SKUs', merch: 'Merch SKUs', peer_bundle_pct: 'Roster stores with bundles',
+  artist_median_usd: 'Artist median', roster_median_usd: 'Roster median',
+  in_stock_pct: 'In stock', roster_median: 'Roster median in stock',
+  newest_product: 'Newest product', roster_new_90d: 'Roster products added, 90d',
+  peer_adoption_pct: 'Roster adoption', artist_count: 'This store', artist_total_products: 'Products in store',
+  artist_vinyl_skus: 'Vinyl SKUs', peer_pct_with_colored: 'Vinyl sellers with colored'
+};
+var sug = { q: '', name: '', view: 'artist', group: 'all', fmt: '', chartsReady: false };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function money(v, cur) { if (v == null || v === '' || isNaN(+v)) return '—'; var n = +v, sym = cur === 'GBP' ? '£' : cur === 'EUR' ? '€' : cur === 'AUD' ? 'A$' : '$'; return sym + (n % 1 ? n.toFixed(2) : String(Math.round(n))); }
+function evFmt(k, v) {
+  if (v == null || v === '') return '—';
+  if (k === 'newest_product') return String(v);
+  if (k.indexOf('pct') >= 0 || k === 'roster_median' || k === 'in_stock_pct') return (Math.round(+v * 10) / 10) + '%';
+  if (k.indexOf('usd') >= 0) return '$' + (+v % 1 ? (+v).toFixed(2) : String(+v));
+  return String(v);
+}
+function evHtml(ev) {
+  return '<div class="evs">' + Object.keys(ev || {}).map(function (k) { return '<span class="ev"><b>' + esc(EV_LABEL[k] || k) + '</b> ' + esc(evFmt(k, ev[k])) + '</span>'; }).join('') + '</div>';
+}
+function sugMatch(a, q) {
+  if (!q) return true;
+  var hay = (a.name + ' ' + (a.operator || '') + ' ' + a.suggestions.map(function (s) { return s.text + ' ' + s.reason; }).join(' ') + ' ' + a.recent.map(function (p) { return p.title + ' ' + p.format; }).join(' ')).toLowerCase();
+  return hay.indexOf(q.toLowerCase()) >= 0;
+}
+function sugCurrent() { var C = window.WRCatalog; if (!C) return null; for (var i = 0; i < C.artists.length; i++) if (C.artists[i].name === sug.name) return C.artists[i]; return null; }
+function sugSyncArtists() {
+  var C = window.WRCatalog, sel = $('sugArtist'), matches = C.artists.filter(function (a) { return sugMatch(a, sug.q); }), prev = sug.name;
+  if (!matches.length) { sel.innerHTML = '<option value="">No matches</option>'; sug.name = ''; return; }
+  sel.innerHTML = matches.map(function (a) { return '<option value="' + esc(a.name) + '">' + esc(a.name) + ' (' + a.suggestions.length + ')</option>'; }).join('');
+  if (!matches.some(function (a) { return a.name === prev; })) sug.name = matches[0].name;
+  sel.value = sug.name;
+}
+function sugCards(list) {
+  if (!list.length) return '<p class="empty-note">Nothing in this group for the current filters.</p>';
+  return '<div class="sug-grid">' + list.map(function (sg) {
+    var who = sg.artist ? '<button type="button" class="prod-link sug-jump" data-artist="' + esc(sg.artist) + '">' + esc(sg.artist) + '</button> · ' : '';
+    return '<article class="sug-card"><h4>' + who + esc(sg.text) + '</h4><p>' + esc(sg.reason) + '</p>' + evHtml(sg.evidence) + '</article>';
+  }).join('') + '</div>';
+}
+function sugTrendingCards(items, total) {
+  if (!items.length) return '<p class="empty-note">No products added in the last 90 days for the current filters.</p>';
+  var note = total > items.length ? '<p class="muted">Showing ' + items.length + ' newest of ' + fn(total) + ' added in the last 90 days. Each title opens the store page.</p>' : '<p class="muted">Each title opens the store page.</p>';
+  return note + '<div class="sug-grid">' + items.map(function (p) {
+    return '<article class="sug-card"><h4><a class="prod-link" href="' + esc(p.url) + '" target="_blank" rel="noopener">' + esc(p.title) + '</a></h4><p>' + (p.artist ? '<button type="button" class="prod-link sug-jump" data-artist="' + esc(p.artist) + '">' + esc(p.artist) + '</button> · ' : '') + esc(p.format) + ' · ' + esc(money(p.price, p.currency)) + ' · ' + esc(p.date) + '</p><div class="evs"><span class="ev"><b>' + (p.available ? 'In stock' : 'Sold out') + '</b></span><span class="ev"><a href="' + esc(p.url) + '" target="_blank" rel="noopener">View on store</a></span></div></article>';
+  }).join('') + '</div>';
+}
+function sugGroupHtml(a) {
+  var html = '', any = false;
+  if (!a.suggestions.length && sug.group === 'all') html += '<p class="empty-note">No catalog gaps were flagged for ' + esc(a.name) + ' against the roster benchmarks.</p>';
+  SUG_GROUPS.forEach(function (g) {
+    if (sug.group !== 'all' && sug.group !== g[0]) return;
+    if (g[0] === 'trending') {
+      if (sug.group === 'all' && !a.recent.length) return;
+      any = true;
+      html += '<div class="sug-group"><div class="card-h"><h3>' + g[1] + '</h3><span class="muted">' + a.recent.length + ' shown</span></div><p class="muted">' + g[2] + '</p>' + sugTrendingCards(a.recent, a.new90) + '</div>';
+      return;
+    }
+    var list = a.suggestions.filter(function (s) { return s.group === g[0]; });
+    if (sug.group === 'all' && !list.length) return;
+    any = true;
+    html += '<div class="sug-group"><div class="card-h"><h3>' + g[1] + '</h3><span class="muted">' + list.length + '</span></div><p class="muted">' + g[2] + '</p>' + sugCards(list) + '</div>';
+  });
+  if (!any && sug.group !== 'all') html += '<p class="empty-note">No suggestions in this group for ' + esc(a.name) + '.</p>';
+  return html;
+}
+function sugRenderArtist() {
+  var C = window.WRCatalog, a = sugCurrent();
+  if (!a) { $('sugHead').innerHTML = '<p class="empty-note">No artist matches that search.</p>'; $('sugKpis').innerHTML = ''; $('sugGroups').innerHTML = ''; if (charts.cSugFit) { charts.cSugFit.destroy(); charts.cSugFit = null; } return; }
+  var b = C.benchmarks, opCls = (a.operator || '').indexOf('WMG') >= 0 ? 'p-ok' : 'p-mut';
+  var links = a.urls.map(function (u) { var host = u.replace(/^https?:\/\//, '').replace(/\/$/, ''); return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(host) + '</a>'; }).join('');
+  $('sugHead').innerHTML = '<div class="card-h"><div><h3>' + esc(a.name) + '</h3><div class="artist-links">' + (links || '<span class="muted">No store URL</span>') + '</div></div><div><span class="pill ' + opCls + '">' + esc(a.operator || 'Store') + '</span> <span class="pill p-mut">' + esc(a.currency || '—') + '</span></div></div>';
+  $('sugKpis').innerHTML = kpiHtml([
+    ['Products', fn(a.products), '<span class="muted">' + fn(a.music) + ' music · ' + fn(a.merch) + ' merch</span>'],
+    ['In stock', a.inStock == null ? '—' : a.inStock.toFixed(1) + '%', '<span class="muted">Roster median ' + b.median_in_stock_pct + '%</span>'],
+    ['New, last 90 days', fn(a.new90), '<span class="muted">Newest ' + esc(a.newest || '—') + '</span>'],
+    ['Suggestions', String(a.suggestions.length), '<span class="muted">' + (a.suggestions.length ? 'Gaps vs the roster' : 'No gaps flagged') + '</span>'],
+    ['Signed SKUs', fn(a.signed), '<span class="muted">' + b.pct_vinyl_sellers_with_signed + '% of vinyl sellers list signed</span>'],
+    ['Colored vinyl SKUs', fn(a.colored), '<span class="muted">' + b.pct_vinyl_sellers_with_colored + '% of vinyl sellers list colored</span>']
+  ]);
+  var labels = Object.keys(b.format_adoption_pct);
+  mk('cSugFit', { type: 'bar', data: { labels: labels, datasets: [{ label: 'Roster adoption', data: labels.map(function (k) { return b.format_adoption_pct[k] || 0; }), backgroundColor: labels.map(function (k) { return (a.formats[k] || 0) > 0 ? '#3ddc97' : (b.format_adoption_pct[k] || 0) >= 50 ? '#e8453c' : '#5c5c70'; }), borderRadius: 3 }] },
+    options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return c.label + ': ' + c.raw + '% of stores · this store lists ' + fn(a.formats[c.label] || 0); } } } }, scales: { x: { max: 100, ticks: { callback: function (v) { return v + '%'; } } } } } });
+  $('sugFitNote').textContent = 'Green = this store lists it · red = missing and at least half the roster sells it · bar length is roster adoption';
+  $('sugGroups').innerHTML = sugGroupHtml(a);
+}
+function sugCollect(group) {
+  var C = window.WRCatalog, out = [];
+  C.artists.forEach(function (a) {
+    if (!sugMatch(a, sug.q)) return;
+    if (group === 'trending') a.recent.forEach(function (p) { if (!sug.fmt || p.format === sug.fmt) out.push(Object.assign({ artist: a.name }, p)); });
+    else a.suggestions.forEach(function (s) { if (s.group === group) out.push(Object.assign({ artist: a.name }, s)); });
+  });
+  return out;
+}
+function sugRenderRosterList() {
+  var C = window.WRCatalog, b = C.benchmarks;
+  if (sug.group !== 'all' && sug.group !== 'trending') {
+    var g = SUG_GROUPS.filter(function (x) { return x[0] === sug.group; })[0];
+    var list = sugCollect(sug.group);
+    $('tSugRecent').parentElement.parentElement.classList.add('hide');
+    var host = $('sugRosterCards');
+    if (!host) { host = document.createElement('div'); host.id = 'sugRosterCards'; $('sugRosterPane').appendChild(host); }
+    host.classList.remove('hide');
+    host.innerHTML = '<div class="sug-group"><div class="card-h"><h3>' + g[1] + ' across the roster</h3><span class="muted">' + list.length + '</span></div><p class="muted">' + g[2] + '</p>' + sugCards(list) + '</div>';
+    return;
+  }
+  var extra = $('sugRosterCards'); if (extra) extra.classList.add('hide');
+  $('tSugRecent').parentElement.parentElement.classList.remove('hide');
+  var rows = sugCollect('trending').map(function (p) { return { date: p.date, artist: p.artist, title: p.title, format: p.format, price: p.price, currency: p.currency, url: p.url, available: p.available ? 1 : 0, stock: p.available ? 'In stock' : 'Sold out' }; });
+  $('sugTrendNote').textContent = b.trend_note + ' ' + fn(b.new_products_last_90d) + ' new products across ' + b.stores_with_new_products_last_90d + ' stores. The table lists up to ' + C.recentCap + ' newest linked products per artist' + (sug.q ? ' matching the search' : '') + '.';
+  table('tSugRecent', [
+    { k: 'date', l: 'Added' },
+    { k: 'artist', l: 'Artist', f: function (v) { return '<button type="button" class="prod-link sug-jump" data-artist="' + esc(v) + '">' + esc(v) + '</button>'; } },
+    { k: 'title', l: 'Product', f: function (v, r) { return '<a class="prod-link" href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(v) + '</a>'; } },
+    { k: 'format', l: 'Format' },
+    { k: 'price', l: 'Price', n: 1, f: function (v, r) { return money(v, r.currency); } },
+    { k: 'available', l: 'Stock', f: function (v, r) { return '<span class="pill ' + (v ? 'p-ok' : 'p-bad') + '">' + r.stock + '</span>'; } }
+  ], rows, 'date', true);
+}
+function sugDrawRoster() {
+  if (sug.view !== 'roster' || sug.chartsReady) { if (sug.chartsReady) ['cSugAdopt', 'cSugPrice', 'cSugTrend'].forEach(function (id) { if (charts[id]) charts[id].resize(); }); return; }
+  var b = window.WRCatalog.benchmarks;
+  var adopt = Object.keys(b.format_adoption_pct).map(function (k) { return [k, b.format_adoption_pct[k]]; }).sort(function (a, c) { return c[1] - a[1]; });
+  mk('cSugAdopt', { type: 'bar', data: { labels: adopt.map(function (x) { return x[0]; }), datasets: [{ label: 'Stores', data: adopt.map(function (x) { return x[1]; }), backgroundColor: '#5aa9ff', borderRadius: 3 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return c.raw + '% of roster stores'; } } } }, scales: { x: { max: 100, ticks: { callback: function (v) { return v + '%'; } } } } } });
+  var priceL = [['Vinyl', 'vinyl'], ['CD', 'cd'], ['T-shirt', 'tee'], ['Hoodie', 'hoodie'], ['Headwear', 'headwear']];
+  mk('cSugPrice', { type: 'bar', data: { labels: priceL.map(function (x) { return x[0]; }), datasets: [{ label: 'Median USD', data: priceL.map(function (x) { return b.median_price_usd[x[1]]; }), backgroundColor: ['#f5c542', '#5aa9ff', '#e8453c', '#a78bfa', '#3ddc97'], borderRadius: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return money(c.raw, 'USD'); } } } }, scales: { y: { ticks: { callback: function (v) { return '$' + v; } } } } } });
+  var tr = b.trending_formats_last_90d;
+  mk('cSugTrend', { type: 'bar', data: { labels: tr.map(function (x) { return x.format; }), datasets: [{ label: 'Stores adding', data: tr.map(function (x) { return x.stores_adding_in_last_90d; }), backgroundColor: '#f5c542', borderRadius: 3 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return c.raw + ' stores (' + tr[c.dataIndex].pct_of_active_stores + '% of stores that added anything)'; } } } }, scales: { x: { ticks: { precision: 0 } } } } });
+  sug.chartsReady = true;
+}
+function sugRenderRoster() {
+  var C = window.WRCatalog, b = C.benchmarks, nSug = C.artists.reduce(function (n, a) { return n + a.suggestions.length; }, 0);
+  $('sugRosterKpis').innerHTML = kpiHtml([
+    ['Stores analyzed', fn(b.stores_analyzed), '<span class="muted">Public Shopify catalogs</span>'],
+    ['Suggestions', fn(nSug), '<span class="muted">' + C.artists.length + ' artists</span>'],
+    ['New products, 90 days', fn(b.new_products_last_90d), '<span class="muted">' + b.stores_with_new_products_last_90d + ' stores added something</span>'],
+    ['Median in stock', b.median_in_stock_pct + '%', '<span class="muted">Across the roster</span>'],
+    ['Colored vinyl', b.pct_vinyl_sellers_with_colored + '%', '<span class="muted">Of vinyl-selling stores</span>'],
+    ['Signed items', b.pct_vinyl_sellers_with_signed + '%', '<span class="muted">Of vinyl-selling stores</span>'],
+    ['Bundles', b.pct_stores_with_bundles + '%', '<span class="muted">Of roster stores</span>']
+  ]);
+  $('sugPriceNote').textContent = 'USD stores only · vinyl $' + b.median_price_usd.vinyl + ' · CD $' + b.median_price_usd.cd + ' · tee $' + b.median_price_usd.tee;
+  $('sugTrendNote').textContent = b.trend_note;
+  sugRenderRosterList();
+  void $('sugRosterPane').offsetWidth;
+  sugDrawRoster();
+}
+function sugRender() {
+  if (!window.WRCatalog) return;
+  var artistMode = sug.view === 'artist';
+  $('sugArtistPane').classList.toggle('hide', !artistMode);
+  $('sugRosterPane').classList.toggle('hide', artistMode);
+  $('sugView').querySelectorAll('button').forEach(function (btn) { btn.classList.toggle('on', btn.getAttribute('data-v') === sug.view); });
+  if (artistMode) sugRenderArtist(); else sugRenderRoster();
+}
+function sugJump(name) {
+  sug.name = name; sug.view = 'artist'; sug.q = ''; sug.group = 'all';
+  $('sugSearch').value = '';
+  $('sugTypes').querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-g') === 'all'); });
+  sugSyncArtists(); sugRender();
+  var el = $('suggest'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function sugInit() {
+  var C = window.WRCatalog;
+  if (!C || !$('sugArtist')) return;
+  $('sugBanner').textContent = C.label + '. ' + C.method + ' Sales, ads, CRM, Amazon and the forecast above stay synthetic demo data.';
+  var fmts = {};
+  C.artists.forEach(function (a) { a.recent.forEach(function (p) { fmts[p.format] = 1; }); });
+  var fmtSel = $('sugRecentFmt');
+  Object.keys(fmts).sort().forEach(function (f) { fmtSel.insertAdjacentHTML('beforeend', '<option value="' + esc(f) + '">' + esc(f) + '</option>'); });
+  sug.name = C.artists.length ? C.artists[0].name : '';
+  sugSyncArtists();
+  $('sugSearch').addEventListener('input', function () { sug.q = this.value.trim(); sugSyncArtists(); sugRender(); });
+  $('sugArtist').addEventListener('change', function () { if (!this.value) return; sug.name = this.value; sug.view = 'artist'; sugRender(); });
+  $('sugView').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (!v) return; sug.view = v; sugRender(); });
+  $('sugTypes').addEventListener('click', function (e) { var g = e.target.getAttribute('data-g'); if (!g) return; sug.group = g; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-g') === g); }); sugRender(); });
+  fmtSel.addEventListener('change', function () { sug.fmt = this.value; if (sug.view === 'roster') sugRenderRosterList(); });
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.sug-jump'); if (!b) return; sugJump(b.getAttribute('data-artist')); });
+  sugRender();
+}
+
 // ---------- init ----------
 function init() {
   D = WRData.generate(); N = D.meta.ndays; T = N - 1; NCH = D.nch; NST = D.stores.length; NDTC = D.dtcChannels;
@@ -405,6 +600,7 @@ function init() {
   $('crmSeg').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (v == null) return; crmMode = v; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === e.target); }); renderCrm(); });
   $('dataLink').addEventListener('click', function (e) { e.preventDefault(); var blob = new Blob([JSON.stringify(WRData.exportSummary(D))], { type: 'application/json' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wr-store-demo-data.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); });
   render();
+  sugInit();
   $('loading').remove(); window.__WR_READY = true;
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

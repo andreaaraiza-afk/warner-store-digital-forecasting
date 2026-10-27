@@ -1,0 +1,4010 @@
+{
+ "generated": "2026-10-27",
+ "method": "Public Shopify /products.json catalogs, formats classified from product title/type; prices compared in USD stores only.",
+ "roster_benchmarks": {
+  "stores_analyzed": 68,
+  "format_adoption_pct": {
+   "Vinyl": 77.9,
+   "CD": 66.2,
+   "Cassette": 32.4,
+   "Box Set": 8.8,
+   "Bundle": 25.0,
+   "T-Shirt/Top": 94.1,
+   "Hoodie/Sweatshirt": 79.4,
+   "Headwear": 64.7,
+   "Poster/Print/Flag": 39.7,
+   "Bags": 57.4,
+   "Home/Drinkware": 52.9,
+   "Accessories/Small goods": 63.2,
+   "Apparel (other)": 45.6,
+   "Digital": 25.0
+  },
+  "median_price_usd": {
+   "vinyl": 31.5,
+   "cd": 14.98,
+   "tee": 35.5,
+   "hoodie": 68.75,
+   "headwear": 35.0
+  },
+  "pct_vinyl_sellers_with_colored": 66.0,
+  "pct_vinyl_sellers_with_signed": 32.1,
+  "pct_stores_with_bundles": 25.0,
+  "median_in_stock_pct": 90.6,
+  "trending_formats_last_90d": [
+   {
+    "format": "T-Shirt/Top",
+    "stores_adding_in_last_90d": 25,
+    "pct_of_active_stores": 69.4
+   },
+   {
+    "format": "Vinyl",
+    "stores_adding_in_last_90d": 20,
+    "pct_of_active_stores": 55.6
+   },
+   {
+    "format": "Hoodie/Sweatshirt",
+    "stores_adding_in_last_90d": 20,
+    "pct_of_active_stores": 55.6
+   },
+   {
+    "format": "CD",
+    "stores_adding_in_last_90d": 17,
+    "pct_of_active_stores": 47.2
+   },
+   {
+    "format": "Accessories/Small goods",
+    "stores_adding_in_last_90d": 14,
+    "pct_of_active_stores": 38.9
+   },
+   {
+    "format": "Headwear",
+    "stores_adding_in_last_90d": 14,
+    "pct_of_active_stores": 38.9
+   },
+   {
+    "format": "Bags",
+    "stores_adding_in_last_90d": 13,
+    "pct_of_active_stores": 36.1
+   },
+   {
+    "format": "Other",
+    "stores_adding_in_last_90d": 12,
+    "pct_of_active_stores": 33.3
+   },
+   {
+    "format": "Home/Drinkware",
+    "stores_adding_in_last_90d": 8,
+    "pct_of_active_stores": 22.2
+   },
+   {
+    "format": "Poster/Print/Flag",
+    "stores_adding_in_last_90d": 8,
+    "pct_of_active_stores": 22.2
+   },
+   {
+    "format": "Cassette",
+    "stores_adding_in_last_90d": 6,
+    "pct_of_active_stores": 16.7
+   },
+   {
+    "format": "Apparel (other)",
+    "stores_adding_in_last_90d": 4,
+    "pct_of_active_stores": 11.1
+   },
+   {
+    "format": "Bundle",
+    "stores_adding_in_last_90d": 4,
+    "pct_of_active_stores": 11.1
+   },
+   {
+    "format": "Digital",
+    "stores_adding_in_last_90d": 2,
+    "pct_of_active_stores": 5.6
+   },
+   {
+    "format": "Box Set",
+    "stores_adding_in_last_90d": 1,
+    "pct_of_active_stores": 2.8
+   }
+  ],
+  "new_products_last_90d": 907,
+  "stores_with_new_products_last_90d": 36,
+  "trend_note": "Store-weighted (count of stores that added at least one product of the format in the last 90 days) so large catalogs like Billy Strings (361 new vinyl SKUs) do not dominate."
+ },
+ "artists": {
+  "\u2020\u2020\u2020 (Crosses)": {
+   "row": 2,
+   "store_urls": "https://www.crossescult.com/",
+   "products": 65,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 10 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 10,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 18 music and 47 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 18,
+      "merch": 47,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $21.98 vs roster median $31.5 (-30%).",
+     "evidence": {
+      "artist_median_usd": 21.98,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 40.0% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 40.0,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-01-14; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-01-14",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Alyssa Grace": {
+   "row": 9,
+   "store_urls": "https://store.alyssagrace.com/",
+   "products": 4,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 3 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 3,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 3 music and 1 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 3,
+      "merch": 1,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $21.98 vs roster median $31.5 (-30%).",
+     "evidence": {
+      "artist_median_usd": 21.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Amble": {
+   "row": 10,
+   "store_urls": "https://amble-store.com/",
+   "products": 27,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 27
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 27
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 5 music and 22 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 5,
+      "merch": 22,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $55.0 vs roster median $68.75 (-20%).",
+     "evidence": {
+      "artist_median_usd": 55.0,
+      "roster_median_usd": 68.75
+     }
+    }
+   ]
+  },
+  "Annie Tracy": {
+   "row": 12,
+   "store_urls": "https://shop.annietracy.com/",
+   "products": 9,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-12-03; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-12-03",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Ashnikko": {
+   "row": 15,
+   "store_urls": "https://usmerch.ashnikko.com/",
+   "products": 65,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 65
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 7 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 7,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $39.98 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 39.98,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 32.3% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 32.3,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-03-19; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-03-19",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Bassvictim": {
+   "row": 18,
+   "store_urls": "https://shop.bassvictim.org/",
+   "products": 10,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 3 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 3,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 3 music and 7 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 3,
+      "merch": 7,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $45.0 vs roster median $35.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $100.0 vs roster median $68.75 (45%).",
+     "evidence": {
+      "artist_median_usd": 100.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $45.0 vs roster median $31.5 (43%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 30.0% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 30.0,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-06-17; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-06-17",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Benson Boone": {
+   "row": 20,
+   "store_urls": "https://store.bensonboone.com/",
+   "products": 44,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 44
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 7 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 7,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 9 music and 35 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 9,
+      "merch": 35,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $50.0 vs roster median $35.5 (41%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $125.0 vs roster median $68.75 (82%).",
+     "evidence": {
+      "artist_median_usd": 125.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-07-22; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-07-22",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Billy Strings": {
+   "row": 21,
+   "store_urls": "https://billystringsstore.com/ | https://www.billystringseuukshop.com/ | https://merchjungle.com/collections/billy-strings",
+   "products": 866,
+   "suggestions": [
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $28.0 vs roster median $35.5 (-21%).",
+     "evidence": {
+      "artist_median_usd": 28.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $50.0 vs roster median $68.75 (-27%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $39.98 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 39.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Blake Whiten": {
+   "row": 23,
+   "store_urls": "https://blakewhiten.myshopify.com/",
+   "products": 16,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 16
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 16
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 16
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 16
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $55.0 vs roster median $68.75 (-20%).",
+     "evidence": {
+      "artist_median_usd": 55.0,
+      "roster_median_usd": 68.75
+     }
+    }
+   ]
+  },
+  "Blur": {
+   "row": 24,
+   "store_urls": "https://usshop.blur.co.uk/",
+   "products": 117,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 34 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 34,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 32.5% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 32.5,
+      "roster_median": 90.6
+     }
+    }
+   ]
+  },
+  "Brandy Clark": {
+   "row": 25,
+   "store_urls": "https://brandyclarkmusic.myshopify.com/",
+   "products": 2,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 2
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 2
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 2
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 2
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 2
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    }
+   ]
+  },
+  "Cara Delevingne": {
+   "row": 28,
+   "store_urls": "https://store.caradelevingne.com/",
+   "products": 8,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    }
+   ]
+  },
+  "Cassandra Coleman": {
+   "row": 29,
+   "store_urls": "https://cassandracoleman.myshopify.com/",
+   "products": 5,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $45.0 vs roster median $68.75 (-35%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 68.75
+     }
+    }
+   ]
+  },
+  "Cher": {
+   "row": 30,
+   "store_urls": "https://cher.store/",
+   "products": 78,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 11 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 11,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 12 music and 66 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 12,
+      "merch": 66,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-10-27; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-10-27",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Chris Stussy": {
+   "row": 31,
+   "store_urls": "https://shop.chrisstassy.com/",
+   "products": 23,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 23
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 23
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 23
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 1 music and 22 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 1,
+      "merch": 22,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 43.5% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 43.5,
+      "roster_median": 90.6
+     }
+    }
+   ]
+  },
+  "Dasha": {
+   "row": 37,
+   "store_urls": "https://dasha.merchmadeeasy.com/",
+   "products": 21,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 21
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 21
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-11-07; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-11-07",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "David Guetta": {
+   "row": 38,
+   "store_urls": "https://store.davidguetta.com/",
+   "products": 32,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 32
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 32
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 8 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 8,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 8 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 8,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 8 music and 24 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 8,
+      "merch": 24,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-06-19; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-06-19",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Deftones": {
+   "row": 40,
+   "store_urls": "https://shopdeftones.com/",
+   "products": 50,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 50
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 24 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 24,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 24 music and 26 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 24,
+      "merch": 26,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $45.0 vs roster median $35.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-03-20; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-03-20",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Del Water Gap": {
+   "row": 41,
+   "store_urls": "https://merch.ambientinks.com/collections/delwatergap",
+   "products": 54,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 6 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 6,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-03-13; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-03-13",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Dijon": {
+   "row": 43,
+   "store_urls": "https://shop.dijondijon.com/",
+   "products": 5,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 4 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 4,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-08-13; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-08-13",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Dua Lipa": {
+   "row": 44,
+   "store_urls": "https://ukshop.dualipa.com/ | https://usshop.dualipa.com/",
+   "products": 99,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 24 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 24,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 33 music and 66 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 33,
+      "merch": 66,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $90.0 vs roster median $68.75 (31%).",
+     "evidence": {
+      "artist_median_usd": 90.0,
+      "roster_median_usd": 68.75
+     }
+    }
+   ]
+  },
+  "Flea": {
+   "row": 49,
+   "store_urls": "https://shop.flea333.com/",
+   "products": 15,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 13 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 13,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $50.0 vs roster median $35.5 (41%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $97.5 vs roster median $68.75 (42%).",
+     "evidence": {
+      "artist_median_usd": 97.5,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-07-07; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-07-07",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Gannon Fremin & CCREV": {
+   "row": 50,
+   "store_urls": "https://629321-4.myshopify.com/",
+   "products": 4,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 4
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-07-21; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-07-21",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Gary Clark Jr.": {
+   "row": 51,
+   "store_urls": "https://gary-clark-jr.myshopify.com/",
+   "products": 11,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 3 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 3,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 3 music and 8 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 3,
+      "merch": 8,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $50.0 vs roster median $68.75 (-27%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $44.98 vs roster median $31.5 (43%).",
+     "evidence": {
+      "artist_median_usd": 44.98,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-05-08; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-05-08",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Gavin Adcock": {
+   "row": 52,
+   "store_urls": "https://store.gavinadcockmusic.com/collections/home",
+   "products": 26,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 26
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 24 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 24,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $55.0 vs roster median $68.75 (-20%).",
+     "evidence": {
+      "artist_median_usd": 55.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $40.0 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 40.0,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Gerard Way": {
+   "row": 53,
+   "store_urls": "https://store.warnermusic.com/collections/gerard-way",
+   "products": 7,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $19.99 vs roster median $35.5 (-44%).",
+     "evidence": {
+      "artist_median_usd": 19.99,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 28.6% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 28.6,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-01-29; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-01-29",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Goo Goo Dolls": {
+   "row": 55,
+   "store_urls": "https://googoodolls.warnerrecords.com/",
+   "products": 68,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 68
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 20 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 20,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 25 music and 43 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 25,
+      "merch": 43,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $24.98 vs roster median $31.5 (-21%).",
+     "evidence": {
+      "artist_median_usd": 24.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Gorillaz": {
+   "row": 56,
+   "store_urls": "https://store.gorillaz.com/products/the-mountain-lp-hoodie-bundle-uk",
+   "products": 132,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 26 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 26,
+      "peer_pct_with_signed": 32.1
+     }
+    }
+   ]
+  },
+  "Green Day": {
+   "row": 57,
+   "store_urls": "https://store.greenday.com/",
+   "products": 166,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 43 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 43,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 45 music and 121 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 45,
+      "merch": 121,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $37.98 vs roster median $31.5 (21%).",
+     "evidence": {
+      "artist_median_usd": 37.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Griff": {
+   "row": 59,
+   "store_urls": "https://store.officialgriff.com/",
+   "products": 15,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-04-09; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-04-09",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Jake Wesley Rogers": {
+   "row": 66,
+   "store_urls": "https://inthekeyoflove.store/",
+   "products": 5,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 1 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 1,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 1 music and 4 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 1,
+      "merch": 4,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-05-13; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-05-13",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "JISOO": {
+   "row": 69,
+   "store_urls": "https://shop.jisoo.io/",
+   "products": 12,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 6 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 6,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 10 music and 2 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 10,
+      "merch": 2,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "Kenny Chesney": {
+   "row": 73,
+   "store_urls": "https://www.kennychesney.com/",
+   "products": 12,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 10 music and 2 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 10,
+      "merch": 2,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "Linkin Park": {
+   "row": 78,
+   "store_urls": "https://store.linkinpark.com/",
+   "products": 454,
+   "suggestions": []
+  },
+  "Lucky Daye": {
+   "row": 79,
+   "store_urls": "https://shop.luckydaye.com/",
+   "products": 15,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 2 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 2,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 13 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 13,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $45.0 vs roster median $35.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $55.0 vs roster median $31.5 (75%).",
+     "evidence": {
+      "artist_median_usd": 55.0,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2024-12-11; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2024-12-11",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Mac Miller": {
+   "row": 80,
+   "store_urls": "https://shop.macmillerswebsite.com/",
+   "products": 97,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 97
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 13 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 13,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 13 music and 84 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 13,
+      "merch": 84,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $39.98 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 39.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Maddox Batson": {
+   "row": 81,
+   "store_urls": "https://www.maddoxbatsonmerch.com/",
+   "products": 16,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 16
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 1 music and 15 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 1,
+      "merch": 15,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $45.0 vs roster median $35.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 35.5
+     }
+    }
+   ]
+  },
+  "Madonna": {
+   "row": 82,
+   "store_urls": "https://shop.madonna.com/ | https://www.madonna.com/",
+   "products": 237,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 237
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 41 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 41,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 59.1% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 59.1,
+      "roster_median": 90.6
+     }
+    }
+   ]
+  },
+  "Marlon Funaki": {
+   "row": 85,
+   "store_urls": "https://marlon-funaki.myshopify.com/",
+   "products": 12,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 12
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 2 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 2,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 10 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 10,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "Maude Latour": {
+   "row": 86,
+   "store_urls": "https://merch.maudelatour.com/",
+   "products": 13,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 13
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 13
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 13
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-04-13; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-04-13",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Michael Bubl\u00e9": {
+   "row": 89,
+   "store_urls": "https://store.michaelbuble.com/",
+   "products": 80,
+   "suggestions": []
+  },
+  "Michael Marcagi": {
+   "row": 90,
+   "store_urls": "https://shop.michaelmarcagimusic.com/",
+   "products": 22,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 22
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 2 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 2,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 20 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 20,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $47.5 vs roster median $68.75 (-31%).",
+     "evidence": {
+      "artist_median_usd": 47.5,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-04-23; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-04-23",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Mike Shinoda": {
+   "row": 93,
+   "store_urls": "https://store.mikeshinoda.com/",
+   "products": 113,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 113
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2024-04-15; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2024-04-15",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Muse": {
+   "row": 95,
+   "store_urls": "https://store.muse.mu/",
+   "products": 144,
+   "suggestions": [
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $27.0 vs roster median $35.5 (-24%).",
+     "evidence": {
+      "artist_median_usd": 27.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $24.99 vs roster median $31.5 (-21%).",
+     "evidence": {
+      "artist_median_usd": 24.99,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Nessa Barrett": {
+   "row": 98,
+   "store_urls": "https://store.nessa-barrett.com/",
+   "products": 81,
+   "suggestions": [
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $85.0 vs roster median $68.75 (24%).",
+     "evidence": {
+      "artist_median_usd": 85.0,
+      "roster_median_usd": 68.75
+     }
+    }
+   ]
+  },
+  "NLE Choppa": {
+   "row": 101,
+   "store_urls": "https://nlechoppashop.com/",
+   "products": 26,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 26
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 26
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 26
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 26
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $87.5 vs roster median $68.75 (27%).",
+     "evidence": {
+      "artist_median_usd": 87.5,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-10-29; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-10-29",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Omar Apollo": {
+   "row": 105,
+   "store_urls": "https://omarapollo.com/collections",
+   "products": 7,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 7
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 4 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 4,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 4 music and 3 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 4,
+      "merch": 3,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $20.0 vs roster median $35.5 (-44%).",
+     "evidence": {
+      "artist_median_usd": 20.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $18.5 vs roster median $31.5 (-41%).",
+     "evidence": {
+      "artist_median_usd": 18.5,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-10-12; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-10-12",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Orville Peck": {
+   "row": 106,
+   "store_urls": "https://shop.orvillepeck.com/",
+   "products": 41,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 41
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 13 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 13,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 16 music and 25 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 16,
+      "merch": 25,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $45.0 vs roster median $35.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 35.5
+     }
+    }
+   ]
+  },
+  "Patrick Droney": {
+   "row": 109,
+   "store_urls": "https://shop.patrickdroney.com/",
+   "products": 1,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 1
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $45.0 vs roster median $31.5 (43%).",
+     "evidence": {
+      "artist_median_usd": 45.0,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-07-23; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-07-23",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "PEEKABOO": {
+   "row": 111,
+   "store_urls": "https://peekashop.myshopify.com/",
+   "products": 10,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 10
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $55.0 vs roster median $68.75 (-20%).",
+     "evidence": {
+      "artist_median_usd": 55.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-06-05; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-06-05",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Rachel Chinouriri": {
+   "row": 114,
+   "store_urls": "https://shop.rachelchinouriri.com/",
+   "products": 27,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 27
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 27
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 6 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 6,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 12 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 12,
+      "peer_pct_with_signed": 32.1
+     }
+    }
+   ]
+  },
+  "Red Hot Chili Peppers": {
+   "row": 117,
+   "store_urls": "https://shop.redhotchilipeppers.com/",
+   "products": 37,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 37
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 37
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $84.0 vs roster median $68.75 (22%).",
+     "evidence": {
+      "artist_median_usd": 84.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-05-08; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-05-08",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "R\u00dcF\u00dcS DU SOL": {
+   "row": 123,
+   "store_urls": "https://rufusdusol.store/",
+   "products": 5,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 5
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 1 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 1,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 1 music and 4 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 1,
+      "merch": 4,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $60.0 vs roster median $35.5 (69%).",
+     "evidence": {
+      "artist_median_usd": 60.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $92.5 vs roster median $68.75 (35%).",
+     "evidence": {
+      "artist_median_usd": 92.5,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $49.98 vs roster median $31.5 (59%).",
+     "evidence": {
+      "artist_median_usd": 49.98,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-07-15; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-07-15",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Sam Gellaitry": {
+   "row": 126,
+   "store_urls": "https://sam-gellaitry.myshopify.com/",
+   "products": 8,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add CD to the store",
+     "reason": "66.2% of the 68 roster stores analyzed sell CD; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 66.2,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 8
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 1 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 1,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 1 music and 7 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 1,
+      "merch": 7,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $40.0 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 40.0,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 50.0% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 50.0,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-11-06; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-11-06",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "sombr": {
+   "row": 128,
+   "store_urls": "https://shop.sombrmusic.com/ | https://store.sombrmusic.com/",
+   "products": 29,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 29
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 8 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 8,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 9 music and 20 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 9,
+      "merch": 20,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $50.0 vs roster median $35.5 (41%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $110.0 vs roster median $68.75 (60%).",
+     "evidence": {
+      "artist_median_usd": 110.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $12.98 vs roster median $31.5 (-59%).",
+     "evidence": {
+      "artist_median_usd": 12.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Stevie Nicks": {
+   "row": 129,
+   "store_urls": "https://stevienicks.store/",
+   "products": 19,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 19
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 19
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 19
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 19
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 1 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 1,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 17 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 17,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $50.0 vs roster median $35.5 (41%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $14.98 vs roster median $31.5 (-52%).",
+     "evidence": {
+      "artist_median_usd": 14.98,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2025-12-17; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2025-12-17",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Teddy Swims": {
+   "row": 134,
+   "store_urls": "https://shop.teddyswims.com/",
+   "products": 75,
+   "suggestions": []
+  },
+  "The Bends": {
+   "row": 135,
+   "store_urls": "https://merch.thebendsmusic.com/",
+   "products": 15,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 15
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 3 music and 12 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 3,
+      "merch": 12,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "The Black Keys": {
+   "row": 136,
+   "store_urls": "https://shop.theblackkeys.redstarmerch.com/",
+   "products": 109,
+   "suggestions": [
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 42 music and 67 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 42,
+      "merch": 67,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "The Castellows": {
+   "row": 137,
+   "store_urls": "https://shopthecastellows.com/",
+   "products": 9,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Vinyl to the store",
+     "reason": "77.9% of the 68 roster stores analyzed sell Vinyl; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 77.9,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 9
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 2 music and 7 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 2,
+      "merch": 7,
+      "peer_bundle_pct": 25.0
+     }
+    }
+   ]
+  },
+  "The Linda Lindas": {
+   "row": 138,
+   "store_urls": "https://thelindalindas.store/collections/all",
+   "products": 34,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 34
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 4 music and 30 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 4,
+      "merch": 30,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $17.5 vs roster median $35.5 (-51%).",
+     "evidence": {
+      "artist_median_usd": 17.5,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $30.0 vs roster median $68.75 (-56%).",
+     "evidence": {
+      "artist_median_usd": 30.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-07-16; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-07-16",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "The Neighbourhood": {
+   "row": 139,
+   "store_urls": "https://shop.thenbhd.com/",
+   "products": 33,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 33
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 2 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 2,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 3 music and 30 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 3,
+      "merch": 30,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $44.98 vs roster median $31.5 (43%).",
+     "evidence": {
+      "artist_median_usd": 44.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Theo Lawrence": {
+   "row": 140,
+   "store_urls": "https://shop.theolawrencemusic.com/",
+   "products": 11,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 11
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 4 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 4,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 5 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 5,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-06-18; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-06-18",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Tom Petty": {
+   "row": 141,
+   "store_urls": "https://store.tompetty.com/",
+   "products": 207,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 39 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 39,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 44 music and 163 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 44,
+      "merch": 163,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $37.99 vs roster median $31.5 (21%).",
+     "evidence": {
+      "artist_median_usd": 37.99,
+      "roster_median_usd": 31.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 58.0% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 58.0,
+      "roster_median": 90.6
+     }
+    }
+   ]
+  },
+  "Warren Zeiders": {
+   "row": 144,
+   "store_urls": "https://warrenzeiders.shop/",
+   "products": 41,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 41
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 41
+     }
+    },
+    {
+     "type": "colored_vinyl",
+     "suggestion": "Add a colored/variant vinyl pressing (store exclusive)",
+     "reason": "66.0% of vinyl-selling roster stores list colored variants; this store has 4 vinyl SKUs and none colored.",
+     "evidence": {
+      "artist_vinyl_skus": 4,
+      "peer_pct_with_colored": 66.0
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 8 music and 33 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 8,
+      "merch": 33,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (below roster median)",
+     "reason": "Median T-shirt price $25.0 vs roster median $35.5 (-30%).",
+     "evidence": {
+      "artist_median_usd": 25.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (below roster median)",
+     "reason": "Median hoodie price $40.0 vs roster median $68.75 (-42%).",
+     "evidence": {
+      "artist_median_usd": 40.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $40.0 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 40.0,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "Weezer": {
+   "row": 145,
+   "store_urls": "https://weezerwebstore.com/",
+   "products": 50,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 50
+     }
+    },
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 5 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 5,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "bundle",
+     "suggestion": "Create music + merch bundles (e.g. LP + tee)",
+     "reason": "Store has 6 music and 44 merch products but no bundles; 25.0% of roster stores sell bundles.",
+     "evidence": {
+      "music": 6,
+      "merch": 44,
+      "peer_bundle_pct": 25.0
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (below roster median)",
+     "reason": "Median vinyl price $24.98 vs roster median $31.5 (-21%).",
+     "evidence": {
+      "artist_median_usd": 24.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  },
+  "yeule": {
+   "row": 148,
+   "store_urls": "https://yeule.shop/",
+   "products": 36,
+   "suggestions": [
+    {
+     "type": "missing_format",
+     "suggestion": "Add Hoodie/Sweatshirt to the store",
+     "reason": "79.4% of the 68 roster stores analyzed sell Hoodie/Sweatshirt; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 79.4,
+      "artist_count": 0,
+      "artist_total_products": 36
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Headwear to the store",
+     "reason": "64.7% of the 68 roster stores analyzed sell Headwear; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 64.7,
+      "artist_count": 0,
+      "artist_total_products": 36
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Accessories/Small goods to the store",
+     "reason": "63.2% of the 68 roster stores analyzed sell Accessories/Small goods; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 63.2,
+      "artist_count": 0,
+      "artist_total_products": 36
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Bags to the store",
+     "reason": "57.4% of the 68 roster stores analyzed sell Bags; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 57.4,
+      "artist_count": 0,
+      "artist_total_products": 36
+     }
+    },
+    {
+     "type": "missing_format",
+     "suggestion": "Add Home/Drinkware to the store",
+     "reason": "52.9% of the 68 roster stores analyzed sell Home/Drinkware; this store has 0.",
+     "evidence": {
+      "peer_adoption_pct": 52.9,
+      "artist_count": 0,
+      "artist_total_products": 36
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $53.0 vs roster median $35.5 (49%).",
+     "evidence": {
+      "artist_median_usd": 53.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "restock",
+     "suggestion": "Restock or retire sold-out SKUs",
+     "reason": "Only 27.8% of products are in stock (roster median 90.6%).",
+     "evidence": {
+      "in_stock_pct": 27.8,
+      "roster_median": 90.6
+     }
+    },
+    {
+     "type": "stale_catalog",
+     "suggestion": "Drop new product (catalog has had no new items in 90 days)",
+     "reason": "Newest product added 2026-06-27; roster added 907 products in the last 90 days.",
+     "evidence": {
+      "newest_product": "2026-06-27",
+      "roster_new_90d": 907
+     }
+    }
+   ]
+  },
+  "Zach Bryan": {
+   "row": 150,
+   "store_urls": "https://store.zachbryan.com/ | https://zachbryanshop.com/",
+   "products": 60,
+   "suggestions": [
+    {
+     "type": "signed",
+     "suggestion": "Offer signed/autographed physical (vinyl/CD or signed insert)",
+     "reason": "Store sells 14 physical music SKUs but 0 signed items; 32.1% of vinyl-selling roster stores list signed items.",
+     "evidence": {
+      "artist_physical_skus": 14,
+      "peer_pct_with_signed": 32.1
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review T-shirt pricing (above roster median)",
+     "reason": "Median T-shirt price $50.0 vs roster median $35.5 (41%).",
+     "evidence": {
+      "artist_median_usd": 50.0,
+      "roster_median_usd": 35.5
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review hoodie pricing (above roster median)",
+     "reason": "Median hoodie price $100.0 vs roster median $68.75 (45%).",
+     "evidence": {
+      "artist_median_usd": 100.0,
+      "roster_median_usd": 68.75
+     }
+    },
+    {
+     "type": "pricing_gap",
+     "suggestion": "Review vinyl pricing (above roster median)",
+     "reason": "Median vinyl price $39.98 vs roster median $31.5 (27%).",
+     "evidence": {
+      "artist_median_usd": 39.98,
+      "roster_median_usd": 31.5
+     }
+    }
+   ]
+  }
+ }
+}

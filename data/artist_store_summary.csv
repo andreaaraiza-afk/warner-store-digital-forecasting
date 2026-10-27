@@ -1,0 +1,69 @@
+artist,row,store_urls,operators,currency,products,music_products,merch_products,n_Vinyl,n_CD,n_Cassette,n_Box Set,n_Bundle,n_T-Shirt/Top,n_Hoodie/Sweatshirt,n_Headwear,n_Poster/Print/Flag,n_Bags,n_Home/Drinkware,n_Accessories/Small goods,n_Apparel (other),n_Digital,signed,colored_vinyl,exclusive_limited,preorders,in_stock_pct,new_last_90d,newest_product,median_price_usd_vinyl,median_price_usd_cd,median_price_usd_tee,median_price_usd_hoodie,median_price_usd_headwear,min_price,max_price
+††† (Crosses),2,https://www.crossescult.com/,3rd Party,USD,65,18,47,8,2,1,0,0,17,8,4,0,3,2,4,2,7,0,4,3,0,40.0,0,2025-01-14,21.98,12.48,40.0,60.0,30.0,0.98,150.0
+Alyssa Grace,9,https://store.alyssagrace.com/,WMG,USD,4,3,1,1,2,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,75.0,4,2026-09-18,21.98,504.49,40.0,,,9.98,999.0
+Amble,10,https://amble-store.com/,3rd Party,USD,27,5,22,4,1,0,0,0,11,4,4,1,1,0,0,0,0,1,2,0,0,88.9,3,2026-08-06,27.48,14.98,35.0,55.0,32.5,12.0,60.0
+Annie Tracy,12,https://shop.annietracy.com/,3rd Party,USD,9,0,9,0,0,0,0,0,5,2,1,0,0,0,0,1,0,0,0,1,0,100.0,0,2025-12-03,,,40.0,65.0,25.0,20.0,65.0
+Ashnikko,15,https://usmerch.ashnikko.com/,3rd Party,USD,65,15,48,7,4,3,1,2,23,8,0,1,1,1,8,1,0,3,0,0,0,32.3,0,2026-03-19,39.98,26.98,35.0,62.5,,5.4,165.99
+Bassvictim,18,https://shop.bassvictim.org/,3rd Party,USD,10,3,7,1,2,0,0,0,5,2,0,0,0,0,0,0,0,0,0,0,0,30.0,0,2026-06-17,45.0,15.0,45.0,100.0,,15.0,100.0
+Benson Boone,20,https://store.bensonboone.com/,3rd Party,USD,44,9,35,3,4,2,0,0,14,9,4,3,2,0,1,1,0,0,2,1,0,100.0,0,2026-07-22,29.98,12.48,50.0,125.0,40.0,9.98,150.0
+Billy Strings,21,https://billystringsstore.com/ | https://www.billystringseuukshop.com/ | https://merchjungle.com/collections/billy-strings,3rd Party,AUD/GBP/USD,866,427,413,391,31,0,0,26,223,16,28,4,6,8,85,9,5,4,187,76,0,91.7,558,2026-10-28,39.98,14.98,28.0,50.0,40.0,2.0,1000.0
+Blake Whiten,23,https://blakewhiten.myshopify.com/,3rd Party,USD,16,0,16,0,0,0,0,0,4,4,2,3,0,3,0,0,0,0,0,1,1,62.5,6,2026-10-05,,,40.0,55.0,35.0,10.0,75.0
+Blur,24,https://usshop.blur.co.uk/,WMG,GBP,117,37,75,17,17,2,0,5,39,6,4,4,5,3,4,3,1,0,3,8,0,32.5,3,2026-09-28,,,,,,5.0,202.58
+Brandy Clark,25,https://brandyclarkmusic.myshopify.com/,3rd Party,USD,2,2,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,100.0,2,2026-09-12,27.98,14.98,,,,14.98,27.98
+Cara Delevingne,28,https://store.caradelevingne.com/,3rd Party,USD,8,0,8,0,0,0,0,0,4,1,2,0,1,0,0,0,0,0,0,0,0,100.0,3,2026-08-24,,,40.0,80.0,35.0,20.0,80.0
+Cassandra Coleman,29,https://cassandracoleman.myshopify.com/,3rd Party,USD,5,0,5,0,0,0,0,0,3,1,0,0,1,0,0,0,0,0,0,0,0,100.0,5,2026-09-09,,,30.0,45.0,,15.0,45.0
+Cher,30,https://cher.store/,3rd Party,USD,78,12,66,7,4,0,0,0,34,12,1,0,3,5,1,3,1,0,4,1,0,96.2,0,2025-10-27,34.98,14.98,40.0,65.0,25.0,12.0,99.98
+Chris Stussy,31,https://shop.chrisstassy.com/,3rd Party,EUR,23,1,22,0,0,1,0,0,12,2,2,0,0,1,2,0,0,2,0,0,0,43.5,4,2026-10-13,,,,,,12.0,103.0
+Dasha,37,https://dasha.merchmadeeasy.com/,3rd Party,USD,21,0,21,0,0,0,0,0,8,2,3,0,2,3,2,0,0,0,0,0,0,90.5,0,2025-11-07,,,32.5,67.5,35.0,5.0,70.0
+David Guetta,38,https://store.davidguetta.com/,3rd Party,EUR,32,8,24,8,0,0,0,0,9,8,0,0,1,1,1,1,0,0,0,0,0,90.6,0,2026-06-19,,,,,,10.0,331.0
+Deftones,40,https://shopdeftones.com/,3rd Party,USD,50,24,26,12,12,0,0,0,17,4,1,0,1,0,1,0,0,0,4,3,0,82.0,0,2026-03-20,29.98,15.48,45.0,80.0,45.0,11.99,100.0
+Del Water Gap,41,https://merch.ambientinks.com/collections/delwatergap,3rd Party,USD,54,7,44,4,2,1,0,3,18,6,4,1,2,1,10,0,0,0,2,1,0,94.4,0,2026-03-13,26.99,13.49,40.0,62.5,30.0,5.0,85.0
+Dijon,43,https://shop.dijondijon.com/,3rd Party,USD,5,5,0,2,2,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,100.0,0,2025-08-13,35.0,15.0,,,,15.0,35.0
+Dua Lipa,44,https://ukshop.dualipa.com/ | https://usshop.dualipa.com/,3rd Party,GBP/USD,99,33,66,16,8,7,2,0,25,13,2,5,1,2,5,5,0,0,4,3,0,90.9,3,2026-09-18,32.0,18.49,40.0,90.0,30.0,3.49,100.0
+Flea,49,https://shop.flea333.com/,3rd Party,USD,15,2,13,1,1,0,0,0,5,2,0,0,0,1,4,1,0,0,0,0,0,100.0,0,2026-07-07,36.98,14.98,50.0,97.5,,14.98,100.0
+Gannon Fremin & CCREV,50,https://629321-4.myshopify.com/,3rd Party,USD,4,0,4,0,0,0,0,0,1,0,3,0,0,0,0,0,0,0,0,0,0,75.0,0,2025-07-21,,,35.0,,35.0,35.0,35.0
+Gary Clark Jr.,51,https://gary-clark-jr.myshopify.com/,3rd Party,USD,11,3,8,3,0,0,0,0,6,1,0,0,0,0,0,0,0,0,1,1,0,90.9,0,2026-05-08,44.98,,32.0,50.0,,32.0,50.0
+Gavin Adcock,52,https://store.gavinadcockmusic.com/collections/home,3rd Party,USD,26,2,24,1,1,0,0,0,13,5,2,0,1,0,2,0,0,0,0,0,0,100.0,7,2026-10-12,40.0,20.0,35.0,55.0,35.0,4.0,69.0
+Gerard Way,53,https://store.warnermusic.com/collections/gerard-way,WMG,USD,7,0,7,0,0,0,0,0,5,0,0,0,0,0,1,1,0,0,0,0,0,28.6,0,2025-01-29,,,19.99,,,14.99,39.99
+Goo Goo Dolls,55,https://googoodolls.warnerrecords.com/,WMG,USD,68,25,43,12,8,1,0,0,24,4,3,0,0,4,3,2,4,0,4,0,0,83.8,3,2026-09-15,24.98,13.48,35.0,62.49,30.0,3.99,1500.0
+Gorillaz,56,https://store.gorillaz.com/products/the-mountain-lp-hoodie-bundle-uk,WMG,USD,132,34,90,19,7,7,1,8,38,8,4,11,7,1,11,2,0,0,7,3,0,87.9,17,2026-10-19,28.99,9.99,30.0,70.0,25.0,5.0,199.99
+Green Day,57,https://store.greenday.com/,WMG,USD,166,45,121,29,14,2,0,0,69,17,5,0,1,2,12,5,0,0,17,13,0,71.7,8,2026-08-20,37.98,19.98,35.0,70.0,35.0,9.98,999.99
+Griff,59,https://store.officialgriff.com/,3rd Party,GBP,15,0,15,0,0,0,0,0,6,1,0,0,3,0,2,0,0,0,0,0,0,100.0,0,2025-04-09,,,,,,7.0,48.0
+Jake Wesley Rogers,66,https://inthekeyoflove.store/,3rd Party,USD,5,1,4,1,0,0,0,0,2,0,0,1,0,0,1,0,0,0,1,0,0,100.0,0,2025-05-13,29.98,,35.0,,,7.0,35.0
+JISOO,69,https://shop.jisoo.io/,WMG,USD,12,10,2,0,6,0,2,0,0,0,0,0,0,0,0,1,2,0,0,2,0,66.7,2,2026-09-04,,20.98,,,,4.99,999.0
+Kenny Chesney,73,https://www.kennychesney.com/,3rd Party,USD,12,10,2,6,3,0,0,0,2,0,0,0,0,0,0,0,1,2,5,0,0,100.0,2,2026-08-07,32.49,15.99,40.0,,,4.99,149.99
+Linkin Park,78,https://store.linkinpark.com/,3rd Party,USD,454,105,332,69,15,3,0,17,91,30,18,84,4,11,58,10,18,32,18,8,0,68.5,42,2026-10-05,35.0,14.98,35.0,70.0,35.0,4.0,300.0
+Lucky Daye,79,https://shop.luckydaye.com/,WMG,USD,15,2,13,2,0,0,0,0,6,4,2,0,1,0,0,0,0,1,0,0,0,73.3,0,2024-12-11,55.0,,45.0,75.0,35.0,25.0,75.0
+Mac Miller,80,https://shop.macmillerswebsite.com/,3rd Party,USD,97,13,84,11,2,0,0,0,42,16,18,1,0,1,2,2,0,0,4,1,0,85.6,20,2026-10-02,39.98,14.99,30.0,80.0,27.0,10.0,135.0
+Maddox Batson,81,https://www.maddoxbatsonmerch.com/,3rd Party,USD,16,1,15,0,1,0,0,0,5,1,3,1,1,2,1,0,0,2,0,3,0,100.0,1,2026-10-22,,18.98,45.0,70.0,40.0,10.0,249.5
+Madonna,82,https://shop.madonna.com/ | https://www.madonna.com/,3rd Party,USD,237,47,189,18,23,3,0,1,38,14,0,6,2,7,11,6,3,0,10,5,0,59.1,36,2026-10-22,37.48,14.98,35.0,65.0,,3.99,350.0
+Marlon Funaki,85,https://marlon-funaki.myshopify.com/,3rd Party,USD,12,2,10,2,0,0,0,0,4,1,2,0,0,0,3,0,0,0,0,0,0,100.0,3,2026-09-16,29.99,,35.0,60.0,35.0,4.0,60.0
+Maude Latour,86,https://merch.maudelatour.com/,3rd Party,USD,13,1,11,1,0,0,0,1,3,2,1,2,0,0,3,0,0,1,0,0,0,92.3,0,2026-04-13,35.0,,40.0,60.0,30.0,10.0,95.0
+Michael Bublé,89,https://store.michaelbuble.com/,WMG,USD,80,21,57,4,12,0,0,2,23,5,3,1,5,5,6,4,5,1,5,2,0,96.2,6,2026-09-01,32.48,12.48,30.0,60.0,24.99,2.99,124.98
+Michael Marcagi,90,https://shop.michaelmarcagimusic.com/,3rd Party,USD,22,2,20,2,0,0,0,0,7,2,3,0,2,3,3,0,0,0,0,0,0,100.0,0,2026-04-23,27.49,,35.0,47.5,35.0,3.0,80.0
+Mike Shinoda,93,https://store.mikeshinoda.com/,3rd Party,USD,113,5,107,2,0,0,0,1,42,13,6,2,2,1,12,1,3,0,1,2,0,88.5,0,2024-04-15,34.98,,35.0,70.0,35.0,7.0,115.0
+Muse,95,https://store.muse.mu/,WMG,USD,144,32,101,13,12,4,3,11,69,15,4,2,1,5,4,1,0,3,2,14,0,79.9,6,2026-10-16,24.99,7.5,27.0,58.0,24.99,5.99,135.0
+Nessa Barrett,98,https://store.nessa-barrett.com/,WMG,USD,81,25,51,10,9,1,0,5,21,8,3,0,1,1,5,8,5,2,7,2,0,82.7,13,2026-10-12,28.98,14.98,40.0,85.0,30.0,7.99,120.0
+NLE Choppa,101,https://nlechoppashop.com/,3rd Party,USD,26,0,26,0,0,0,0,0,16,4,2,0,2,0,0,1,0,0,0,0,0,96.2,0,2025-10-29,,,35.0,87.5,35.0,20.0,125.0
+Omar Apollo,105,https://omarapollo.com/collections,3rd Party,USD,7,4,3,3,1,0,0,0,3,0,0,0,0,0,0,0,0,0,1,1,0,100.0,0,2025-10-12,18.5,25.0,20.0,,,16.5,80.0
+Orville Peck,106,https://shop.orvillepeck.com/,3rd Party,USD,41,16,25,9,4,3,0,0,17,2,2,1,1,1,0,0,0,0,3,0,0,92.7,4,2026-09-16,27.98,14.48,45.0,70.0,32.5,5.0,85.0
+Patrick Droney,109,https://shop.patrickdroney.com/,3rd Party,USD,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0.0,0,2026-07-23,45.0,,,,,45.0,45.0
+PEEKABOO,111,https://peekashop.myshopify.com/,3rd Party,USD,10,0,10,0,0,0,0,0,3,3,0,0,0,0,3,1,0,0,0,0,0,100.0,0,2026-06-05,,,40.0,55.0,,6.0,75.0
+Rachel Chinouriri,114,https://shop.rachelchinouriri.com/,WMG,GBP,27,13,9,6,6,1,0,5,2,0,0,1,1,1,1,0,0,0,0,7,0,96.3,3,2026-10-14,,,,,,6.99,50.99
+Red Hot Chili Peppers,117,https://shop.redhotchilipeppers.com/,3rd Party,USD,37,0,37,0,0,0,0,0,13,3,4,6,1,1,3,3,0,0,0,1,0,100.0,0,2026-05-08,,,42.0,84.0,39.0,0.98,140.38
+RÜFÜS DU SOL,123,https://rufusdusol.store/,3rd Party,USD,5,1,4,1,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,60.0,0,2026-07-15,49.98,,60.0,92.5,,45.0,100.0
+Sam Gellaitry,126,https://sam-gellaitry.myshopify.com/,3rd Party,USD,8,1,7,1,0,0,0,0,4,3,0,0,0,0,0,0,0,0,0,0,0,50.0,0,2025-11-06,40.0,,40.0,65.0,,35.0,85.0
+sombr,128,https://shop.sombrmusic.com/ | https://store.sombrmusic.com/,3rd Party/WMG,USD,29,9,20,6,2,0,0,0,12,3,2,0,1,0,1,0,1,0,1,0,0,89.7,20,2026-10-23,12.98,14.98,50.0,110.0,45.0,7.99,110.0
+Stevie Nicks,129,https://stevienicks.store/,3rd Party,USD,19,2,17,1,1,0,0,0,10,0,0,4,0,1,0,0,0,0,0,0,0,78.9,0,2025-12-17,14.98,3.49,50.0,,,3.49,80.0
+Teddy Swims,134,https://shop.teddyswims.com/,WMG,USD,75,24,49,12,7,3,0,2,16,8,6,6,2,5,3,1,2,4,5,1,0,86.7,10,2026-09-15,28.98,14.98,35.0,80.0,32.5,3.5,190.0
+The Bends,135,https://merch.thebendsmusic.com/,3rd Party,USD,15,3,12,2,1,0,0,0,6,1,2,0,1,1,0,0,0,1,1,0,0,86.7,9,2026-10-14,29.98,13.98,30.0,65.0,30.0,0.98,140.38
+The Black Keys,136,https://shop.theblackkeys.redstarmerch.com/,3rd Party,USD,109,42,67,26,14,2,0,0,20,5,11,11,4,4,4,1,0,1,8,3,0,94.5,58,2026-10-06,30.0,30.0,40.0,80.0,40.0,5.0,160.0
+The Castellows,137,https://shopthecastellows.com/,3rd Party,USD,9,2,7,0,2,0,0,0,4,1,1,0,0,1,0,0,0,0,0,0,0,100.0,1,2026-08-12,,9.99,30.0,60.0,35.0,9.98,60.0
+The Linda Lindas,138,https://thelindalindas.store/collections/all,3rd Party,USD,34,4,30,3,1,0,0,0,10,3,0,1,3,1,4,0,0,1,2,1,0,79.4,0,2026-07-16,27.98,11.98,17.5,30.0,,3.0,65.0
+The Neighbourhood,139,https://shop.thenbhd.com/,3rd Party,USD,33,3,30,1,1,0,0,0,10,7,6,0,2,0,4,1,1,0,1,0,0,87.9,1,2026-09-10,44.98,18.98,40.0,80.0,35.0,10.0,95.0
+Theo Lawrence,140,https://shop.theolawrencemusic.com/,3rd Party,USD,11,5,5,4,1,0,0,1,4,0,1,0,0,0,0,0,0,0,0,0,0,100.0,0,2026-06-18,30.0,20.0,30.0,,30.0,20.0,50.0
+Tom Petty,141,https://store.tompetty.com/,3rd Party,USD,207,44,163,29,10,1,1,0,32,7,5,30,5,17,23,5,3,0,4,10,1,58.0,18,2026-10-13,37.99,15.49,35.5,70.0,28.0,0.98,500.0
+Warren Zeiders,144,https://warrenzeiders.shop/,3rd Party,USD,41,8,33,4,4,0,0,0,12,4,9,0,0,0,2,0,0,9,0,0,0,97.6,2,2026-09-24,40.0,10.0,25.0,40.0,30.0,2.99,300.0
+Weezer,145,https://weezerwebstore.com/,3rd Party,USD,50,6,44,4,1,1,0,0,22,5,4,0,0,1,6,0,0,0,3,1,0,100.0,12,2026-10-02,24.98,14.98,40.0,70.0,35.0,0.98,250.0
+yeule,148,https://yeule.shop/,3rd Party,USD,36,13,20,8,3,2,0,3,6,0,0,3,0,0,0,1,0,5,1,0,0,27.8,0,2026-06-27,31.0,15.0,53.0,,,8.0,1000.0
+Zach Bryan,150,https://store.zachbryan.com/ | https://zachbryanshop.com/,3rd Party/WMG,USD,60,17,42,10,4,0,0,1,15,11,5,0,2,1,1,5,3,0,1,0,0,96.7,12,2026-10-13,39.98,14.98,50.0,100.0,45.0,7.99,250.0

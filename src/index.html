@@ -6,8 +6,8 @@
 <style>/*CSS*/</style></head>
 <body>
 <header class="top">
-  <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
-  <nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a></nav>
+  <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast · Suggestions</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
+  <nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#suggest">Suggestions</a></nav>
 </header>
 <section class="filters">
   <label class="store">Storefront<select id="fStore"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select></label>
@@ -61,9 +61,35 @@
   <div class="card"><div class="card-h"><h3>Daily net revenue: actual vs forecast</h3><span class="muted">bands: 80% / 95% prediction interval</span></div><div class="ch h320"><canvas id="cFc"></canvas></div></div>
   <div class="card"><div class="card-h"><h3>Top products: 90-day unit forecast & stockout risk</h3></div><div class="tablewrap"><table id="tFc"><thead></thead><tbody></tbody></table></div></div>
 </section>
-<footer>DEMO DATA only. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
+<section id="suggest">
+  <div class="sec-h"><h2>Product suggestions</h2><span class="badge-public" title="This section is real public Shopify catalog data, not the synthetic demo dataset used above.">PUBLIC CATALOG</span></div>
+  <div class="pub-banner" id="sugBanner">From public artist store catalogs, scraped Oct 27, 2026. Warner Records artist roster stores on Shopify. Not the synthetic demo dataset above.</div>
+  <div class="sug-bar">
+    <label>Search<input type="search" id="sugSearch" placeholder="Artist, format, or suggestion" autocomplete="off"></label>
+    <label>Artist<select id="sugArtist"></select></label>
+    <label>View<div class="seg" id="sugView"><button type="button" data-v="artist" class="on">Artist</button><button type="button" data-v="roster">Roster</button></div></label>
+    <label>Suggestion type<div class="seg sug-types" id="sugTypes"><button type="button" data-g="all" class="on">All</button><button type="button" data-g="missing_format">Missing formats</button><button type="button" data-g="merch">Merch to add</button><button type="button" data-g="pricing">Pricing gaps</button><button type="button" data-g="bundle">Bundles</button><button type="button" data-g="signed_color">Signed / colored</button><button type="button" data-g="trending">Trending items</button><button type="button" data-g="restock">Restock</button><button type="button" data-g="stale">Freshness</button></div></label>
+  </div>
+  <div id="sugArtistPane">
+    <div class="card" id="sugHead"></div>
+    <div class="kpis small" id="sugKpis"></div>
+    <div class="card"><div class="card-h"><h3>Format coverage vs roster</h3><span class="muted" id="sugFitNote">Green = this store lists it · bar length is roster adoption</span></div><div class="ch h440"><canvas id="cSugFit"></canvas></div></div>
+    <div id="sugGroups"></div>
+  </div>
+  <div id="sugRosterPane" class="hide">
+    <div class="kpis small" id="sugRosterKpis"></div>
+    <div class="grid g2">
+      <div class="card"><div class="card-h"><h3>Format adoption</h3><span class="muted">Share of roster stores that list the format</span></div><div class="ch h440"><canvas id="cSugAdopt"></canvas></div></div>
+      <div class="card"><div class="card-h"><h3>Median price by format</h3><span class="muted" id="sugPriceNote">USD stores only</span></div><div class="ch h300"><canvas id="cSugPrice"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-h"><h3>Formats added in the last 90 days</h3><span class="muted" id="sugTrendNote"></span></div><div class="ch h440"><canvas id="cSugTrend"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Recent additions</h3><label class="inline">Format<select id="sugRecentFmt"><option value="">All formats</option></select></label></div><div class="tablewrap"><table id="tSugRecent"><thead></thead><tbody></tbody></table></div></div>
+  </div>
+</section>
+<footer>DEMO DATA only. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. The Product suggestions section is separate: public artist store catalogs, scraped Oct 27, 2026. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
 </main>
 <div id="loading">Generating demo dataset…</div>
+<script>/*CATALOG*/</script>
 <script>/*DATAGEN*/</script>
 <script>/*APP*/</script>
 </body></html>

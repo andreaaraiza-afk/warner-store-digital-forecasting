@@ -16,6 +16,7 @@ This is an interactive single-page dashboard covering Shopify DTC plus **Amazon 
 - **Amazon section**: revenue by marketplace, units, Amazon fees (referral 15% media / 17% apparel, FBA per unit, $1.80 media closing fee), net proceeds, Sponsored ads spend, ROAS/ACoS/TACoS, FBA on-hand and top products.
 - Categories: Vinyl LPs, Colored & Limited Vinyl, Signed & Store Exclusives, CDs, Cassettes & 7" Singles, Box Sets & Deluxe, Apparel, Accessories & Posters, Bundles.
 - Seasonality: BFCM and the holiday season, Record Store Day (April, plus the RSD Black Friday drop in November), Prime Day / Prime Big Deal Days on Amazon, album release and pre-order spikes, an MCR tour lift and a viral sombr TikTok moment (Oct 2026).
+- **Product suggestions** (public catalog, not demo data): artist search and picker, suggestion cards with the reason and evidence, grouped into missing formats, merch types to add, pricing gaps, bundles, signed or colored vinyl, trending items, restock, and catalog freshness. The roster view charts format adoption, median USD prices, and formats added in the last 90 days, and links recent products to their store pages. Labeled "From public artist store catalogs, scraped Oct 27, 2026". The storefront, date, category, channel, and region filters apply to the synthetic sections only.
 
 ## Build
 From the repo root, with Node.js installed (no `npm install`; there are no dependencies beyond the vendored Chart.js):
@@ -24,16 +25,16 @@ From the repo root, with Node.js installed (no `npm install`; there are no depen
 node build.js
 ```
 
-That reads `src/` (`index.html`, `styles.css`, `datagen.js`, `app.js`) and `vendor/chart.umd.min.js`, then writes:
+That reads `src/` (`index.html`, `styles.css`, `datagen.js`, `app.js`), `vendor/chart.umd.min.js`, and `data/` (suggestions, the per-artist summary, and the full public product feed), then writes:
 
-- `dist/index.html` — single page with Chart.js, the generator and the app inlined
-- `dist/data.json` — daily aggregate export
+- `dist/index.html` — single page with Chart.js, the generator, a trimmed public catalog, and the app inlined
+- `dist/data.json` — daily aggregate export of the synthetic dataset
 - `dist/.nojekyll` — so a static host does not run Jekyll on the page
 
-The generator is deterministic (seed `20261027`, range ending 2026-10-27), so a rebuild reproduces the same dataset.
+The sales generator is deterministic (seed `20261027`, range ending 2026-10-27). The catalog trim keeps roster benchmarks, all 358 suggestions, and up to 12 newest products per artist from the last 90 days (with store URLs) instead of embedding the full product feed.
 
 ## GitHub Pages
-`.github/workflows/pages.yml` publishes the committed `dist/` folder to GitHub Pages on pushes to `main` (and on manual dispatch). This repository is private. GitHub Pages on a private repo needs a plan that includes it (GitHub Pro, Team, or Enterprise); on a free private repo the workflow will not produce a public site until Pages is enabled. Treat the workflow as optional and do not depend on it. Opening `dist/index.html` locally, or the DigitalOcean static site in `.do/app.yaml`, does not require Pages.
+`.github/workflows/pages.yml` publishes the committed `dist/` folder to GitHub Pages on pushes to `main` (and on manual dispatch). The live site is https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/ . This repository is private; Pages on a private repo needs a plan that includes it (GitHub Pro, Team, or Enterprise). That plan is enabled here, so a push to `main` redeploys the dashboard. Opening `dist/index.html` locally does not require Pages.
 
 ## DigitalOcean App Platform
 `.do/app.yaml` is a static site spec that serves `dist/` (`index_document: index.html`) from this repo's `main` branch.
