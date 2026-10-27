@@ -1,0 +1,8 @@
+# DigitalOcean App Platform static site. Serves dist/ from this repo.
+name: wr-store-dashboard
+region: sfo
+static_sites:
+  - name: dashboard
+    github: { repo: andreaaraiza-afk/warner-store-digital-forecasting, branch: main, deploy_on_push: true }
+    output_dir: dist
+    index_document: index.html

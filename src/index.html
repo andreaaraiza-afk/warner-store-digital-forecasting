@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warner Records Store · Performance Dashboard (Demo Data)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<script>/*CHARTJS*/</script>
+<style>/*CSS*/</style></head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
+  <nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a></nav>
+</header>
+<section class="filters">
+  <label class="store">Storefront<select id="fStore"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select></label>
+  <label>Date range<select id="fRange"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="qtd">Quarter to date</option><option value="ytd">Year to date</option><option value="365">Last 12 months</option><option value="bf">BFCM + RSD Black Friday 2025</option><option value="rsd">Record Store Day 2026 (Apr 13–26)</option><option value="custom">Custom…</option></select></label>
+  <label class="custom hide">From<input type="date" id="fFrom"></label><label class="custom hide">To<input type="date" id="fTo"></label>
+  <label>Category<select id="fCat"><option value="-1">All categories</option></select></label>
+  <label>Channel<select id="fChan"><option value="-1">All channels</option></select></label>
+  <label>Region<select id="fReg"><option value="-1">All regions</option></select></label>
+  <label>Compare to<select id="fCmp"><option value="prev">Previous period</option><option value="yoy">Same period last year</option></select></label>
+  <div class="rangeinfo" id="rangeInfo"></div>
+</section>
+<main>
+<div class="demo-banner">DEMO DATA · Synthetic dataset modeled on the Warner Records Store catalog (artists, formats, price points). Not real sales, ad, CRM or Amazon results.</div>
+<section id="insights" class="card insights"><div class="card-h"><h2>✦ Insights</h2><span class="muted">Auto-generated from the selected period & filters</span></div><ul id="insightList"></ul></section>
+<section id="overview"><div class="kpis" id="kpis"></div>
+  <div class="grid g2-1"><div class="card"><div class="card-h"><h3>Net revenue & orders</h3><span class="muted" id="trendNote"></span></div><div class="ch h300"><canvas id="cTrend"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Category mix</h3></div><div class="ch h300"><canvas id="cMix"></canvas></div></div></div>
+  <div class="grid g3"><div class="card"><div class="card-h"><h3>Revenue by storefront</h3></div><div class="ch h260"><canvas id="cStore"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Revenue by channel</h3></div><div class="ch h260"><canvas id="cChan"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Category growth vs comparison</h3></div><div class="ch h260"><canvas id="cCatGrowth"></canvas></div></div></div>
+</section>
+<section id="social"><div class="grid g1-2"><div class="card"><div class="card-h"><h3>Organic social by platform</h3><span class="muted" id="socNote"></span></div><div class="ch h260"><canvas id="cSoc"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Organic social revenue by platform & share of DTC</h3><span class="muted" title="Order's landing session referrer is instagram.com / l.instagram.com, tiktok.com, youtube.com, facebook.com / l.facebook.com or t.co / x.com, with no paid utm_medium (cpc, paid, paid_social), no ad click id tied to a campaign, and no affiliate / creator code or ref param.">ⓘ how it's defined</span></div><div class="ch h260"><canvas id="cSocTrend"></canvas></div></div></div>
+  <div class="grid g3"><div class="card"><div class="card-h"><h3>Revenue by region</h3></div><div class="ch h240"><canvas id="cReg"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>New vs returning customers</h3></div><div class="ch h240"><canvas id="cNew"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Conversion rate & sessions</h3></div><div class="ch h240"><canvas id="cCvr"></canvas></div></div></div>
+</section>
+<section id="products" class="card"><div class="card-h"><h2>Products</h2><span class="muted" id="prodNote"></span><div class="seg" id="prodSeg"><button data-v="best" class="on">Best sellers</button><button data-v="slow">Slow movers</button><button data-v="risk">Stock risk</button><button data-v="all">All</button></div></div>
+  <div class="tablewrap"><table id="tProd"><thead></thead><tbody></tbody></table></div></section>
+<section id="amazon"><div class="sec-h"><h2>Amazon storefronts</h2><span class="muted">Seller Central-style sales, fees (referral + FBA + closing) & Sponsored ads · reported in USD (synthetic)</span></div>
+  <div id="amzOff" class="card muted hide">Storefront filter is set to Shopify DTC. Switch to <b>All storefronts</b> or an <b>Amazon</b> marketplace to see Amazon sales, fees and ads.</div>
+  <div id="amzBody"><div class="kpis small" id="amzKpis"></div>
+  <div class="grid g2"><div class="card"><div class="card-h"><h3>Amazon revenue by marketplace & ad spend</h3></div><div class="ch h280"><canvas id="cAmzTrend"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Where Amazon revenue goes</h3><span class="muted">net proceeds vs fees</span></div><div class="ch h280"><canvas id="cAmzFees"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><h3>Top Amazon products</h3></div><div class="tablewrap"><table id="tAmz"><thead></thead><tbody></tbody></table></div></div></div>
+</section>
+<section id="media"><div class="sec-h"><h2>Paid media</h2><span class="muted" id="mediaNote">Platform-reported, last-click (synthetic)</span></div>
+  <div class="kpis small" id="mediaKpis"></div>
+  <div class="grid g2"><div class="card"><div class="card-h"><h3>Spend vs attributed revenue</h3></div><div class="ch h280"><canvas id="cMediaTrend"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>ROAS by campaign</h3><span class="muted">dashed line = 2.5x target</span></div><div class="ch h320"><canvas id="cRoas"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><h3>Campaign performance</h3><select id="fPlat"><option value="">All platforms</option><option>Google</option><option>Meta</option><option>TikTok</option><option>Amazon Ads</option></select></div><div class="tablewrap"><table id="tMedia"><thead></thead><tbody></tbody></table></div></div>
+</section>
+<section id="crm"><div class="sec-h"><h2>CRM · Email & SMS</h2><span class="muted" id="crmNote">Klaviyo-style campaigns & flows (synthetic)</span></div>
+  <div class="kpis small" id="crmKpis"></div>
+  <div class="grid g2"><div class="card"><div class="card-h"><h3>Flow performance</h3></div><div class="ch h280"><canvas id="cFlows"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>List growth</h3></div><div class="ch h280"><canvas id="cList"></canvas></div></div></div>
+  <div class="card"><div class="card-h"><h3>Campaigns in period</h3><div class="seg" id="crmSeg"><button data-v="" class="on">All</button><button data-v="email">Email</button><button data-v="sms">SMS</button></div></div><div class="tablewrap"><table id="tCrm"><thead></thead><tbody></tbody></table></div></div>
+</section>
+<section id="forecast"><div class="sec-h"><h2>Forecast · next 90 days</h2><span class="muted" id="fcMethod"></span></div>
+  <div class="kpis small" id="fcKpis"></div>
+  <div class="card"><div class="card-h"><h3>Daily net revenue: actual vs forecast</h3><span class="muted">bands: 80% / 95% prediction interval</span></div><div class="ch h320"><canvas id="cFc"></canvas></div></div>
+  <div class="card"><div class="card-h"><h3>Top products: 90-day unit forecast & stockout risk</h3></div><div class="tablewrap"><table id="tFc"><thead></thead><tbody></tbody></table></div></div>
+</section>
+<footer>DEMO DATA only. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
+</main>
+<div id="loading">Generating demo dataset…</div>
+<script>/*DATAGEN*/</script>
+<script>/*APP*/</script>
+</body></html>
