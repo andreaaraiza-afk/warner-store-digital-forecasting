@@ -4,15 +4,13 @@
   'use strict';
   var LS = 'wr-report-presets-v1';
   var SITE = 'https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/';
-  var HOSTED_AUDIO = SITE + 'wr-store-audio-summary.wav';
-  var GMAIL_LIMIT = 7500;
+  var RECAPS = {"placeholder":1};
   var SECTIONS = [
     { id: 'highlights', label: 'Highlights' },
     { id: 'channels', label: 'Channel performance' },
     { id: 'products', label: 'Products and artists' },
     { id: 'forecast', label: 'Forecast outlook' },
     { id: 'recommendations', label: 'Recommendations' },
-    { id: 'audio', label: 'Audio summary' },
     { id: 'method', label: 'How this report was built' },
     { id: 'notes', label: 'Custom notes' }
   ];
@@ -468,110 +466,142 @@
     return html;
   }
 
-  function words() { return window.WRTTS; }
-  function moneyWords(v) {
-    if (v == null || isNaN(v) || !words()) return 'an unknown amount';
+  function sayInt(n) {
+    n = Math.round(Math.abs(Number(n) || 0));
+    var small = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+    var tens = [null, null, 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    if (n < 20) return small[n];
+    if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? '-' + small[n % 10] : '');
+    if (n < 1000) return sayInt(Math.floor(n / 100)) + ' hundred' + (n % 100 ? ' ' + sayInt(n % 100) : '');
+    if (n < 1000000) return sayInt(Math.floor(n / 1000)) + ' thousand' + (n % 1000 ? ' ' + sayInt(n % 1000) : '');
+    return sayInt(Math.floor(n / 1000000)) + ' million' + (n % 1000000 ? ' ' + sayInt(n % 1000000) : '');
+  }
+  function sayDecimal(num) {
+    var s = (Math.round(Math.abs(Number(num)) * 10) / 10).toFixed(1).replace(/\.0$/, '');
+    var p = s.split('.');
+    var t = sayInt(+p[0]);
+    if (p[1]) t += ' point ' + ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'][+p[1]];
+    return t;
+  }
+  function sayYear(y) {
+    y = +y;
+    if (y >= 2000 && y < 2100) return 'twenty ' + sayInt(y - 2000);
+    return sayInt(y);
+  }
+  function sayMoney(v) {
+    if (v == null || isNaN(v)) return 'an unknown amount';
     var sign = v < 0 ? 'negative ' : '';
     var a = Math.abs(v);
-    if (a >= 1000000) return sign + words().sayDecimal(Math.round(a / 100000) / 10) + ' million dollars';
-    if (a >= 1000) return sign + words().sayInt(Math.round(a / 1000)) + ' thousand dollars';
-    return sign + words().sayInt(Math.round(a)) + ' dollars';
+    if (a >= 1000000) return sign + 'about ' + sayDecimal(a / 1000000) + ' million dollars';
+    if (a >= 1000) return sign + 'about ' + sayInt(Math.round(a / 1000)) + ' thousand dollars';
+    return sign + 'about ' + sayInt(Math.round(a)) + ' dollars';
   }
-  function countWords(n) {
+  function sayCount(n) {
     n = Math.abs(Math.round(n || 0));
-    if (n >= 1000000) return words().sayDecimal(Math.round(n / 100000) / 10) + ' million';
-    if (n >= 1000) return words().sayInt(Math.round(n / 1000)) + ' thousand';
-    return words().sayInt(n);
+    if (n >= 1000000) return 'about ' + sayDecimal(n / 1000000) + ' million';
+    if (n >= 1000) return 'about ' + sayInt(Math.round(n / 1000)) + ' thousand';
+    return sayInt(n);
   }
-  function moveWords(cur, base) {
+  function sayMove(cur, base) {
     if (base == null || !isFinite(base) || base === 0) return '';
     var p = api.pct(cur, base);
     if (p == null || !isFinite(p)) return '';
-    return (p >= 0 ? 'up ' : 'down ') + words().sayInt(Math.abs(Math.round(p * 100))) + ' percent';
+    var n = Math.abs(Math.round(p * 100));
+    if (n === 0) return 'about flat';
+    return (p >= 0 ? 'up about ' : 'down about ') + sayInt(n) + ' percent';
+  }
+  function spokenName(s) {
+    return String(s || '').replace(/&/g, 'and').replace(/[–—]/g, ' ').replace(/\s+/g, ' ').trim();
   }
   function shortName(s) {
-    var t = String(s || '').split(/[–—-]/)[0].replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    var t = spokenName(String(s || '').split(/[–—-]/)[0]);
     return t.split(' ').slice(0, 4).join(' ') || 'that campaign';
   }
   function dayWords(iso) {
     var p = parts(iso);
-    var special = { 1: 'first', 2: 'second', 3: 'third', 20: 'twentieth', 21: 'twenty first', 22: 'twenty second', 23: 'twenty third', 30: 'thirtieth', 31: 'thirty first' };
-    return MONTHS[p.m] + ' ' + (special[p.d] || words().sayInt(p.d)) + ', ' + words().sayYear(p.y);
+    var special = { 1: 'first', 2: 'second', 3: 'third', 20: 'twentieth', 21: 'twenty-first', 22: 'twenty-second', 23: 'twenty-third', 30: 'thirtieth', 31: 'thirty-first' };
+    return MONTHS[p.m] + ' ' + (special[p.d] || sayInt(p.d));
+  }
+  function spokenWhen(p) {
+    if (p.key === 'last-month') {
+      var bit = p.label.split(' ');
+      if (bit.length === 2 && !isNaN(+bit[1])) return bit[0] + ' ' + sayYear(+bit[1]);
+    }
+    return dayWords(p.start) + ' through ' + dayWords(p.end) + ', ' + sayYear(parts(p.end).y);
+  }
+  function spokenPlace(f) {
+    var store = storefrontShort(f.store);
+    var where = store === 'All' ? 'all storefronts' : store === 'Shopify' ? 'the Shopify store' : store === 'Amazon' ? 'Amazon, across the marketplaces' : store;
+    var chan = f.chan < 0 ? 'every channel' : 'just the ' + f.chanLabel + ' channel';
+    var cat = f.cat < 0 ? 'every category' : 'just ' + spokenName(f.catLabel);
+    return where + ', ' + chan + ', and ' + cat;
   }
   function podcastScript(m) {
     var h = m.highlights, ch = m.channels, f = m.filters, p = m.period;
     if (!h.orders) {
-      return ['Hi, this is the Warner Records Store audio summary for ' + dayWords(p.start) + ' through ' + dayWords(p.end) + '. Storefront ' + storefrontShort(f.store) + ', channel ' + (f.chan < 0 ? 'all' : f.chanLabel) + ', category ' + (f.cat < 0 ? 'all' : f.catLabel) + '. No orders matched this cut, so there is nothing to read out. Widen the period, or set channel and category back to all. That is the summary. Talk soon.'];
+      return ["Here's the Warner Records Store recap for " + spokenWhen(p) + ". We're looking at " + spokenPlace(f) + ". No orders matched, so there's nothing to read out. Widen the dates, or set the filters back to all."];
     }
     var paras = [];
-    paras.push('Hi, welcome back. This is the Warner Records Store audio summary. Today we are covering ' + dayWords(p.start) + ' through ' + dayWords(p.end) + '. Storefront, ' + storefrontShort(f.store) + '. Channel, ' + (f.chan < 0 ? 'all' : f.chanLabel) + '. Category, ' + (f.cat < 0 ? 'all' : f.catLabel) + '. Before the numbers: sales, ads, CRM, Amazon, and the forecast are demo data, not a live Shopify or Klaviyo account. Product ideas at the end come from public artist store catalogs.');
-    var hi = 'Here is where this window landed. Net revenue was ' + moneyWords(h.net) + ', on about ' + countWords(h.orders) + ' orders. Average order value was ' + moneyWords(h.aov) + '. ';
-    hi += h.cvr == null ? 'Conversion is hidden while a category filter is on. ' : 'Conversion was ' + words().sayDecimal(h.cvr * 100) + ' percent. ';
-    hi += 'About ' + words().sayInt(Math.round(h.newShare * 100)) + ' percent of orders were new customers. The return rate was ' + words().sayDecimal(h.retRate * 100) + ' percent of revenue. ';
-    if (h.prev) hi += 'Versus the previous period, revenue was ' + (moveWords(h.net, h.prev.net) || 'flat') + '. ';
-    if (h.yoy) hi += 'Versus last year, it was ' + (moveWords(h.net, h.yoy.net) || 'flat') + '. ';
+    paras.push("Here's the Warner Records Store recap for " + spokenWhen(p) + ". We're looking at " + spokenPlace(f) + ". These sales numbers are demo data, not the live store. The product ideas at the end come from public artist catalogs.");
+    var hi = 'Net revenue came in at ' + sayMoney(h.net) + ". That's " + sayCount(h.orders) + ' orders, and the average order was ' + sayMoney(h.aov) + '. ';
+    hi += h.cvr == null ? "Conversion isn't available with a category filter on. " : 'Conversion was ' + sayDecimal(h.cvr * 100) + ' percent. ';
+    hi += 'About ' + sayInt(Math.round(h.newShare * 100)) + ' percent of orders were from new customers. Returns took ' + sayDecimal(h.retRate * 100) + ' percent of revenue.';
     paras.push(hi);
-    var mv = '';
+    var comp = [];
+    if (h.prev) comp.push('Versus the previous period, revenue was ' + (sayMove(h.net, h.prev.net) || 'about flat') + '.');
+    if (h.yoy) comp.push('Versus last year, it was ' + (sayMove(h.net, h.yoy.net) || 'about flat') + '.');
+    if (comp.length) paras.push(comp.join(' '));
+    var mv = [];
     if (h.catMove && h.catMove.best) {
-      mv += 'The biggest category gain versus the previous period was ' + h.catMove.best.name + ', ' + moneyWords(h.catMove.best.delta) + '. ';
-      if (h.catMove.worst && h.catMove.worst.delta < 0) mv += 'The biggest drag was ' + h.catMove.worst.name + ', ' + moneyWords(h.catMove.worst.delta) + '. ';
+      var line = spokenName(h.catMove.best.name) + ' led the category gains';
+      if (h.catMove.worst && h.catMove.worst.delta < 0) line += ', and ' + spokenName(h.catMove.worst.name) + ' was the soft spot';
+      mv.push(line + '.');
     }
     if (h.chanMove && f.chan < 0 && h.chanMove.best) {
-      mv += 'On channels, the biggest gain was ' + h.chanMove.best.name + ', ' + moneyWords(h.chanMove.best.delta) + '. ';
-      if (h.chanMove.worst && h.chanMove.worst.delta < 0) mv += 'The softest channel was ' + h.chanMove.worst.name + ', ' + moneyWords(h.chanMove.worst.delta) + '. ';
+      var cl = spokenName(h.chanMove.best.name) + ' was the strongest channel move';
+      if (h.chanMove.worst && h.chanMove.worst.delta < 0) cl += '. ' + spokenName(h.chanMove.worst.name) + ' was the softest';
+      mv.push(cl + '.');
     }
-    if (mv) paras.push(mv);
-    var search = findChan(ch.rows, 'Organic Search'), aff = findChan(ch.rows, 'Affiliate & Referral'), direct = findChan(ch.rows, 'Direct');
-    var owned = 'Looking across the mix. Organic search contributed ' + moneyWords(search.rev) + (moveWords(search.rev, search.prev) ? ', ' + moveWords(search.rev, search.prev) + ' versus the previous period' : '') + '. Affiliate and referral contributed ' + moneyWords(aff.rev) + '. Direct was ' + moneyWords(direct.rev) + '. ';
-    if (!f.dtc || (f.chan >= 0 && f.chan !== 1)) owned += 'Organic social is outside this cut. ';
-    else owned += 'Organic social, the referrer with no paid tag, was ' + moneyWords(ch.socNet) + ', led by ' + (ch.social[0] ? ch.social[0].name : 'one platform') + ' at ' + moneyWords(ch.social[0] ? ch.social[0].rev : 0) + '. ';
+    if (mv.length) paras.push(mv.join(' '));
+    var search = findChan(ch.rows, 'Organic Search');
+    var owned = 'Organic search brought in ' + sayMoney(search.rev) + '. ';
+    if (!f.dtc || (f.chan >= 0 && f.chan !== 1)) owned += "Organic social isn't in this cut.";
+    else owned += 'Organic social was led by ' + (ch.social[0] ? ch.social[0].name : 'one platform') + ', at ' + sayMoney(ch.social[0] ? ch.social[0].rev : 0) + '.';
     paras.push(owned);
     var paid = ch.paid.media, shift = ch.paid.shift;
-    var paidP = 'Paid media spent ' + moneyWords(paid.spend) + ' and attributed ' + moneyWords(paid.rev) + '. Return on ad spend was ' + (paid.roas ? words().sayDecimal(Math.round(paid.roas * 10) / 10) + ' times' : 'not available') + ', and new customer cost was ' + moneyWords(paid.cac) + '. ';
-    if (ch.paid.best && ch.paid.worst) paidP += 'Strongest campaign: ' + ch.paid.best.platform + ' ' + shortName(ch.paid.best.name) + ', at ' + words().sayDecimal(Math.round(ch.paid.best.roas * 10) / 10) + ' times. Weakest: ' + ch.paid.worst.platform + ' ' + shortName(ch.paid.worst.name) + ', at ' + words().sayDecimal(Math.round(ch.paid.worst.roas * 10) / 10) + ' times. ';
-    if (shift) paidP += 'A useful shift is about half of ' + shortName(shift.from.name) + ' toward ' + shortName(shift.to.name) + ', roughly ' + moneyWords(shift.gain) + ' if the stronger campaign keeps most of its return. ';
+    var paidP = 'Paid media spent ' + sayMoney(paid.spend) + ' and returned ' + (paid.roas ? 'about ' + sayDecimal(paid.roas) + ' times that' : 'an unclear multiple') + '. ';
+    if (ch.paid.best && ch.paid.worst) paidP += ch.paid.best.platform + ' ' + shortName(ch.paid.best.name) + ' was the strongest campaign. ' + ch.paid.worst.platform + ' ' + shortName(ch.paid.worst.name) + ' was the weakest. ';
+    if (shift) paidP += "I'd test moving about half of that weak spend toward " + shortName(shift.to.name) + '.';
     paras.push(paidP);
     var cr = ch.crm.cur;
-    var crmMove = moveWords(cr.rev, ch.crm.prev && ch.crm.prev.rev);
-    var crmP = 'CRM, the Shopify email and SMS program' + (f.dtc ? '' : ', even on an Amazon filter') + ', brought in ' + moneyWords(cr.rev) + (crmMove ? ', ' + crmMove + ' versus the previous period' : '') + '. Flows were ' + words().sayInt(Math.round(cr.flowRev / (cr.rev || 1) * 100)) + ' percent of that. ';
-    if (!f.amzOn) crmP += 'Amazon is excluded on this Shopify cut. ';
+    var crmMove = sayMove(cr.rev, ch.crm.prev && ch.crm.prev.rev);
+    var crmP = 'Email and text brought in ' + sayMoney(cr.rev) + (crmMove ? ', ' + crmMove + ' from the previous period' : '') + '. ';
+    if (!f.amzOn) crmP += "Amazon isn't in this Shopify cut.";
     else {
-      crmP += 'Amazon net revenue was ' + moneyWords(ch.amazon.rev) + ', with fees of ' + moneyWords(ch.amazon.fee) + '. ';
+      crmP += 'Amazon added ' + sayMoney(ch.amazon.rev) + ', and fees took ' + sayMoney(ch.amazon.fee) + '. ';
       if (ch.amazon.markets && ch.amazon.markets.length) {
         var mk = ch.amazon.markets.slice().sort(function (a, b) { return b.rev - a.rev; })[0];
-        if (mk && mk.rev) crmP += mk.name + ' led, at ' + moneyWords(mk.rev) + (mk.acos != null ? ', advertising cost of sale ' + words().sayInt(Math.round(mk.acos * 100)) + ' percent' : '') + '. ';
+        if (mk && mk.rev) crmP += spokenName(mk.name) + ' led the marketplaces.';
       }
     }
     paras.push(crmP);
     var pr = m.products;
-    var prod = 'On the product side, ';
-    if (pr.best[0]) prod += 'the top seller was ' + pr.best[0].title + ' by ' + pr.best[0].artist + ', at ' + moneyWords(pr.best[0].rev) + '. ';
-    if (pr.artists[0]) prod += 'The top artist was ' + pr.artists[0].artist + '. ';
-    if (pr.risk[0]) prod += 'Watch stock on ' + pr.risk[0].title + ', about ' + countWords(pr.risk[0].days) + ' days out. ';
-    if (pr.slow[0]) prod += pr.slow[0].title + ' is a slow mover, with about ' + countWords(pr.slow[0].cover) + ' days of cover. ';
-    paras.push(prod);
+    var prod = '';
+    if (pr.best[0]) prod += 'The top seller was ' + spokenName(pr.best[0].title) + ' by ' + pr.best[0].artist + '. ';
+    if (pr.artists[0] && (!pr.best[0] || pr.artists[0].artist !== pr.best[0].artist)) prod += pr.artists[0].artist + ' was the top artist. ';
+    if (pr.risk[0]) prod += 'Watch stock on ' + spokenName(pr.risk[0].title) + ". It's close to selling out.";
+    if (prod) paras.push(prod.trim());
     var fc = m.forecast.fc;
-    paras.push('The ninety day forecast for ' + storefrontShort(f.store) + ' is ' + moneyWords(fc.tot) + ' of net revenue. That is ' + (moveWords(fc.tot, fc.ly) || 'flat') + ' versus the same ninety days last year, and the peak day is ' + dayWords(D().iso(fc.peak.d)) + ' at ' + moneyWords(fc.peak.f) + '. ' + (m.forecast.channelNote ? 'That forecast follows the storefront only. Category and channel do not change the ninety day total. ' : ''));
+    var peak = api.peakLabel(fc.peak.d);
+    paras.push('The next ninety days are forecast at ' + sayMoney(fc.tot) + '. ' + (peak ? 'The peak lines up with ' + peak + '.' : 'The peak day is ' + dayWords(D().iso(fc.peak.d)) + '.'));
     var rec = m.recommendations;
-    var recP = 'A few things I would put on the list. ';
-    if (rec.artists[0] && rec.artists[0].items[0]) recP += rec.artists[0].artist + ' already sells here. The public catalog says: ' + rec.artists[0].items[0].text + '. ';
-    else if (rec.gaps[0]) recP += 'A common public catalog gap is ' + rec.gaps[0].text + '. ';
-    var focusSearch = findChan(ch.rows, 'Organic Search');
-    recP += 'For paid, keep budget near the higher return campaigns' + (shift ? ', including that shift we just covered' : '') + '. ';
-    recP += 'For CRM, the next test belongs on the strongest flow. ';
-    recP += 'For search, organic was ' + moneyWords(focusSearch.rev) + '. Publish street date pages while stock is healthy. ';
-    if (f.dtc && !(f.chan >= 0 && f.chan !== 1) && ch.social[0]) recP += 'For organic social, put the next sprint on ' + ch.social[0].name + '. ';
+    var recP = '';
+    if (rec.artists[0] && rec.artists[0].items[0]) recP += 'On the public catalogs, ' + rec.artists[0].artist + ' is a good place to start. ' + rec.artists[0].items[0].text + ' ';
+    else if (rec.gaps[0]) recP += 'A common gap on the public artist stores: ' + rec.gaps[0].text + ' ';
+    if (f.dtc && !(f.chan >= 0 && f.chan !== 1) && ch.social[0]) recP += "For social, I'd put the next sprint on " + ch.social[0].name + '. ';
+    recP += "That's the recap. The tables are in the email if you want every row.";
     paras.push(recP);
-    paras.push('That is the readout. The tables are in the report if you want every row, and the whole thing is still demo data except the public catalog suggestions. Thanks for listening. Talk soon.');
     return paras;
-  }
-  function secAudio(m) {
-    var paras = podcastScript(m);
-    var body = paras.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
-    return '<section class="r-sec" data-sec="audio"><h2>Audio summary <span class="r-badge r-badge-demo">DEMO DATA</span></h2>' +
-      '<p class="r-kicker">A two to four minute host script from this report. Play uses your browser voice. Download builds a WAV in the page, with no upload and no API key. The email button opens a Gmail draft and does not send it.</p>' +
-      '<div class="r-audio-actions no-print"><button type="button" data-audio="toggle">Play audio</button><button type="button" data-audio="wav">Download audio</button></div>' +
-      slot('audio.script', body) + '</section>';
   }
 
   function secMethod(m) {
@@ -580,7 +610,7 @@
     text += p.prev ? 'The previous period is the equal-length window immediately before (' + esc(p.prev.start) + ' to ' + esc(p.prev.end) + (p.prev.partial ? ', shortened because the dataset starts ' + esc(D().meta.start) : '') + '). ' : 'No previous period is available inside the dataset. ';
     text += p.yoy ? 'Last year is the same calendar dates one year earlier (' + esc(p.yoy.start) + ' to ' + esc(p.yoy.end) + '). ' : 'Last year falls outside the dataset, so year-ago comparisons are omitted. ';
     text += 'Order metrics use those filters. Paid media is platform-reported last click for the storefront. CRM is Klaviyo-style and covers Shopify DTC only. The 90-day forecast is seasonal-naive (same weekday last year times trailing 8-week growth) and uses the storefront only. ';
-    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. The audio summary is a spoken script of these same figures. Play uses the browser speech API. Download audio builds a WAV on this device. The hosted file linked from the audio email is the default last full month, all storefronts, all channels, and all categories. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data. Email buttons open a Gmail draft in a new tab and never send it.</p>';
+    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. Open email draft copies this layout to the clipboard and opens a Gmail compose tab. It does not send anything. The listen link in that draft plays a Kokoro voice recap hosted with the dashboard, pre-rendered for last full month at all channels for all storefronts, Shopify, or Amazon. Other filters use the closest of those three, and the draft says so. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data.</p>';
     return '<section class="r-sec" data-sec="method"><h2>How this report was built</h2>' + slot('method.body', text) + '</section>';
   }
 
@@ -590,8 +620,9 @@
   }
 
   function renderHtml(m) {
-    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, recommendations: secRecs, audio: secAudio, method: secMethod, notes: secNotes };
+    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, recommendations: secRecs, method: secMethod, notes: secNotes };
     var partsHtml = state.order.map(function (id) {
+      if (!map[id]) return '';
       var chunk = map[id](m);
       if (!state.on[id]) chunk = chunk.replace('class="r-sec"', 'class="r-sec hide"');
       return chunk;
@@ -654,16 +685,13 @@
     catch (err) { window.__WR_REPORT_ERROR = err; $('rStatus').textContent = 'Could not build the report. ' + err.message; return null; }
     window.__WR_REPORT_ERROR = null;
     state.last = model;
-    stopSpeech();
     if (state.chart) { try { state.chart.destroy(); } catch (e1) { /* chart already gone */ } state.chart = null; }
     $('reportDoc').innerHTML = renderHtml(model);
     try { paintReportChart(model); } catch (eChart) { /* chart is optional */ }
     var kept = Object.keys(state.edits).length;
     $('rStatus').textContent = 'Built ' + model.period.label + ' · ' + model.filters.storeLabel + ' · ' + model.highlights.orders + ' orders' + (kept && state.keepEdits ? ' · ' + kept + ' edited block' + (kept === 1 ? '' : 's') + ' kept' : '') + '.';
-    var mail = gmailLink(reportSubject(model), plainReport());
-    $('rMail').href = mail.url;
-    var audioMail = gmailLink(audioSubject(model), audioBody(model));
-    $('rMailAudio').href = audioMail.url;
+    $('rMail').href = gmailComposeUrl(model);
+    if ($('rPasteHint')) $('rPasteHint').classList.add('hide');
     return model;
   }
 
@@ -727,38 +755,61 @@
     return text + '\n';
   }
   function reportSubject(m) { return 'Warner Records Store analysis · ' + rangePhrase(m.period.start, m.period.end) + ' (DEMO DATA)'; }
-  function audioSubject(m) { return 'WR Store Audio Summary – ' + rangePhrase(m.period.start, m.period.end); }
-  function audioBody(m) {
-    var script = scriptPlain();
-    var bits = script.split(/\n+/).filter(Boolean).slice(0, 4).join('\n\n');
-    return headerLine(m) + '\n\nPerformance Analysis\n\nAudio summary (DEMO DATA). Nothing is sent until you send it.\n\n' + bits + '\n\nListen: ' + HOSTED_AUDIO + '\n\nThat file is the default last full month, all storefronts, all channels, and all categories, hosted with the dashboard. If this draft uses a different period or filter, attach the WAV from Download audio. A Gmail compose link cannot attach a file.\n\nDashboard: ' + SITE + '\n';
+  function gmailComposeUrl(m) {
+    return 'https://mail.google.com/mail/?view=cm&fs=1&su=' + encodeURIComponent(reportSubject(m));
   }
-  function gmailLink(subject, body) {
-    var base = 'https://mail.google.com/mail/?view=cm&fs=1&su=' + encodeURIComponent(subject) + '&body=';
-    var note = '\n\n[Draft shortened to fit the Gmail compose link. The full formatted report was copied to the clipboard. Paste it into this draft. Dashboard: ' + SITE + ']';
-    var url = base + encodeURIComponent(body);
-    var truncated = false;
-    if (url.length > GMAIL_LIMIT) {
-      truncated = true;
-      var b = body;
-      while (b.length > 80 && (base + encodeURIComponent(b + note)).length > GMAIL_LIMIT) b = b.slice(0, Math.floor(b.length * 0.8));
-      var cut = b.lastIndexOf('\n');
-      if (cut > 80) b = b.slice(0, cut);
-      url = base + encodeURIComponent(b + note);
-    }
-    return { url: url, truncated: truncated };
+  function fmtClock(sec) {
+    sec = Math.max(0, Math.round(sec || 0));
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
   }
-  function openGmail(kind) {
-    if (!state.last) return;
+  function recapFor(m) {
+    var store = m.filters.store;
+    var bucket = store === 0 ? 'shopify' : (store === -1 ? 'all' : 'amazon');
+    var id = 'lm-' + bucket + '-all';
+    var rec = (RECAPS && RECAPS[id] && !RECAPS[id].placeholder) ? RECAPS[id] : (RECAPS && RECAPS['lm-all-all']) || { id: id, header: headerLine(m), duration: 0, file: 'audio/' + id + '.mp3' };
+    var exact = m.period.key === 'last-month' && m.filters.chan < 0 && m.filters.cat < 0 && (store === -1 || store === 0 || store === 10);
+    var label = bucket === 'shopify' ? 'Shopify' : bucket === 'amazon' ? 'Amazon' : 'All';
+    var note = exact ? '' : 'This listen link is the closest pre-recorded recap: last full month, storefront ' + label + ', all channels and all categories. Your draft uses a different period or filter, so a few spoken lines will not match the tables.';
+    return { id: rec.id || id, header: rec.header || headerLine(m), duration: rec.duration || 0, file: rec.file || ('audio/' + id + '.mp3'), exact: exact, note: note, url: SITE + 'recap.html?id=' + encodeURIComponent(rec.id || id) };
+  }
+  function listenBlock(rec) {
+    var dur = rec.duration ? ' · ' + fmtClock(rec.duration) : '';
+    var icon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAUUlEQVR42u3WwQkAIAxD0e6/dPTiUahYDZq8CT4FbSPMLAkdPWCgB1AiMEEPuBaBBHrA0QgsogeUR2ADPaAk4skJaL4CzZ9QcxtqXkS+jO1LDZC0vV+0EbYyAAAAAElFTkSuQmCC';
+    return '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:14px 0 16px;"><tr><td bgcolor="#16150f" style="border-radius:8px;background:#16150f;">' +
+      '<a href="' + esc(rec.url) + '" style="display:inline-block;padding:12px 18px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;line-height:1.2;">' +
+      '<img src="' + esc(icon) + '" width="16" height="16" alt="" style="vertical-align:middle;border:0;margin-right:8px;width:16px;height:16px;">Listen to the audio recap' + esc(dur) + '</a></td></tr></table>' +
+      (rec.note ? '<p style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.45;color:#5e5a52;margin:0 0 14px;">' + esc(rec.note) + '</p>' : '');
+  }
+  function emailHtml() {
+    if (!state.last) return '';
     captureEdits();
-    var link = kind === 'audio' ? gmailLink(audioSubject(state.last), audioBody(state.last)) : gmailLink(reportSubject(state.last), plainReport());
-    var el = $(kind === 'audio' ? 'rMailAudio' : 'rMail');
-    el.href = link.url;
-    if (link.truncated) {
-      copyRich(true);
-      $('rStatus').textContent = 'Opened a Gmail draft. The full formatted report is on the clipboard — paste it in. Nothing is sent until you send it.';
-    } else $('rStatus').textContent = 'Opened a Gmail draft in a new tab. Nothing is sent until you send it.';
-    window.open(link.url, '_blank', 'noopener,noreferrer');
+    var clone = $('reportDoc').cloneNode(true);
+    Array.prototype.forEach.call(clone.querySelectorAll('.hide,.no-print'), function (el) { el.remove(); });
+    Array.prototype.forEach.call(clone.querySelectorAll('[contenteditable]'), function (el) { el.removeAttribute('contenteditable'); });
+    withChartImages(clone);
+    inlineStyles(clone);
+    var slot = document.createElement('div');
+    slot.innerHTML = listenBlock(recapFor(state.last));
+    var h1 = clone.querySelector('h1');
+    var flags = clone.querySelector('.r-flags');
+    var anchor = flags || h1;
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(slot, anchor.nextSibling);
+    else clone.insertBefore(slot, clone.firstChild);
+    return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f4ee;margin:0;padding:0;"><tr><td align="center" style="padding:20px 12px;">' +
+      '<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px;max-width:640px;background:#f7f4ee;"><tr><td style="padding:4px 8px 20px;font-family:Georgia,Times New Roman,serif;color:#1c1b18;">' +
+      clone.innerHTML + '</td></tr></table></td></tr></table>';
+  }
+  function openGmail() {
+    if (!state.last) return;
+    var html = emailHtml();
+    var plain = plainReport() + '\nListen: ' + recapFor(state.last).url + '\n';
+    copyHtml(html, plain, true);
+    var url = gmailComposeUrl(state.last);
+    $('rMail').href = url;
+    if ($('rPasteHint')) $('rPasteHint').classList.remove('hide');
+    $('rStatus').textContent = 'Gmail is open. Click the message body and press Cmd+V or Ctrl+V. Nothing is sent until you send it.';
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
   function download(name, mime, data) {
     var blob = data instanceof Blob ? data : new Blob([data], { type: mime });
@@ -816,20 +867,7 @@
     var css = 'body{font:15px/1.5 Georgia,serif;color:#1c1b18;background:#fff;max-width:820px;margin:32px auto;padding:0 20px}';
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>' + esc(title) + '</title><style>' + css + '</style></head><body>' + fragmentHtml() + '</body></html>';
   }
-  function scriptPlain() {
-    var el = document.querySelector('#reportDoc [data-block="audio.script"]');
-    if (el) {
-      var t = '';
-      try { t = el.innerText || ''; } catch (e4) { t = ''; }
-      if (!String(t).trim()) t = el.textContent || '';
-      t = String(t).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-      if (t) return t;
-    }
-    return state.last ? podcastScript(state.last).join('\n\n') : '';
-  }
-  function copyRich(silent) {
-    var html = fragmentHtml();
-    var plain = plainReport();
+  function copyHtml(html, plain, silent) {
     var done = function (how) { if (!silent) $('rStatus').textContent = 'Copied the formatted report' + (how ? ' (' + how + ')' : '') + '.'; };
     function fallback() {
       var holder = document.createElement('div');
@@ -858,71 +896,13 @@
     }
     fallback();
   }
-  function setPlayLabel(playing) {
-    var t = playing ? 'Pause audio' : 'Play audio';
-    if ($('rPlay')) $('rPlay').textContent = t;
-    var inline = document.querySelector('#reportDoc [data-audio="toggle"]');
-    if (inline) inline.textContent = t;
-  }
-  function stopSpeech() {
-    if (state && state.speechTimer) { clearInterval(state.speechTimer); state.speechTimer = null; }
-    if (window.speechSynthesis) speechSynthesis.cancel();
-    setPlayLabel(false);
-  }
-  function toggleSpeech() {
-    if (!window.speechSynthesis) { $('rStatus').textContent = 'This browser has no speech synthesis. Download the WAV instead.'; return; }
-    if (speechSynthesis.speaking && !speechSynthesis.paused) {
-      speechSynthesis.pause();
-      setPlayLabel(false);
-      $('rStatus').textContent = 'Paused. Press Play audio to resume.';
-      return;
-    }
-    if (speechSynthesis.paused) {
-      speechSynthesis.resume();
-      setPlayLabel(true);
-      $('rStatus').textContent = 'Playing the audio summary.';
-      return;
-    }
-    var text = scriptPlain();
-    if (!text) { $('rStatus').textContent = 'There is no script to read yet.'; return; }
-    var u = new SpeechSynthesisUtterance(text);
-    u.rate = 1;
-    var voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
-    var en = null;
-    voices.forEach(function (v) { if (!en && /^en/i.test(v.lang)) en = v; });
-    if (en) u.voice = en;
-    u.onend = function () { if (state.speechTimer) { clearInterval(state.speechTimer); state.speechTimer = null; } setPlayLabel(false); };
-    u.onerror = function () { setPlayLabel(false); $('rStatus').textContent = 'The browser voice stopped. Download the WAV to keep a file.'; };
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-    setPlayLabel(true);
-    if (state.speechTimer) clearInterval(state.speechTimer);
-    state.speechTimer = setInterval(function () {
-      if (!speechSynthesis.speaking) { clearInterval(state.speechTimer); state.speechTimer = null; setPlayLabel(false); return; }
-      if (speechSynthesis.paused) return;
-      speechSynthesis.pause();
-      speechSynthesis.resume();
-    }, 10000);
-    $('rStatus').textContent = 'Playing the audio summary in the browser voice.';
-  }
-  function downloadAudio() {
-    if (!window.WRTTS) { $('rStatus').textContent = 'The audio engine did not load.'; return; }
-    $('rStatus').textContent = 'Building the WAV in this browser…';
-    setTimeout(function () {
-      try {
-        var bytes = window.WRTTS.wav(scriptPlain());
-        download(fileSlug() + '.wav', 'audio/wav', new Blob([bytes], { type: 'audio/wav' }));
-        $('rStatus').textContent = 'Downloaded a WAV of this script. It was built in the browser, with no upload.';
-      } catch (err) { $('rStatus').textContent = 'Could not build the audio file. ' + err.message; }
-    }, 30);
-  }
   function fileSlug() {
     var p = state.last ? state.last.period : null;
     return 'wr-store-report-' + (p ? p.start + '_' + p.end : 'draft');
   }
 
   function paintSections() {
-    $('rSectionList').innerHTML = state.order.map(function (id) {
+    $('rSectionList').innerHTML = state.order.filter(function (id) { return SECTIONS.some(function (s) { return s.id === id; }); }).map(function (id) {
       var label = SECTIONS.filter(function (s) { return s.id === id; })[0].label;
       return '<div class="sec-row" data-id="' + id + '"><button type="button" data-move="-1" aria-label="Move ' + esc(label) + ' up">↑</button><button type="button" data-move="1" aria-label="Move ' + esc(label) + ' down">↓</button><label class="check"><input type="checkbox" data-on="' + id + '"' + (state.on[id] ? ' checked' : '') + '> ' + esc(label) + '</label></div>';
     }).join('');
@@ -962,6 +942,7 @@
     state.period = p.period; state.from = p.from; state.to = p.to; state.store = p.store; state.chan = p.chan; state.cat = p.cat;
     state.tone = p.tone; state.topN = p.topN; state.keepEdits = p.keepEdits !== false;
     state.order = (p.order && p.order.length) ? p.order.slice() : SECTIONS.map(function (s) { return s.id; });
+    state.order = state.order.filter(function (id) { return SECTIONS.some(function (s) { return s.id === id; }); });
     state.on = Object.assign({}, p.on || {});
     SECTIONS.forEach(function (s) {
       if (state.order.indexOf(s.id) < 0) state.order.push(s.id);
@@ -991,16 +972,9 @@
     $('rPdf').addEventListener('click', function () { window.print(); });
     $('rHtml').addEventListener('click', function () { download(fileSlug() + '.html', 'text/html', exportHtml()); });
     $('rMd').addEventListener('click', function () { download(fileSlug() + '.md', 'text/markdown', toMarkdown()); });
-    $('rCopy').addEventListener('click', function () { copyRich(false); });
-    $('rMail').addEventListener('click', function (e) { e.preventDefault(); openGmail('report'); });
-    $('rMailAudio').addEventListener('click', function (e) { e.preventDefault(); openGmail('audio'); });
-    $('rPlay').addEventListener('click', toggleSpeech);
-    $('rWav').addEventListener('click', downloadAudio);
-    $('reportDoc').addEventListener('click', function (e) {
-      var act = e.target.getAttribute && e.target.getAttribute('data-audio');
-      if (act === 'toggle') toggleSpeech();
-      else if (act === 'wav') downloadAudio();
-    });
+    $('rCopy').addEventListener('click', function () { copyHtml(fragmentHtml(), plainReport(), false); });
+    $('rMail').addEventListener('click', function (e) { e.preventDefault(); openGmail(); });
+    if ($('rPasteClose')) $('rPasteClose').addEventListener('click', function () { $('rPasteHint').classList.add('hide'); });
     $('rSectionList').addEventListener('click', function (e) {
       var row = e.target.closest('.sec-row'); if (!row) return;
       var id = row.getAttribute('data-id');
@@ -1078,7 +1052,6 @@
   }
   function closeReport() {
     captureEdits();
-    stopSpeech();
     $('reportOverlay').classList.add('hide');
     document.body.classList.remove('report-open');
   }
@@ -1099,12 +1072,12 @@
       markdown: toMarkdown,
       html: exportHtml,
       fragment: fragmentHtml,
+      email: emailHtml,
       plain: plainReport,
-      header: function (o) { return headerLine(o || state.last); },
-      script: function (o) { return o ? podcastScript(o).join('\n\n') : scriptPlain(); },
-      gmail: gmailLink,
+      header: function (o) { return headerLine(o && o.highlights ? o : (o ? buildModel(o) : state.last)); },
+      script: function (o) { var model = o && o.highlights ? o : buildModel(o || opts()); return podcastScript(model).join('\n\n'); },
+      recap: function (o) { var model = o && o.highlights ? o : (o ? buildModel(o) : state.last); return model ? recapFor(model) : null; },
       mail: function () { return $('rMail').getAttribute('href') || ''; },
-      audioMail: function () { return $('rMailAudio').getAttribute('href') || ''; },
       state: function () { return state; }
     };
   };

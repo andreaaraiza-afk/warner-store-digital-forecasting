@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warner Records Store · Audio recap</title>
+<style>
+:root{--bg:#0b0b0f;--panel:#14141b;--line:#262632;--txt:#ececf1;--mut:#8d8da0;--acc:#f5c542;--paper:#f7f4ee;--ink:#1c1b18}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 480px at 80% -10%,#2a1a10 0,transparent 55%),var(--bg);color:var(--txt);font:16px/1.45 Inter,system-ui,sans-serif}
+a{color:var(--acc)}
+header{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--acc),#e8453c);display:grid;place-items:center;font:800 18px Georgia,serif;color:#111}
+header h1{margin:0;font:700 16px Georgia,serif}
+header p{margin:2px 0 0;color:var(--mut);font-size:12px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+.paper{background:var(--paper);color:var(--ink);border-radius:16px;padding:22px 22px 18px}
+.meta{margin:0 0 8px;font:700 14px Georgia,serif;color:#3a342c}
+.paper h2{margin:0 0 8px;font:700 28px Georgia,serif}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 8px;border-radius:999px;background:#fff6d8;color:#8a6a00;border:1px solid #e6d48a}
+.note{color:#5e5a52;font-size:13px;margin:10px 0 0}
+.player{margin-top:16px;background:#fff;border:1px solid #e4dfd4;border-radius:14px;padding:14px}
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:600 14px Inter,system-ui,sans-serif;border-radius:10px;border:1px solid #e4dfd4;background:#fff;color:#16150f;padding:10px 14px;cursor:pointer}
+button.primary{background:#16150f;color:#fff;border-color:#16150f;min-width:92px}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.scrub{display:flex;align-items:center;gap:10px;margin-top:12px}
+input[type=range]{flex:1;height:28px;accent-color:#c8962e}
+.time{font-variant-numeric:tabular-nums;font-size:13px;color:#5e5a52;min-width:92px;text-align:right}
+.speeds{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.speeds button{padding:6px 10px;font-size:13px}
+.speeds button.on{background:#16150f;color:#fff;border-color:#16150f}
+.keys{margin:8px 0 0;color:#6d6a62;font-size:12px}
+.transcript{margin-top:18px}
+.transcript h3{margin:0 0 8px;font:700 16px Georgia,serif}
+.transcript p{margin:0 0 10px}
+.back{display:inline-block;margin-top:16px;font-size:14px}
+@media(max-width:640px){
+  .paper{padding:16px 14px}
+  .paper h2{font-size:24px}
+  button{padding:12px 14px}
+  .time{min-width:84px}
+}
+</style></head>
+<body>
+<header><div class="logo">W</div><div><h1>Warner Records Store</h1><p>Audio recap · DEMO DATA</p></div></header>
+<main>
+  <article class="paper">
+    <p class="meta" id="meta">Loading recap…</p>
+    <h2>Performance Analysis</h2>
+    <span class="badge">DEMO DATA</span>
+    <p class="note" id="voiceNote"></p>
+    <div class="player">
+      <audio id="audio" preload="metadata" playsinline></audio>
+      <div class="transport">
+        <button type="button" id="back" aria-label="Rewind 15 seconds">−15s</button>
+        <button type="button" id="play" class="primary" aria-label="Play">Play</button>
+        <button type="button" id="fwd" aria-label="Forward 15 seconds">+15s</button>
+      </div>
+      <div class="scrub">
+        <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Playback position">
+        <span class="time"><span id="elapsed">0:00</span> / <span id="total">0:00</span></span>
+      </div>
+      <div class="speeds" role="group" aria-label="Playback speed">
+        <button type="button" data-speed="0.75">0.75×</button>
+        <button type="button" data-speed="1" class="on">1×</button>
+        <button type="button" data-speed="1.25">1.25×</button>
+        <button type="button" data-speed="1.5">1.5×</button>
+        <button type="button" data-speed="2">2×</button>
+      </div>
+      <p class="keys">Space plays or pauses. Left and right arrows jump 15 seconds.</p>
+    </div>
+    <section class="transcript"><h3>Transcript</h3><div id="transcript"></div></section>
+  </article>
+  <a class="back" id="dash" href="./">Back to the dashboard</a>
+</main>
+<script>
+(function () {
+  var RECAPS = {"lm-all-all":{"id":"lm-all-all","header":"Warner Records Store · Storefront: All · Channel: All · Category: All · Sep 1 – Sep 30, 2026","transcript":"Here's the Warner Records Store recap for September twenty twenty-six. We're looking at all storefronts, every channel, and every category. These sales numbers are demo data, not the live store. The product ideas at the end come from public artist catalogs.\n\nNet revenue came in at about one point three million dollars. That's about twenty-seven thousand orders, and the average order was about forty-eight dollars. Conversion was two point nine percent. About fifty-four percent of orders were from new customers. Returns took three point one percent of revenue.\n\nVersus the previous period, revenue was up about ten percent. Versus last year, it was up about twenty-one percent.\n\nSigned and Store Exclusives led the category gains, and Box Sets and Deluxe was the soft spot. Organic Social was the strongest channel move. SMS was the softest.\n\nOrganic search brought in about one hundred forty-four thousand dollars. Organic social was led by TikTok, at about fifty-eight thousand dollars.\n\nPaid media spent about one hundred ninety thousand dollars and returned about three point six times that. Google Brand Search was the strongest campaign. TikTok TopView was the weakest. I'd test moving about half of that weak spend toward Retargeting.\n\nEmail and text brought in about five hundred thirty-six thousand dollars, up about thirty percent from the previous period. Amazon added about two hundred seventy-three thousand dollars, and fees took about one hundred thousand dollars. Amazon US led the marketplaces.\n\nThe top seller was The Great American Bar Scene 2LP by Zach Bryan. Watch stock on Christmas (Red Vinyl). It's close to selling out.\n\nThe next ninety days are forecast at about five point five million dollars. The peak lines up with Black Friday + RSD.\n\nOn the public catalogs, Zach Bryan is a good place to start. Offer signed/autographed physical (vinyl/CD or signed insert) For social, I'd put the next sprint on TikTok. That's the recap. The tables are in the email if you want every row.","file":"audio/lm-all-all.mp3","duration":138.8,"voice":"af_heart"},"lm-shopify-all":{"id":"lm-shopify-all","header":"Warner Records Store · Storefront: Shopify · Channel: All · Category: All · Sep 1 – Sep 30, 2026","transcript":"Here's the Warner Records Store recap for September twenty twenty-six. We're looking at the Shopify store, every channel, and every category. These sales numbers are demo data, not the live store. The product ideas at the end come from public artist catalogs.\n\nNet revenue came in at about one million dollars. That's about twenty thousand orders, and the average order was about fifty-three dollars. Conversion was two point two percent. About forty-seven percent of orders were from new customers. Returns took two point seven percent of revenue.\n\nVersus the previous period, revenue was up about eleven percent. Versus last year, it was up about twenty-two percent.\n\nSigned and Store Exclusives led the category gains, and Box Sets and Deluxe was the soft spot. Organic Social was the strongest channel move. SMS was the softest.\n\nOrganic search brought in about one hundred forty-four thousand dollars. Organic social was led by TikTok, at about fifty-eight thousand dollars.\n\nPaid media spent about one hundred sixty-five thousand dollars and returned about three point six times that. Google Brand Search was the strongest campaign. TikTok TopView was the weakest. I'd test moving about half of that weak spend toward Retargeting.\n\nEmail and text brought in about five hundred thirty-six thousand dollars, up about thirty percent from the previous period. Amazon isn't in this Shopify cut.\n\nThe top seller was The Great American Bar Scene 2LP by Zach Bryan. Watch stock on The Black Parade Vinyl 2LP. It's close to selling out.\n\nThe next ninety days are forecast at about four point four million dollars. The peak lines up with Black Friday + RSD.\n\nOn the public catalogs, Zach Bryan is a good place to start. Offer signed/autographed physical (vinyl/CD or signed insert) For social, I'd put the next sprint on TikTok. That's the recap. The tables are in the email if you want every row.","file":"audio/lm-shopify-all.mp3","duration":131.1,"voice":"af_heart"},"lm-amazon-all":{"id":"lm-amazon-all","header":"Warner Records Store · Storefront: Amazon · Channel: All · Category: All · Sep 1 – Sep 30, 2026","transcript":"Here's the Warner Records Store recap for September twenty twenty-six. We're looking at Amazon, across the marketplaces, every channel, and every category. These sales numbers are demo data, not the live store. The product ideas at the end come from public artist catalogs.\n\nNet revenue came in at about two hundred seventy-three thousand dollars. That's about eight thousand orders, and the average order was about thirty-four dollars. Conversion was ten point nine percent. About seventy-one percent of orders were from new customers. Returns took four point eight percent of revenue.\n\nVersus the previous period, revenue was up about eight percent. Versus last year, it was up about sixteen percent.\n\nColored and Limited Vinyl led the category gains. Amazon Organic was the strongest channel move.\n\nOrganic search brought in about zero dollars. Organic social isn't in this cut.\n\nPaid media spent about twenty-four thousand dollars and returned about three point seven times that. Amazon Ads US · SP was the strongest campaign. Amazon Ads DE · SP was the weakest. I'd test moving about half of that weak spend toward US · SP.\n\nEmail and text brought in about five hundred thirty-six thousand dollars, up about thirty percent from the previous period. Amazon added about two hundred seventy-three thousand dollars, and fees took about one hundred thousand dollars. Amazon US led the marketplaces.\n\nThe top seller was The Great American Bar Scene 2LP by Zach Bryan. Watch stock on Christmas CD. It's close to selling out.\n\nThe next ninety days are forecast at about one point one million dollars. The peak lines up with Black Friday + RSD.\n\nOn the public catalogs, Zach Bryan is a good place to start. Offer signed/autographed physical (vinyl/CD or signed insert) That's the recap. The tables are in the email if you want every row.","file":"audio/lm-amazon-all.mp3","duration":129.4,"voice":"af_heart"}};
+  var audio = document.getElementById('audio');
+  var play = document.getElementById('play');
+  var scrub = document.getElementById('scrub');
+  var elapsed = document.getElementById('elapsed');
+  var total = document.getElementById('total');
+  var dragging = false;
+  function $(id) { return document.getElementById(id); }
+  function clock(sec) {
+    if (!isFinite(sec)) sec = 0;
+    sec = Math.max(0, Math.round(sec));
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function params() {
+    var q = {};
+    (location.search || '').replace(/^\?/, '').split('&').forEach(function (pair) {
+      if (!pair) return;
+      var i = pair.indexOf('=');
+      var k = decodeURIComponent(i < 0 ? pair : pair.slice(0, i));
+      q[k] = decodeURIComponent(i < 0 ? '' : pair.slice(i + 1));
+    });
+    return q;
+  }
+  function setSpeed(rate) {
+    audio.playbackRate = rate;
+    document.querySelectorAll('[data-speed]').forEach(function (btn) {
+      btn.classList.toggle('on', +btn.getAttribute('data-speed') === rate);
+    });
+  }
+  function seek(delta) {
+    if (!isFinite(audio.duration)) return;
+    var next = Math.min(audio.duration, Math.max(0, audio.currentTime + delta));
+    audio.currentTime = next;
+    paintTime();
+  }
+  function paintTime() {
+    elapsed.textContent = clock(audio.currentTime);
+    total.textContent = clock(audio.duration || 0);
+    if (!dragging && audio.duration) scrub.value = String(Math.round(audio.currentTime / audio.duration * 1000));
+    scrub.setAttribute('aria-valuetext', elapsed.textContent + ' of ' + total.textContent);
+  }
+  function toggle() {
+    if (audio.paused) {
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () { play.textContent = 'Play'; });
+    } else audio.pause();
+  }
+  audio.addEventListener('play', function () { play.textContent = 'Pause'; play.setAttribute('aria-label', 'Pause'); });
+  audio.addEventListener('pause', function () { play.textContent = 'Play'; play.setAttribute('aria-label', 'Play'); });
+  audio.addEventListener('timeupdate', paintTime);
+  audio.addEventListener('loadedmetadata', paintTime);
+  audio.addEventListener('durationchange', paintTime);
+  play.addEventListener('click', toggle);
+  $('back').addEventListener('click', function () { seek(-15); });
+  $('fwd').addEventListener('click', function () { seek(15); });
+  scrub.addEventListener('pointerdown', function () { dragging = true; });
+  scrub.addEventListener('pointerup', function () { dragging = false; });
+  scrub.addEventListener('input', function () {
+    dragging = true;
+    if (!audio.duration) return;
+    elapsed.textContent = clock(+scrub.value / 1000 * audio.duration);
+  });
+  scrub.addEventListener('change', function () {
+    if (audio.duration) audio.currentTime = +scrub.value / 1000 * audio.duration;
+    dragging = false;
+    paintTime();
+  });
+  document.querySelectorAll('[data-speed]').forEach(function (btn) {
+    btn.addEventListener('click', function () { setSpeed(+btn.getAttribute('data-speed')); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target && e.target.closest && e.target.closest('input, textarea, select, a')) return;
+    if (e.code === 'Space') { e.preventDefault(); toggle(); }
+    else if (e.code === 'ArrowLeft') { e.preventDefault(); seek(-15); }
+    else if (e.code === 'ArrowRight') { e.preventDefault(); seek(15); }
+  });
+  var id = params().id || 'lm-all-all';
+  var rec = RECAPS && RECAPS[id];
+  if (!rec || rec.placeholder) rec = RECAPS && RECAPS['lm-all-all'];
+  if (!rec || rec.placeholder) {
+    $('meta').textContent = 'This recap is not on the page yet.';
+    return;
+  }
+  document.title = 'Warner Records Store · ' + (rec.header || 'Audio recap');
+  $('meta').textContent = rec.header || '';
+  $('voiceNote').textContent = 'Spoken with Kokoro (' + (rec.voice || 'af_heart') + '), an open-source voice. No account and nothing is uploaded.';
+  var paras = String(rec.transcript || '').split(/\n+/).filter(Boolean);
+  $('transcript').innerHTML = paras.map(function (p) {
+    return '<p>' + p.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }) + '</p>';
+  }).join('');
+  audio.src = rec.file;
+  if (rec.duration) total.textContent = clock(rec.duration);
+})();
+</script>
+</body></html>

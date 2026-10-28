@@ -31,8 +31,9 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      # dist/ is already built and committed (node build.js). Publishing
-      # that folder avoids a second generate step in CI.
+      # dist/ is already built and committed (node build.js), including the
+      # Kokoro MP3 recaps. Publishing that folder avoids running the neural
+      # model in CI. Regenerating audio is a local step (scripts/render-recaps.mjs).
       - name: Upload dist
         uses: actions/upload-pages-artifact@v3
         with:
