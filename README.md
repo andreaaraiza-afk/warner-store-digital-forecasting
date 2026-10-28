@@ -52,4 +52,4 @@ This git repository is public, so the source, `dist/`, and `data/public-audit.js
 The live URL is https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/ . Opening `dist/index.html` locally does not ask for the Pages password.
 
 ## DigitalOcean App Platform
-`.do/app.yaml` is a static site spec that serves `dist/` (`index_document: index.html`) from this repo's `main` branch.
+`.do/app.yaml` is a static site spec that serves `dist/` (`index_document: index.html`) from this repo's `main` branch. The root `package.json` is what the Node buildpack detects. `npm run build:encrypted` runs `node scripts/encrypt-site.mjs`, which reads `DASHBOARD_PASSWORD` and uses `STATICRYPT_PASSWORD` when that is set, otherwise the same value. The password is not printed. Encrypted files are written to `site-private/encrypted`, which is gitignored.

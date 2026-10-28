@@ -11,6 +11,7 @@ if (!password.trim()) {
   console.error('DASHBOARD_PASSWORD is not set. Refusing to publish an unencrypted site.');
   process.exit(1);
 }
+if (!(process.env.STATICRYPT_PASSWORD || '').trim()) process.env.STATICRYPT_PASSWORD = password;
 
 const stage = path.join(root, 'site-private', 'stage');
 const outDir = path.join(root, 'site-private', 'encrypted');
@@ -87,7 +88,7 @@ const args = [
 ];
 const result = spawnSync(process.execPath, [cli, ...args], {
   cwd: root,
-  env: { ...process.env, STATICRYPT_PASSWORD: password },
+  env: process.env,
   stdio: 'inherit'
 });
 if (result.status !== 0) {
