@@ -1,8 +1,11 @@
-# DigitalOcean App Platform static site. Serves dist/ from this repo.
+# DigitalOcean App Platform static site.
+# Set GOOGLE_OAUTH_CLIENT_ID as a BUILD_TIME variable on this component.
+# node build.js injects that public client id. Output is dist/.
 name: wr-store-dashboard
 region: sfo
 static_sites:
   - name: dashboard
     github: { repo: andreaaraiza-afk/warner-store-digital-forecasting, branch: main, deploy_on_push: true }
+    build_command: node build.js
     output_dir: dist
     index_document: index.html

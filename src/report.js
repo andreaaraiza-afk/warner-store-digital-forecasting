@@ -4,6 +4,8 @@
   'use strict';
   var LS = 'wr-report-presets-v1';
   var SITE = 'https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/';
+  var RECAP_BASE = '/*RECAP_BASE*/';
+  var GMAIL_CLIENT_ID = '/*GMAIL_CLIENT_ID*/';
   var RECAPS = {"placeholder":1};
   var SECTIONS = [
     { id: 'highlights', label: 'Highlights' },
@@ -741,7 +743,7 @@
     text += p.prev ? 'The previous period is the equal-length window immediately before (' + esc(p.prev.start) + ' to ' + esc(p.prev.end) + (p.prev.partial ? ', shortened because the dataset starts ' + esc(D().meta.start) : '') + '). ' : 'No previous period is available inside the dataset. ';
     text += p.yoy ? 'Last year is the same calendar dates one year earlier (' + esc(p.yoy.start) + ' to ' + esc(p.yoy.end) + '). ' : 'Last year falls outside the dataset, so year-ago comparisons are omitted. ';
     text += 'Order metrics use those filters. Paid media is platform-reported last click for the storefront. CRM is Klaviyo-style and covers Shopify DTC only. The 90-day forecast is seasonal-naive (same weekday last year times trailing 8-week growth) and uses the storefront only. ';
-    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. SEO and UX scores, crawl findings, and screenshots are a real public audit of shop.warnerrecords.com. Keyword rankings, impressions, and the mobile versus desktop conversion split are demo data allocated from this synthetic dataset. Open email draft copies this layout to the clipboard and opens a Gmail compose tab. It does not send anything. The listen link plays a Kokoro recap. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data.</p>';
+    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. SEO and UX scores, crawl findings, and screenshots are a real public audit of shop.warnerrecords.com. Keyword rankings, impressions, and the mobile versus desktop conversion split are demo data allocated from this synthetic dataset. Open email draft saves this layout in the signed-in Gmail account as a draft, with the chart inline and the recap linked. It does not send anything. If Google sign-in is unavailable, the same HTML is copied and a Gmail compose tab opens for a manual paste. The listen link plays a Kokoro recap. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data.</p>';
     return '<section class="r-sec" data-sec="method"><h2>How this report was built</h2>' + slot('method.body', text) + '</section>';
   }
 
@@ -913,10 +915,11 @@
     var bucket = store === 0 ? 'shopify' : (store === -1 ? 'all' : 'amazon');
     var id = 'lm-' + bucket + '-all';
     var rec = (RECAPS && RECAPS[id] && !RECAPS[id].placeholder) ? RECAPS[id] : (RECAPS && RECAPS['lm-all-all']) || { id: id, header: headerLine(m), duration: 0, file: 'audio/' + id + '.mp3' };
-    var exact = m.period.key === 'last-month' && m.filters.chan < 0 && m.filters.cat < 0 && (store === -1 || store === 0 || store === 10);
+    var exact = m.period.key === 'last-month' && m.filters.chan < 0 && m.filters.cat < 0 && !m.filters.artist && (store === -1 || store === 0 || store === 10);
     var label = bucket === 'shopify' ? 'Shopify' : bucket === 'amazon' ? 'Amazon' : 'All';
     var note = exact ? '' : 'This listen link is the closest pre-recorded recap: last full month, storefront ' + label + ', all channels and all categories. Your draft uses a different period or filter, so a few spoken lines will not match the tables.';
-    return { id: rec.id || id, header: rec.header || headerLine(m), duration: rec.duration || 0, file: rec.file || ('audio/' + id + '.mp3'), exact: exact, note: note, url: SITE + 'recap.html?id=' + encodeURIComponent(rec.id || id) };
+    var base = String(RECAP_BASE || SITE).replace(/\/$/, '');
+    return { id: rec.id || id, header: rec.header || headerLine(m), duration: rec.duration || 0, file: rec.file || ('audio/' + id + '.mp3'), exact: exact, note: note, url: base + '/recap.html?id=' + encodeURIComponent(rec.id || id) };
   }
   function listenBlock(rec) {
     var dur = rec.duration ? ' · ' + fmtClock(rec.duration) : '';
@@ -937,24 +940,161 @@
     var slot = document.createElement('div');
     slot.innerHTML = listenBlock(recapFor(state.last));
     var h1 = clone.querySelector('h1');
-    var flags = clone.querySelector('.r-flags');
-    var anchor = flags || h1;
-    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(slot, anchor.nextSibling);
+    if (h1 && h1.parentNode) h1.parentNode.insertBefore(slot, h1);
     else clone.insertBefore(slot, clone.firstChild);
     return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f7f4ee;margin:0;padding:0;"><tr><td align="center" style="padding:20px 12px;">' +
       '<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px;max-width:640px;background:#f7f4ee;"><tr><td style="padding:4px 8px 20px;font-family:Georgia,Times New Roman,serif;color:#1c1b18;">' +
       clone.innerHTML + '</td></tr></table></td></tr></table>';
   }
-  function openGmail() {
+  function showToast(html) {
+    var text = $('rPasteText');
+    var box = $('rPasteHint');
+    if (text) text.innerHTML = html;
+    else if (box) box.innerHTML = html;
+    if (box) box.classList.remove('hide');
+  }
+  function fallbackCompose(reason) {
     if (!state.last) return;
     var html = emailHtml();
     var plain = plainReport() + '\nListen: ' + recapFor(state.last).url + '\n';
     copyHtml(html, plain, true);
     var url = gmailComposeUrl(state.last);
     $('rMail').href = url;
-    if ($('rPasteHint')) $('rPasteHint').classList.remove('hide');
-    $('rStatus').textContent = 'Gmail is open. Click the message body and press Cmd+V or Ctrl+V. Nothing is sent until you send it.';
+    var why = String(reason || 'Gmail could not create the draft.').replace(/\s+/g, ' ').trim().replace(/\.$/, '');
+    showToast('<strong>Gmail draft was not created in your account.</strong> ' + esc(why) + '. The formatted report is on the clipboard. Gmail compose is open in a new tab: click the message body and press <b>Cmd+V</b> or <b>Ctrl+V</b>. Nothing is sent until you send it.');
+    $('rStatus').textContent = 'Paste the report into the Gmail compose tab. Nothing is sent until you send it.';
     window.open(url, '_blank', 'noopener,noreferrer');
+  }
+  function loadGis() {
+    return new Promise(function (resolve, reject) {
+      if (window.google && google.accounts && google.accounts.oauth2) { resolve(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://accounts.google.com/gsi/client';
+      s.async = true;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error('Google sign-in could not be loaded.')); };
+      document.head.appendChild(s);
+    });
+  }
+  function requestGmailToken() {
+    return new Promise(function (resolve, reject) {
+      if (!window.google || !google.accounts || !google.accounts.oauth2) {
+        reject(new Error('Google sign-in did not start.'));
+        return;
+      }
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        reject(new Error('Google sign-in timed out.'));
+      }, 120000);
+      function finish(err, token) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (err) reject(err);
+        else resolve(token);
+      }
+      var client = google.accounts.oauth2.initTokenClient({
+        client_id: GMAIL_CLIENT_ID,
+        scope: WRGmailMime.SCOPE,
+        callback: function (resp) {
+          if (resp && resp.access_token) finish(null, resp.access_token);
+          else finish(new Error(resp && resp.error_description ? resp.error_description : 'Google did not grant access to create a draft.'));
+        },
+        error_callback: function (err) {
+          var type = err && (err.type || err.message) || '';
+          finish(new Error(type === 'popup_closed' || type === 'popup_failed_to_open' ? 'The Google window was closed before access was granted.' : 'Google sign-in did not finish.'));
+        }
+      });
+      client.requestAccessToken();
+    });
+  }
+  function bytesToB64(buf) { return WRGmailMime.bufferToBase64(buf); }
+  function loadRecapAudio(rec) {
+    var base = String(RECAP_BASE || '').replace(/\/$/, '');
+    var rel = String(rec.file || '').replace(/^\//, '');
+    var urls = [];
+    if (rel) urls.push(rel);
+    if (base && rel) urls.push(base + '/' + rel);
+    function one(i) {
+      if (i >= urls.length) return Promise.resolve(null);
+      return fetch(urls[i]).then(function (res) {
+        if (!res.ok) throw new Error('missing');
+        return res.arrayBuffer();
+      }).then(function (buf) {
+        return { filename: (rec.id || 'recap') + '.mp3', contentType: 'audio/mpeg', base64: bytesToB64(buf) };
+      }).catch(function () { return one(i + 1); });
+    }
+    return one(0);
+  }
+  function gmailGet(url, token) {
+    return fetch(url, { headers: { Authorization: 'Bearer ' + token } }).then(function (res) {
+      return res.text().then(function (text) {
+        var body = {};
+        try { body = text ? JSON.parse(text) : {}; } catch (e) { body = {}; }
+        return { ok: res.ok, status: res.status, body: body };
+      });
+    }).catch(function () { return { ok: false, status: 0, body: {} }; });
+  }
+  function createGmailDraft() {
+    var built = emailHtml();
+    var plain = plainReport() + '\nListen: ' + recapFor(state.last).url + '\n';
+    var rec = recapFor(state.last);
+    return loadGis().then(requestGmailToken).then(function (token) {
+      return loadRecapAudio(rec).then(function (audio) {
+        return gmailGet(WRGmailMime.PROFILE_URL, token).then(function (profile) {
+          var from = profile.ok && profile.body && profile.body.emailAddress ? profile.body.emailAddress : '';
+          var msg = WRGmailMime.buildMimeMessage({
+            from: from,
+            subject: reportSubject(state.last),
+            html: built,
+            plain: plain,
+            audio: audio
+          });
+          return fetch(WRGmailMime.DRAFTS_URL, {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: WRGmailMime.draftBody(msg.raw)
+          }).then(function (res) {
+            return res.json().then(function (body) {
+              if (!res.ok || !body || !body.message || !body.message.id) {
+                var why = body && body.error && body.error.message ? body.error.message : ('Gmail returned ' + res.status + '.');
+                throw new Error(why);
+              }
+              return { url: WRGmailMime.draftWebUrl(body.message.id), attached: msg.attachedAudio };
+            });
+          });
+        });
+      });
+    });
+  }
+  var mailBusy = false;
+  function openGmail() {
+    if (!state.last || mailBusy) return;
+    if (!GMAIL_CLIENT_ID || !window.WRGmailMime) {
+      fallbackCompose('This build has no Google OAuth client id.');
+      return;
+    }
+    mailBusy = true;
+    var btn = $('rMail');
+    var prevLabel = btn.textContent;
+    btn.textContent = 'Creating Gmail draft…';
+    btn.setAttribute('aria-busy', 'true');
+    $('rStatus').textContent = 'Asking Google for permission, then saving a draft. Nothing is sent.';
+    createGmailDraft().then(function (saved) {
+      $('rMail').href = saved.url;
+      var extra = saved.attached ? ' The recap audio is attached.' : ' The recap is linked, not attached.';
+      showToast('<strong>Draft saved in your Gmail.</strong> A tab is open so you can review it and send it yourself.' + esc(extra) + ' Nothing was sent.');
+      $('rStatus').textContent = 'Gmail draft created. Nothing is sent until you send it.';
+      window.open(saved.url, '_blank', 'noopener,noreferrer');
+    }).catch(function (err) {
+      fallbackCompose(err && err.message ? err.message : 'Gmail could not create the draft.');
+    }).then(function () {
+      mailBusy = false;
+      btn.textContent = prevLabel;
+      btn.removeAttribute('aria-busy');
+    });
   }
   function download(name, mime, data) {
     var blob = data instanceof Blob ? data : new Blob([data], { type: mime });

@@ -33,6 +33,12 @@ jobs:
       - name: Install StatiCrypt
         run: npm install --prefix /tmp/staticrypt-ci --no-fund --no-audit staticrypt@3.5.4
 
+      - name: Build the dashboard
+        env:
+          GOOGLE_OAUTH_CLIENT_ID: ${{ vars.GOOGLE_OAUTH_CLIENT_ID }}
+          RECAP_BASE_URL: ${{ vars.RECAP_BASE_URL }}
+        run: node build.js
+
       - name: Encrypt the site
         env:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}

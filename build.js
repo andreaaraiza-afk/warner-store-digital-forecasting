@@ -15,7 +15,30 @@ if (fs.existsSync(manifestPath)) {
   recapItems = parsed.items || parsed;
 }
 const recapJson = JSON.stringify(recapItems);
-const report = src('report.js').replace('var RECAPS = {"placeholder":1};', 'var RECAPS = ' + recapJson + ';');
+function cleanClientId(value) {
+  var id = String(value || '').trim();
+  if (!id) return '';
+  if (!/^[\w.-]+\.apps\.googleusercontent\.com$/.test(id)) {
+    console.error('GOOGLE_OAUTH_CLIENT_ID does not look like a Google web client id. Drafts will use the clipboard fallback.');
+    return '';
+  }
+  return id;
+}
+function cleanRecapBase(value) {
+  var fallback = 'https://wr-store-dashboard-tpvfd.ondigitalocean.app';
+  var origin = String(value || '').trim().replace(/\/$/, '') || fallback;
+  if (!/^https:\/\/[A-Za-z0-9.-]+(?::\d+)?$/.test(origin)) {
+    console.error('RECAP_BASE_URL is not a plain https origin. Using the DigitalOcean default.');
+    return fallback;
+  }
+  return origin;
+}
+const gmailClientId = cleanClientId(process.env.GOOGLE_OAUTH_CLIENT_ID);
+const recapBase = cleanRecapBase(process.env.RECAP_BASE_URL);
+const report = (src('gmail-mime.js') + '\n' + src('report.js'))
+  .replace('var RECAPS = {"placeholder":1};', 'var RECAPS = ' + recapJson + ';')
+  .replace('/*RECAP_BASE*/', () => recapBase)
+  .replace('/*GMAIL_CLIENT_ID*/', () => gmailClientId);
 let html = src('index.html').replace('/*CHARTJS*/', () => chart).replace('/*CSS*/', () => css).replace('/*CATALOG*/', () => 'window.WRCatalog=' + catalog + ';').replace('/*DATAGEN*/', () => dg).replace('/*AUDIT*/', () => auditJs).replace('/*REPORT*/', () => report).replace('/*APP*/', () => app);
 fs.mkdirSync('dist', { recursive: true });
 const W = require('./src/datagen.js');
@@ -46,4 +69,4 @@ if (fs.existsSync(shotDir)) {
     if (name.endsWith('.jpg')) fs.copyFileSync(path.join(shotDir, name), path.join(shotOut, name));
   });
 }
-console.log('index.html', html.length, 'data.json', summary.length, 'catalog', catalog.length, 'recaps', Object.keys(recapItems).length);
+console.log('index.html', html.length, 'data.json', summary.length, 'catalog', catalog.length, 'recaps', Object.keys(recapItems).length, 'gmailClient', gmailClientId ? 'set' : 'missing', 'recapBase', recapBase);
