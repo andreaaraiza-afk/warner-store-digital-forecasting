@@ -16,7 +16,8 @@ This is an interactive single-page dashboard covering Shopify DTC plus **Amazon 
 - **Amazon section**: revenue by marketplace, units, Amazon fees (referral 15% media / 17% apparel, FBA per unit, $1.80 media closing fee), net proceeds, Sponsored ads spend, ROAS/ACoS/TACoS, FBA on-hand and top products.
 - Categories: Vinyl LPs, Colored & Limited Vinyl, Signed & Store Exclusives, CDs, Cassettes & 7" Singles, Box Sets & Deluxe, Apparel, Accessories & Posters, Bundles.
 - Seasonality: BFCM and the holiday season, Record Store Day (April, plus the RSD Black Friday drop in November), Prime Day / Prime Big Deal Days on Amazon, album release and pre-order spikes, an MCR tour lift and a viral sombr TikTok moment (Oct 2026).
-- **Generate report**: the header button builds a monthly analysis from the dashboard numbers and the current storefront, channel, and category. The default period is the last full month; this month to date, the last 30 or 90 days, and a custom range are also available. Sections can be toggled and reordered. Audience (executive, marketing, detailed), top-item count, inline edits, and notes are kept when you regenerate. Export is entirely in the browser: print to PDF, download HTML or Markdown, copy, or open a mailto draft with no recipients. Presets are saved in localStorage. Sales sections stay labeled DEMO DATA. Product suggestions inside the report stay labeled as the public catalog.
+- **Generate report**: the header button builds a monthly analysis from the dashboard numbers and the current storefront, channel, and category. The default period is the last full month; this month to date, the last 30 or 90 days, and a custom range are also available. The report header lists Warner Records Store, those filters (All when unset), and the date range, and it updates when you change them. Sections can be toggled and reordered. Audience (executive, marketing, detailed), top-item count, inline edits, and notes are kept when you regenerate. Export stays in the browser: print to PDF, download HTML or Markdown, or copy formatted HTML plus plain text. Open email draft opens a Gmail compose tab with no recipient and does not send. Presets are saved in localStorage. Sales sections stay labeled DEMO DATA. Product suggestions inside the report stay labeled as the public catalog.
+- **Audio summary**: an editable host-style script of the current report. Play and pause use the browser speech API. Download audio builds a WAV on the device (no API key and no upload). Email audio summary opens a Gmail draft with the script highlights and a link to the hosted default last-full-month file, `wr-store-audio-summary.wav`. If the draft is for a different cut, attach the downloaded WAV. Nothing is sent automatically.
 - **Product suggestions** (public catalog, not demo data): artist search and picker, suggestion cards with the reason and evidence, grouped into missing formats, merch types to add, pricing gaps, bundles, signed or colored vinyl, trending items, restock, and catalog freshness. The roster view charts format adoption, median USD prices, and formats added in the last 90 days, and links recent products to their store pages. Labeled "From public artist store catalogs, scraped Oct 27, 2026". The storefront, date, category, channel, and region filters apply to the synthetic sections only.
 
 ## Build
@@ -26,9 +27,10 @@ From the repo root, with Node.js installed (no `npm install`; there are no depen
 node build.js
 ```
 
-That reads `src/` (`index.html`, `styles.css`, `datagen.js`, `report.js`, `app.js`), `vendor/chart.umd.min.js`, and `data/` (suggestions, the per-artist summary, and the full public product feed), then writes:
+That reads `src/` (`index.html`, `styles.css`, `datagen.js`, `tts.js`, `report.js`, `app.js`), `vendor/chart.umd.min.js`, `audio/default-script.txt` when present, and `data/` (suggestions, the per-artist summary, and the full public product feed), then writes:
 
-- `dist/index.html` — single page with Chart.js, the generator, the report builder, a trimmed public catalog, and the app inlined
+- `dist/index.html` — single page with Chart.js, the generator, the report builder, a local speech synthesizer, a trimmed public catalog, and the app inlined
+- `dist/wr-store-audio-summary.wav` — spoken default last-full-month report (all storefronts), from `audio/default-script.txt`
 - `dist/data.json` — daily aggregate export of the synthetic dataset
 - `dist/.nojekyll` — so a static host does not run Jekyll on the page
 
