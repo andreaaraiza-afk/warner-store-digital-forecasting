@@ -53,7 +53,8 @@
     var f = m.filters;
     var chan = f.chan < 0 ? 'All' : f.chanLabel;
     var cat = f.cat < 0 ? 'All' : f.catLabel;
-    return 'Warner Records Store · Storefront: ' + storefrontShort(f.store) + ' · Channel: ' + chan + ' · Category: ' + cat + ' · ' + rangePhrase(m.period.start, m.period.end);
+    var artist = f.artist ? f.artist : 'All';
+    return 'Warner Records Store · Storefront: ' + storefrontShort(f.store) + ' · Channel: ' + chan + ' · Category: ' + cat + ' · Artist: ' + artist + ' · ' + rangePhrase(m.period.start, m.period.end);
   }
   function fm(v, d) {
     var s = api.fm(v, d);
@@ -113,7 +114,7 @@
     return { key: key, s: ds, e: de, start: s, end: e, days: len, label: monthLabel(s, e), prev: prev, yoy: yoy && !yoy.partial ? yoy : (yoy && yoy.partial ? null : yoy) };
   }
 
-  function filt(opts) { return { store: +opts.store, chan: +opts.chan, cat: +opts.cat, reg: -1 }; }
+  function filt(opts) { return { store: +opts.store, chan: +opts.chan, cat: +opts.cat, reg: -1, artist: opts.artist || '' }; }
   function aggAt(range, f) { if (!range) return null; return api.agg(range.s, range.e, f); }
   function chanOk(i, store) { var amz = i >= D().dtcChannels; if (store === 0 && amz) return false; if (store > 0 && !amz) return false; return true; }
 
@@ -204,6 +205,7 @@
     var products = [], artists = {};
     D().products.forEach(function (p, i) {
       if (f.cat >= 0 && p.cat !== f.cat) return;
+      if (f.artist && p.artist !== f.artist) return;
       if (store > 0 && !p.amz) return;
       var rev = cur.pr[i], units = cur.pu[i];
       if (rev <= 0 && units <= 0) return;
@@ -217,6 +219,7 @@
     var slow = [];
     D().products.forEach(function (p, i) {
       if (f.cat >= 0 && p.cat !== f.cat) return;
+      if (f.artist && p.artist !== f.artist) return;
       if (store > 0 && !p.amz) return;
       if (p.alloc) return;
       if (p.launch > period.s) return;
@@ -232,13 +235,18 @@
     var risk = [];
     fc.prods.forEach(function (x) {
       if (f.cat >= 0 && x.p.cat !== f.cat) return;
+      if (f.artist && x.p.artist !== f.artist) return;
       if (!(x.so && x.inv.vel > 0 && !(x.p.alloc && x.p.stock[0] === 0))) return;
       var days = x.so - T();
       if (days > 90) return;
       risk.push({ title: x.p.title, artist: x.p.artist, cat: D().categories[x.p.cat], days: days, onHand: x.inv.onHand, lost: x.lost, so: D().iso(x.so) });
     });
     risk.sort(function (a, b) { return a.days - b.days; });
-    var lostTot = fc.prods.reduce(function (a, x) { return a + (f.cat < 0 || x.p.cat === f.cat ? x.lost : 0); }, 0);
+    var lostTot = fc.prods.reduce(function (a, x) {
+      if (f.cat >= 0 && x.p.cat !== f.cat) return a;
+      if (f.artist && x.p.artist !== f.artist) return a;
+      return a + x.lost;
+    }, 0);
 
     var catalog = window.WRCatalog;
     var gaps = {}, topNames = {};
@@ -271,6 +279,7 @@
         store: store, storeLabel: api.storeLabel(store),
         chan: only, chanLabel: only < 0 ? 'All channels' : D().channels[only],
         cat: f.cat, catLabel: f.cat < 0 ? 'All categories' : D().categories[f.cat],
+        artist: f.artist || '', artistLabel: f.artist || 'All artists',
         dtc: dtc, amzOn: amzOn
       },
       highlights: {
@@ -281,7 +290,7 @@
       },
       channels: { rows: chans, social: social, socNet: socNet, paid: { media: media, mediaPrev: mediaPrev, platforms: platforms, camps: camps, best: best, worst: worst, shift: shift }, crm: { cur: crm, prev: crmPrev, camps: campsCrm, flows: flows, emailRev: emailRev, smsRev: smsRev }, amazon: { markets: markets, fee: markets.reduce(function (a, x) { return a + x.fees; }, 0), rev: markets.reduce(function (a, x) { return a + x.rev; }, 0) } },
       products: { best: products.slice(0, topN), artists: artistList.slice(0, topN), slow: slow.slice(0, topN), risk: risk.slice(0, topN) },
-      forecast: { fc: fc, lost: lostTot, riskCount: risk.length, channelNote: only >= 0 || f.cat >= 0 },
+      forecast: { fc: fc, lost: lostTot, riskCount: risk.length, channelNote: only >= 0 || f.cat >= 0 || !!f.artist },
       recommendations: { gaps: gapList.slice(0, topN), artists: artistIdeas.slice(0, topN), label: catalog ? catalog.label : 'From public artist store catalogs, scraped Oct 27, 2026' },
       method: null
     };
@@ -297,7 +306,7 @@
     var extra = '';
     if (m.tone !== 'exec') {
       extra += '<p>New customers were ' + esc(fp(h.newShare)) + ' of orders (' + esc(fn(h.newC)) + ' new, ' + esc(fn(h.orders - h.newC)) + ' returning). Return rate was ' + esc(fp(h.retRate)) + ' of revenue. ';
-      extra += h.cvr == null ? 'Conversion rate is not available when a category filter is on, because sessions are not split by category.' : 'Conversion was ' + esc(fp(h.cvr, 2)) + (h.sessions != null ? ' on ' + esc(fn(h.sessions)) + ' sessions' : '') + '.';
+      extra += h.cvr == null ? 'Conversion rate is not available when a category or artist filter is on, because sessions are not split that way.' : 'Conversion was ' + esc(fp(h.cvr, 2)) + (h.sessions != null ? ' on ' + esc(fn(h.sessions)) + ' sessions' : '') + '.';
       extra += '</p>';
     }
     return line + extra + moverPara(m);
@@ -349,7 +358,7 @@
     else if (h.catMove && h.catMove.best) sug = '<p>Put the next push behind <b>' + esc(h.catMove.best.name) + '</b>, the largest category gain (' + esc(fm(h.catMove.best.delta)) + ').</p>';
     else sug = '<p>No category comparison is available for this window.</p>';
     return '<section class="r-sec" data-sec="highlights"><h2>Highlights <span class="r-badge r-badge-demo">DEMO DATA</span></h2>' +
-      '<p class="r-kicker">Synthetic store performance for ' + esc(m.period.label) + ' · ' + esc(m.filters.storeLabel) + ' · ' + esc(m.filters.chanLabel) + ' · ' + esc(m.filters.catLabel) + '.</p>' +
+      '<p class="r-kicker">Synthetic store performance for ' + esc(m.period.label) + ' · ' + esc(m.filters.storeLabel) + ' · ' + esc(m.filters.chanLabel) + ' · ' + esc(m.filters.catLabel) + ' · ' + esc(m.filters.artistLabel) + '.</p>' +
       slot('highlights.lead', lead(m)) + slot('highlights.kpis', kpiGrid(m)) + callouts(ins, sug) + '</section>';
   }
 
@@ -357,6 +366,7 @@
     var c = m.channels, paid = c.paid, crm = c.crm, html = '<section class="r-sec" data-sec="channels"><h2>Channel performance <span class="r-badge r-badge-demo">DEMO DATA</span></h2>';
     var rows = c.rows.map(function (r) { return [r.name, fm(r.rev), fp(r.share), vs(r.rev, r.prev), vs(r.rev, r.yoy)]; });
     var note = m.filters.chan >= 0 ? '<p>The channel filter limits order revenue to <b>' + esc(m.filters.chanLabel) + '</b>. Paid media and CRM below are not sliced by that order channel; they follow the storefront, matching the dashboard.</p>' : '<p>Order revenue by channel for this period. Shares use filtered net revenue as the base.</p>';
+    if (m.filters.artist) note += '<p>Artist filter: <b>' + esc(m.filters.artist) + '</b>. Order revenue is limited to that artist’s products. Paid spend and CRM sends are not split by artist.</p>';
     html += slot('channels.intro', note);
     if (m.tone !== 'exec') html += htm(['Channel', 'Net revenue', 'Share', 'Vs previous', 'Vs last year'], rows);
 
@@ -514,7 +524,7 @@
     var lo = fc.tot * Math.exp(-1.2816 * fc.totSd), hi = fc.tot * Math.exp(1.2816 * fc.totSd);
     var html = '<section class="r-sec" data-sec="forecast"><h2>Forecast outlook <span class="r-badge r-badge-demo">DEMO DATA</span></h2>';
     var prose = '<p>The next 90 days are forecast at <b>' + esc(fm(fc.tot)) + '</b> net revenue for <b>' + esc(m.filters.storeLabel) + '</b> (80% band ' + esc(fm(lo)) + ' – ' + esc(fm(hi)) + '). That is ' + esc(sgn(api.pct(fc.tot, fc.ly))) + ' versus the same 90 days last year (' + esc(fm(fc.ly)) + ') and ' + esc(sgn(api.pct(fc.tot, fc.last90))) + ' versus the last 90 days (' + esc(fm(fc.last90)) + '). Peak day is <b>' + esc(D().iso(peak.d)) + '</b> at ' + esc(fm(peak.f)) + (api.peakLabel(peak.d) ? ' (' + esc(api.peakLabel(peak.d)) + ')' : '') + '. Daily backtest MAPE is ' + esc(fp(fc.mape)) + '. Projected stock-outs put about <b>' + esc(fm(m.forecast.lost)) + '</b> at risk' + (m.forecast.riskCount ? ' across ' + esc(String(m.forecast.riskCount)) + ' flagged SKUs' : '') + '.</p>';
-    if (m.forecast.channelNote) prose += '<p>The forecast follows the storefront only. Category and channel filters do not change the 90-day total; they do limit the stock-out list in the products section.</p>';
+    if (m.forecast.channelNote) prose += '<p>The forecast follows the storefront only. Category, channel, and artist filters do not change the 90-day total; they do limit the stock-out list in the products section.</p>';
     var peakName = api.peakLabel(peak.d);
     html += slot('forecast.body', prose) + callouts(
       '<p>The next 90 days are <b>' + esc(fm(fc.tot)) + '</b> (' + esc(sgn(api.pct(fc.tot, fc.ly))) + ' vs last year). Peak day is <b>' + esc(D().iso(peak.d)) + '</b>' + (peakName ? ' (' + esc(peakName) + ')' : '') + '. About <b>' + esc(fm(m.forecast.lost)) + '</b> of demand is at risk from stock-outs.</p>',
@@ -594,7 +604,8 @@
     var where = store === 'All' ? 'all storefronts' : store === 'Shopify' ? 'the Shopify store' : store === 'Amazon' ? 'Amazon, across the marketplaces' : store;
     var chan = f.chan < 0 ? 'every channel' : 'just the ' + f.chanLabel + ' channel';
     var cat = f.cat < 0 ? 'every category' : 'just ' + spokenName(f.catLabel);
-    return where + ', ' + chan + ', and ' + cat;
+    var artist = f.artist ? 'just ' + spokenName(f.artist) : 'every artist';
+    return where + ', ' + chan + ', ' + cat + ', and ' + artist;
   }
   function podcastScript(m) {
     var h = m.highlights, ch = m.channels, f = m.filters, p = m.period;
@@ -604,7 +615,7 @@
     var paras = [];
     paras.push("Here's the Warner Records Store recap for " + spokenWhen(p) + ". We're looking at " + spokenPlace(f) + ". These sales numbers are demo data, not the live store. The product ideas at the end come from public artist catalogs.");
     var hi = 'Net revenue came in at ' + sayMoney(h.net) + ". That's " + sayCount(h.orders) + ' orders, and the average order was ' + sayMoney(h.aov) + '. ';
-    hi += h.cvr == null ? "Conversion isn't available with a category filter on. " : 'Conversion was ' + sayDecimal(h.cvr * 100) + ' percent. ';
+    hi += h.cvr == null ? "Conversion isn't available when a category or artist filter is on. " : 'Conversion was ' + sayDecimal(h.cvr * 100) + ' percent. ';
     hi += 'About ' + sayInt(Math.round(h.newShare * 100)) + ' percent of orders were from new customers. Returns took ' + sayDecimal(h.retRate * 100) + ' percent of revenue.';
     paras.push(hi);
     var comp = [];
@@ -765,6 +776,7 @@
     state.store = +$('rStore').value;
     state.chan = +$('rChan').value;
     state.cat = +$('rCat').value;
+    state.artist = $('rArtist') ? $('rArtist').value : '';
     state.tone = $('rTone').value;
     state.topN = +$('rTop').value;
     state.keepEdits = $('rKeep').checked;
@@ -777,6 +789,7 @@
     syncChanOptions();
     $('rChan').value = String(state.chan);
     $('rCat').value = String(state.cat);
+    if ($('rArtist')) $('rArtist').value = state.artist || '';
     $('rTone').value = state.tone;
     $('rTop').value = String(state.topN);
     $('rKeep').checked = !!state.keepEdits;
@@ -793,7 +806,7 @@
     if (sel.selectedOptions[0] && sel.selectedOptions[0].disabled) sel.value = '-1';
   }
   function opts() {
-    return { period: state.period, from: state.from, to: state.to, store: state.store, chan: state.chan, cat: state.cat, tone: state.tone, topN: state.topN };
+    return { period: state.period, from: state.from, to: state.to, store: state.store, chan: state.chan, cat: state.cat, artist: state.artist || '', tone: state.tone, topN: state.topN };
   }
 
   function renderReport(flags) {
@@ -1065,13 +1078,13 @@
     readControls();
     return {
       name: ($('rPresetName').value || '').trim() || ('Preset ' + new Date().toISOString().slice(0, 16)),
-      period: state.period, from: state.from, to: state.to, store: state.store, chan: state.chan, cat: state.cat,
+      period: state.period, from: state.from, to: state.to, store: state.store, chan: state.chan, cat: state.cat, artist: state.artist || '',
       tone: state.tone, topN: state.topN, keepEdits: state.keepEdits,
       order: state.order.slice(), on: Object.assign({}, state.on), edits: Object.assign({}, state.edits), notes: state.notes
     };
   }
   function applyPreset(p) {
-    state.period = p.period; state.from = p.from; state.to = p.to; state.store = p.store; state.chan = p.chan; state.cat = p.cat;
+    state.period = p.period; state.from = p.from; state.to = p.to; state.store = p.store; state.chan = p.chan; state.cat = p.cat; state.artist = p.artist || '';
     state.tone = p.tone; state.topN = p.topN; state.keepEdits = p.keepEdits !== false;
     state.order = (p.order && p.order.length) ? p.order.slice() : SECTIONS.map(function (s) { return s.id; });
     state.order = state.order.filter(function (id) { return SECTIONS.some(function (s) { return s.id === id; }); });
@@ -1092,7 +1105,7 @@
     $('rClose').addEventListener('click', closeReport);
     $('reportOverlay').addEventListener('click', function (e) { if (e.target === $('reportOverlay')) closeReport(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('reportOverlay').classList.contains('hide')) closeReport(); });
-    ['rPeriod', 'rStore', 'rChan', 'rCat', 'rTone', 'rTop', 'rFrom', 'rTo', 'rKeep'].forEach(function (id) {
+    ['rPeriod', 'rStore', 'rChan', 'rCat', 'rArtist', 'rTone', 'rTop', 'rFrom', 'rTo', 'rKeep'].forEach(function (id) {
       $(id).addEventListener('change', function () {
         if (id === 'rPeriod') { state.touchedPeriod = true; $('rCustom').classList.toggle('hide', $('rPeriod').value !== 'custom'); }
         if (id === 'rStore') syncChanOptions();
@@ -1161,7 +1174,7 @@
   }
   function initState() {
     state = {
-      period: 'last-month', from: '', to: '', store: -1, chan: -1, cat: -1, tone: 'marketing', topN: 5, keepEdits: true,
+      period: 'last-month', from: '', to: '', store: -1, chan: -1, cat: -1, artist: '', tone: 'marketing', topN: 5, keepEdits: true,
       order: SECTIONS.map(function (s) { return s.id; }), on: {}, edits: {}, notes: '', touchedPeriod: false, last: null, chart: null, speechTimer: null
     };
     SECTIONS.forEach(function (s) { state.on[s.id] = true; });
@@ -1169,7 +1182,7 @@
   function openReport() {
     if (!state) initState();
     var pf = api.pageFilters();
-    state.store = pf.store; state.chan = pf.chan; state.cat = pf.cat;
+    state.store = pf.store; state.chan = pf.chan; state.cat = pf.cat; state.artist = pf.artist || '';
     if (!state.touchedPeriod) state.period = 'last-month';
     var meta = D().meta;
     $('rFrom').min = $('rTo').min = meta.start; $('rFrom').max = $('rTo').max = meta.end;
@@ -1180,7 +1193,7 @@
     document.body.classList.add('report-open');
     renderReport();
     var st = $('rStatus').textContent;
-    $('rStatus').textContent = st + ' Storefront, channel, and category were copied from the dashboard.';
+    $('rStatus').textContent = st + ' Storefront, channel, category, and artist were copied from the dashboard.';
   }
   function closeReport() {
     captureEdits();
@@ -1196,6 +1209,7 @@
     copySelect('fStore', 'rStore');
     copySelect('fChan', 'rChan');
     copySelect('fCat', 'rCat');
+    copySelect('fArtist', 'rArtist');
     bind();
     loadPresetList();
     window.__WR_REPORT = {
