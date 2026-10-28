@@ -7,7 +7,7 @@
 <body>
 <header class="top">
   <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast · Suggestions</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
-  <div class="head-actions"><button type="button" id="btnReport" class="btn-report">Generate report</button><nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#suggest">Suggestions</a></nav></div>
+  <div class="head-actions"><button type="button" id="btnReport" class="btn-report">Generate report</button><nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#seo">SEO</a><a href="#ux">UX</a><a href="#suggest">Suggestions</a></nav></div>
 </header>
 <section class="filters">
   <label class="store">Storefront<select id="fStore"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select></label>
@@ -61,6 +61,33 @@
   <div class="card"><div class="card-h"><h3>Daily net revenue: actual vs forecast</h3><span class="muted">bands: 80% / 95% prediction interval</span></div><div class="ch h320"><canvas id="cFc"></canvas></div></div>
   <div class="card"><div class="card-h"><h3>Top products: 90-day unit forecast & stockout risk</h3></div><div class="tablewrap"><table id="tFc"><thead></thead><tbody></tbody></table></div></div>
 </section>
+<section id="seo">
+  <div class="sec-h"><h2>SEO</h2><span class="badge-public" id="seoRealBadge">REAL PUBLIC AUDIT</span><span class="badge-demo">DEMO DATA</span></div>
+  <div class="pub-banner" id="seoBanner">Public Lighthouse and on-page crawl of shop.warnerrecords.com. Rankings, impressions, and keyword revenue below are synthetic demo data scaled to this dashboard’s Organic Search channel.</div>
+  <div id="seoNote" class="muted"></div>
+  <div class="kpis small" id="seoScores"></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><h3>Homepage scores</h3><span class="muted">Lighthouse lab · mobile vs desktop</span></div><div class="ch h280"><canvas id="cSeoScore"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Issues by severity</h3><span class="muted" id="seoIssueNote">Real crawl and lab audit</span></div><ul class="issue-list" id="seoIssues"></ul></div>
+  </div>
+  <div class="card"><div class="card-h"><h3>Demo keywords</h3><span class="muted" id="seoKwNote">DEMO · scaled to Organic Search in this filter</span></div><div class="tablewrap"><table id="tSeoKw"><thead></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="card-h"><h3>Demo landing pages</h3><span class="muted">DEMO · same Organic Search pool</span></div><div class="tablewrap"><table id="tSeoPages"><thead></thead><tbody></tbody></table></div></div>
+  <div class="card"><div class="card-h"><h3>Recommended fixes</h3><span class="muted">Ranked by impact, then effort</span></div><div class="tablewrap"><table id="tSeoFix"><thead></thead><tbody></tbody></table></div></div>
+</section>
+<section id="ux">
+  <div class="sec-h"><h2>UX · Mobile vs desktop</h2><span class="badge-public">REAL PUBLIC AUDIT</span><span class="badge-demo">DEMO DATA</span></div>
+  <div class="pub-banner" id="uxBanner">Lab scores and screenshots are from the public Shopify store. The conversion funnel and AOV by device are a demo allocation of the filtered Shopify DTC orders, not measured device analytics.</div>
+  <div id="uxNote" class="muted"></div>
+  <div class="grid g2" id="uxShots"></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><h3>Lab Web Vitals</h3><span class="muted">LCP, CLS, TBT, FCP, TTFB</span></div><div class="ch h300"><canvas id="cUxVital"></canvas></div></div>
+    <div class="card"><div class="card-h"><h3>Score comparison</h3><span class="muted" id="uxPageNote">Homepage</span></div><div id="uxScoreTable"></div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><h3>Demo device funnel</h3><span class="muted" id="uxFunnelNote">DEMO</span></div><div class="tablewrap"><table id="tUxFunnel"><thead></thead><tbody></tbody></table></div></div>
+    <div class="card"><div class="card-h"><h3>UX issues and fixes</h3></div><ul class="issue-list" id="uxIssues"></ul></div>
+  </div>
+</section>
 <section id="suggest">
   <div class="sec-h"><h2>Product suggestions</h2><span class="badge-public" title="This section is real public Shopify catalog data, not the synthetic demo dataset used above.">PUBLIC CATALOG</span></div>
   <div class="pub-banner" id="sugBanner">From public artist store catalogs, scraped Oct 27, 2026. Warner Records artist roster stores on Shopify. Not the synthetic demo dataset above.</div>
@@ -86,7 +113,7 @@
     <div class="card"><div class="card-h"><h3>Recent additions</h3><label class="inline">Format<select id="sugRecentFmt"><option value="">All formats</option></select></label></div><div class="tablewrap"><table id="tSugRecent"><thead></thead><tbody></tbody></table></div></div>
   </div>
 </section>
-<footer>DEMO DATA only. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. The Product suggestions section is separate: public artist store catalogs, scraped Oct 27, 2026. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
+<footer>DEMO DATA for sales, traffic, ads, CRM, Amazon, rankings, and the device funnel. SEO and UX scores are a real public audit of shop.warnerrecords.com. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. The Product suggestions section is separate: public artist store catalogs, scraped Oct 27, 2026. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
 </main>
 <div id="loading">Generating demo dataset…</div>
 <div id="reportOverlay" class="hide" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
@@ -130,6 +157,7 @@
 </div>
 <script>/*CATALOG*/</script>
 <script>/*DATAGEN*/</script>
+<script>/*AUDIT*/</script>
 <script>/*REPORT*/</script>
 <script>/*APP*/</script>
 </body></html>

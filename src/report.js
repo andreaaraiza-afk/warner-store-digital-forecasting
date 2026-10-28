@@ -11,6 +11,8 @@
     { id: 'products', label: 'Products and artists' },
     { id: 'forecast', label: 'Forecast outlook' },
     { id: 'recommendations', label: 'Recommendations' },
+    { id: 'seo', label: 'SEO review' },
+    { id: 'ux', label: 'UX review (mobile and desktop)' },
     { id: 'method', label: 'How this report was built' },
     { id: 'notes', label: 'Custom notes' }
   ];
@@ -599,9 +601,56 @@
     if (rec.artists[0] && rec.artists[0].items[0]) recP += 'On the public catalogs, ' + rec.artists[0].artist + ' is a good place to start. ' + rec.artists[0].items[0].text + ' ';
     else if (rec.gaps[0]) recP += 'A common gap on the public artist stores: ' + rec.gaps[0].text + ' ';
     if (f.dtc && !(f.chan >= 0 && f.chan !== 1) && ch.social[0]) recP += "For social, I'd put the next sprint on " + ch.social[0].name + '. ';
+    var homeLab = window.WRAudit && window.WRAudit.runs && window.WRAudit.runs.filter(function (r) { return r.id === 'home' && r.formFactor === 'mobile'; })[0];
+    if (homeLab) recP += 'On the public Shopify shop, the homepage scored ' + homeLab.scores.performance + ' for mobile lab performance and ' + homeLab.scores.seo + ' for SEO. Collection pages we crawled have no meta description. Keyword rankings in this read are still demo data. ';
     recP += "That's the recap. The tables are in the email if you want every row.";
     paras.push(recP);
     return paras;
+  }
+
+  function auditRuns() { return (window.WRAudit && window.WRAudit.runs) || []; }
+  function findRun(id, form) { var runs = auditRuns(); for (var i = 0; i < runs.length; i++) if (runs[i].id === id && runs[i].formFactor === form) return runs[i]; return null; }
+  function secSeo(m) {
+    var A = window.WRAudit || {}, demo = api.auditDemo ? api.auditDemo(m.period.s, m.period.e, { store: m.filters.store, chan: m.filters.chan, cat: m.filters.cat, reg: -1 }) : { keywords: [], pages: [] };
+    var html = '<section class="r-sec" data-sec="seo"><h2>SEO review <span class="r-badge r-badge-pub">REAL PUBLIC AUDIT</span> <span class="r-badge r-badge-demo">DEMO DATA</span></h2>';
+    html += '<p class="r-kicker">' + esc(A.source || 'Public audit of shop.warnerrecords.com.') + '</p>';
+    var pages = ['home', 'collection', 'product', 'search', 'cart'];
+    html += htm(['Page', 'Form', 'Performance', 'Accessibility', 'Best practices', 'SEO', 'LCP', 'CLS', 'TBT'], pages.reduce(function (rows, id) {
+      ['mobile', 'desktop'].forEach(function (form) {
+        var r = findRun(id, form); if (!r) return;
+        rows.push([id, form, String(r.scores.performance), String(r.scores.accessibility), String(r.scores.bestPractices), String(r.scores.seo), (r.lab.lcpMs / 1000).toFixed(1) + 's', String(r.lab.cls), Math.round(r.lab.tbtMs) + 'ms']);
+      });
+      return rows;
+    }, []));
+    var issues = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; });
+    html += '<h3>Issues</h3>' + (issues.length ? '<ul>' + issues.map(function (i) { return '<li><b>' + esc(i.severity) + '.</b> ' + esc(i.title) + ' ' + esc(i.detail) + '</li>'; }).join('') + '</ul>' : '');
+    html += '<h3>Demo keywords</h3>';
+    if (!demo.keywords.length) html += '<p>Organic Search demo keywords are hidden for this storefront or channel filter.</p>';
+    else html += htm(['Keyword', 'Position', 'Clicks', 'CTR', 'Revenue'], demo.keywords.slice(0, m.topN).map(function (k) { return [k.query, k.position.toFixed(1), k.clicks == null ? '—' : fn(k.clicks), fp(k.ctr, 1), fm(k.revenue)]; }));
+    html += '<h3>Fixes, ranked</h3>' + htm(['#', 'Fix', 'Source', 'Impact', 'Effort'], (A.fixes || []).filter(function (x) { return x.area !== 'ux'; }).map(function (x) { return [String(x.rank), x.title, x.source, x.impact, x.effort]; }));
+    html += '</section>';
+    return html;
+  }
+  function secUx(m) {
+    var A = window.WRAudit || {}, demo = api.auditDemo ? api.auditDemo(m.period.s, m.period.e, { store: m.filters.store, chan: m.filters.chan, cat: m.filters.cat, reg: -1 }) : {};
+    var html = '<section class="r-sec" data-sec="ux"><h2>UX review, mobile and desktop <span class="r-badge r-badge-pub">REAL PUBLIC AUDIT</span> <span class="r-badge r-badge-demo">DEMO DATA</span></h2>';
+    html += '<p class="r-kicker">Lab scores and screenshots are the public Shopify store. The device funnel is a demo allocation of filtered Shopify DTC orders.</p>';
+    var shots = A.screenshots || {};
+    html += '<div class="r-shots">' + ['homeDesktop', 'homeMobile', 'productDesktop', 'productMobile'].map(function (k) {
+      if (!shots[k]) return '';
+      var src = shots[k].indexOf('http') === 0 ? shots[k] : (SITE + shots[k].replace(/^\//, ''));
+      return '<img alt="' + esc(k) + '" src="' + esc(src) + '" style="max-width:100%;height:auto;margin:6px 0;border-radius:8px;">';
+    }).join('') + '</div>';
+    if (!demo.devices) html += '<p>No Shopify DTC orders in this filter, so the demo device funnel is empty.</p>';
+    else html += htm(['Device', 'Sessions', 'Orders', 'Conversion', 'AOV', 'Net revenue'], ['mobile', 'desktop'].map(function (name) {
+      var row = demo.devices[name];
+      return [name, row.sessions == null ? '—' : fn(row.sessions), fn(row.orders), row.cvr == null ? '—' : fp(row.cvr, 2), fm(row.aov, 2), fm(row.revenue)];
+    }));
+    var issues = (A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; });
+    html += '<h3>UX issues</h3><ul>' + issues.map(function (i) { return '<li><b>' + esc(i.severity) + '.</b> ' + esc(i.title) + ' ' + esc(i.detail) + '</li>'; }).join('') + '</ul>';
+    html += '<h3>Fixes, ranked</h3>' + htm(['#', 'Fix', 'Source', 'Impact', 'Effort'], (A.fixes || []).filter(function (x) { return x.area === 'ux'; }).map(function (x) { return [String(x.rank), x.title, x.source, x.impact, x.effort]; }));
+    html += '</section>';
+    return html;
   }
 
   function secMethod(m) {
@@ -610,7 +659,7 @@
     text += p.prev ? 'The previous period is the equal-length window immediately before (' + esc(p.prev.start) + ' to ' + esc(p.prev.end) + (p.prev.partial ? ', shortened because the dataset starts ' + esc(D().meta.start) : '') + '). ' : 'No previous period is available inside the dataset. ';
     text += p.yoy ? 'Last year is the same calendar dates one year earlier (' + esc(p.yoy.start) + ' to ' + esc(p.yoy.end) + '). ' : 'Last year falls outside the dataset, so year-ago comparisons are omitted. ';
     text += 'Order metrics use those filters. Paid media is platform-reported last click for the storefront. CRM is Klaviyo-style and covers Shopify DTC only. The 90-day forecast is seasonal-naive (same weekday last year times trailing 8-week growth) and uses the storefront only. ';
-    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. Open email draft copies this layout to the clipboard and opens a Gmail compose tab. It does not send anything. The listen link in that draft plays a Kokoro voice recap hosted with the dashboard, pre-rendered for last full month at all channels for all storefronts, Shopify, or Amazon. Other filters use the closest of those three, and the draft says so. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data.</p>';
+    text += 'Suggestions to add products or formats come from ' + esc(cat ? cat.label : 'public artist store catalogs, scraped Oct 27, 2026') + (cat && cat.method ? ' ' + esc(cat.method) : '') + ' Audience is ' + esc(m.tone === 'exec' ? 'an executive summary' : m.tone === 'detailed' ? 'a detailed readout' : 'the marketing team') + ', with up to ' + m.topN + ' rows in each list. SEO and UX scores, crawl findings, and screenshots are a real public audit of shop.warnerrecords.com. Keyword rankings, impressions, and the mobile versus desktop conversion split are demo data allocated from this synthetic dataset. Open email draft copies this layout to the clipboard and opens a Gmail compose tab. It does not send anything. The listen link plays a Kokoro recap. Edited paragraphs are kept when you regenerate if “Keep edited text” is on; tables and unedited paragraphs refresh from the data.</p>';
     return '<section class="r-sec" data-sec="method"><h2>How this report was built</h2>' + slot('method.body', text) + '</section>';
   }
 
@@ -620,7 +669,7 @@
   }
 
   function renderHtml(m) {
-    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, recommendations: secRecs, method: secMethod, notes: secNotes };
+    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, recommendations: secRecs, seo: secSeo, ux: secUx, method: secMethod, notes: secNotes };
     var partsHtml = state.order.map(function (id) {
       if (!map[id]) return '';
       var chunk = map[id](m);

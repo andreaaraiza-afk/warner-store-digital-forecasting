@@ -1,0 +1,31 @@
+# Re-audits the public Shopify storefront. It does not deploy the dashboard
+# and it does not commit. Download the artifact and replace data/public-audit.json
+# when you want the site to pick up a new run. No store login and no write to the shop.
+name: Public SEO and UX audit
+
+on:
+  schedule:
+    - cron: '0 15 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Lighthouse
+        run: npm install --no-fund --no-audit lighthouse@12.8.2 chrome-launcher@1.1.2
+      - name: Run the public audit
+        run: node scripts/audit-public.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public-audit
+          path: data/public-audit.json
+          if-no-files-found: error

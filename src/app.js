@@ -137,8 +137,124 @@ function render() {
   if (amz) k.push(['Amazon fees', fm(cur.fee), cmp && delta(cur.fee, cmp.fee, true)]);
   k.push(['CRM revenue (DTC)', dtc ? fm(c.rev) : '—', dtc ? cc && delta(c.rev, cc.rev) : '<span class="d neu">Klaviyo covers Shopify DTC only</span>']);
   $('kpis').innerHTML = kpiHtml(k);
-  renderOverview(cur, cmp, R); renderProducts(); renderAmazon(); renderMedia(); renderCrm(); renderForecast(); renderInsights();
+  renderOverview(cur, cmp, R); renderProducts(); renderAmazon(); renderMedia(); renderCrm(); renderForecast(); renderInsights(); renderSeoUx();
 }
+function auditRun(id, form) {
+  var A = window.WRAudit; if (!A || !A.runs) return null;
+  for (var i = 0; i < A.runs.length; i++) if (A.runs[i].id === id && A.runs[i].formFactor === form) return A.runs[i];
+  return null;
+}
+function auditDemo(s, e, f) {
+  var A = window.WRAudit, model = A && A.demoModel;
+  var dtc = !f || f.store === -1 || f.store === 0;
+  var organicBlocked = f && f.chan >= 0 && f.chan !== 0;
+  var dtcBlocked = f && f.chan >= NDTC;
+  var out = { dtc: dtc, organicBlocked: organicBlocked, dtcBlocked: dtcBlocked, keywords: [], pages: [], devices: null, organic: null };
+  if (!model) return out;
+  if (dtc && !organicBlocked) {
+    var org = agg(s, e, { store: 0, chan: 0, cat: f.cat, reg: f.reg });
+    out.organic = { net: org.net, orders: org.orders, sessions: org.sessions, cvr: org.cvr };
+    out.keywords = model.keywords.map(function (k) {
+      var clicks = org.sessions != null ? org.sessions * k.share : null;
+      return { query: k.query, position: k.position, ctr: k.ctr, share: k.share, clicks: clicks, impressions: clicks != null && k.ctr ? clicks / k.ctr : null, revenue: org.net * k.share };
+    });
+    out.pages = model.pages.map(function (p) {
+      return { path: p.path, title: p.title, share: p.share, revenue: org.net * p.share, sessions: org.sessions != null ? org.sessions * p.share : null };
+    });
+  }
+  if (dtc && !dtcBlocked) {
+    var chan = f.chan >= 0 && f.chan < NDTC ? f.chan : -1;
+    var base = agg(s, e, { store: 0, chan: chan, cat: f.cat, reg: f.reg });
+    var sess = null;
+    if (base.cvr != null) {
+      sess = 0;
+      var chans = chan >= 0 ? [chan] : [0, 1, 2, 3, 4, 5, 6, 7];
+      for (var d = s; d <= e; d++) chans.forEach(function (ch) { sess += D.sessions[d][ch] || 0; });
+    }
+    var om = base.orders * model.mobileOrderShare, od = base.orders - om;
+    var rm = base.net * model.mobileRevenueShare, rd = base.net - rm;
+    var sm = sess == null ? null : sess * model.mobileSessionShare;
+    var sd = sess == null ? null : sess - sm;
+    out.devices = {
+      mobile: { sessions: sm, orders: om, revenue: rm, cvr: sm ? om / sm : null, aov: om ? rm / om : 0 },
+      desktop: { sessions: sd, orders: od, revenue: rd, cvr: sd ? od / sd : null, aov: od ? rd / od : 0 }
+    };
+    out.deviceBase = { orders: base.orders, net: base.net, sessions: sess };
+  }
+  return out;
+}
+function scoreColor(n) { return n == null ? 'var(--mut)' : n >= 90 ? 'var(--good)' : n >= 50 ? 'var(--acc)' : 'var(--bad)'; }
+function sevClass(s) { return s === 'high' ? 'sev-high' : s === 'low' ? 'sev-low' : 'sev-medium'; }
+function issueLi(list) {
+  return (list || []).map(function (it) {
+    return '<li><span class="sev ' + sevClass(it.severity) + '">' + it.severity.toUpperCase() + '</span><b>' + it.title + '</b><div class="muted">' + it.detail + '</div></li>';
+  }).join('');
+}
+function renderSeoUx() {
+  var A = window.WRAudit;
+  if (!$('seo') || !A) return;
+  var homeM = auditRun('home', 'mobile'), homeD = auditRun('home', 'desktop');
+  $('seoBanner').textContent = A.source;
+  $('seoNote').textContent = 'Audited ' + (A.auditedAt || '').replace('T', ' ').slice(0, 16) + ' UTC · Lighthouse ' + (A.lighthouseVersion || '') + ' · ' + (A.fieldNote || '');
+  var pills = [];
+  [['Performance', homeM && homeM.scores.performance, homeD && homeD.scores.performance], ['Accessibility', homeM && homeM.scores.accessibility, homeD && homeD.scores.accessibility], ['Best practices', homeM && homeM.scores.bestPractices, homeD && homeD.scores.bestPractices], ['SEO', homeM && homeM.scores.seo, homeD && homeD.scores.seo]].forEach(function (row) {
+    pills.push('<div class="score-pill"><span>' + row[0] + '</span><b style="color:' + scoreColor(row[1]) + '">' + (row[1] == null ? '—' : row[1]) + '</b><span>mobile · desktop ' + (row[2] == null ? '—' : row[2]) + '</span></div>');
+  });
+  $('seoScores').innerHTML = pills.join('');
+  if (homeM && homeD) {
+    var labs = ['performance', 'accessibility', 'bestPractices', 'seo'];
+    var labels = ['Performance', 'Accessibility', 'Best practices', 'SEO'];
+    mk('cSeoScore', { type: 'bar', data: { labels: labels, datasets: [
+      { label: 'Mobile', data: labs.map(function (k) { return homeM.scores[k]; }), backgroundColor: '#5aa9ff', borderRadius: 3 },
+      { label: 'Desktop', data: labs.map(function (k) { return homeD.scores[k]; }), backgroundColor: '#f5c542', borderRadius: 3 }
+    ] }, options: { maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } } });
+  }
+  var realIssues = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; });
+  $('seoIssues').innerHTML = issueLi(realIssues);
+  var demo = auditDemo(state.R.s, state.R.e, state.F);
+  var kwNote = 'DEMO · not Search Console. ';
+  if (!demo.dtc) kwNote += 'Storefront filter is Amazon, so Shopify organic keywords are hidden.';
+  else if (demo.organicBlocked) kwNote += 'Channel filter excludes Organic Search, so keyword revenue is hidden.';
+  else if (demo.organic) kwNote += 'Revenue and clicks allocate this period’s Shopify Organic Search (' + fm(demo.organic.net) + ', ' + fn(demo.organic.orders) + ' orders).';
+  else kwNote += 'Demo model is not in this build.';
+  $('seoKwNote').textContent = kwNote;
+  table('tSeoKw', [{ k: 'query', l: 'Keyword' }, { k: 'position', l: 'Position', n: 1, f: function (v) { return v.toFixed(1); } }, { k: 'impressions', l: 'Impressions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'clicks', l: 'Clicks', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'ctr', l: 'CTR', n: 1, f: function (v) { return fp(v, 1); } }, { k: 'revenue', l: 'Revenue', n: 1, f: fm }], demo.keywords, 'revenue', true);
+  table('tSeoPages', [{ k: 'path', l: 'Page' }, { k: 'title', l: 'Title' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'revenue', l: 'Organic revenue', n: 1, f: fm }], demo.pages, 'revenue', true);
+  table('tSeoFix', [{ k: 'rank', l: '#', n: 1 }, { k: 'title', l: 'Fix' }, { k: 'source', l: 'Source' }, { k: 'impact', l: 'Impact' }, { k: 'effort', l: 'Effort' }], (A.fixes || []).filter(function (x) { return x.area !== 'ux'; }), 'rank', false);
+  $('uxBanner').textContent = A.uxNote || A.source;
+  var pages = ['home', 'collection', 'product', 'search', 'cart'];
+  var vitalRows = pages.map(function (id) {
+    var m = auditRun(id, 'mobile'), d = auditRun(id, 'desktop');
+    return m ? { page: id, lcpM: m.lab.lcpMs, lcpD: d && d.lab.lcpMs, clsM: m.lab.cls, clsD: d && d.lab.cls, tbtM: m.lab.tbtMs, tbtD: d && d.lab.tbtMs } : null;
+  }).filter(Boolean);
+  if (vitalRows.length) mk('cUxVital', { type: 'bar', data: { labels: vitalRows.map(function (r) { return r.page; }), datasets: [
+    { label: 'Mobile LCP (s)', data: vitalRows.map(function (r) { return r.lcpM / 1000; }), backgroundColor: '#e8453c', borderRadius: 3 },
+    { label: 'Desktop LCP (s)', data: vitalRows.map(function (r) { return r.lcpD / 1000; }), backgroundColor: '#f5c542', borderRadius: 3 }
+  ] }, options: { maintainAspectRatio: false, scales: { y: { ticks: { callback: function (v) { return v + 's'; } } } } } });
+  function cell(run) { return !run ? '—' : '<b style="color:' + scoreColor(run.scores.performance) + '">' + run.scores.performance + '</b> / ' + run.scores.accessibility + ' / ' + run.scores.bestPractices + ' / ' + run.scores.seo; }
+  $('uxScoreTable').innerHTML = '<table><thead><tr><th>Page</th><th>Mobile P / A / BP / SEO</th><th>Desktop</th><th>Mobile LCP</th><th>CLS</th><th>TBT</th></tr></thead><tbody>' + pages.map(function (id) {
+    var m = auditRun(id, 'mobile'), d = auditRun(id, 'desktop');
+    if (!m) return '';
+    return '<tr><td>' + id + '</td><td>' + cell(m) + '</td><td>' + cell(d) + '</td><td>' + (m.lab.lcpMs / 1000).toFixed(1) + 's</td><td>' + m.lab.cls + '</td><td>' + Math.round(m.lab.tbtMs) + 'ms</td></tr>';
+  }).join('') + '</tbody></table>';
+  var shots = A.screenshots || {};
+  $('uxShots').innerHTML = [['homeDesktop', 'Homepage · desktop'], ['homeMobile', 'Homepage · mobile'], ['productDesktop', 'Product · desktop'], ['productMobile', 'Product · mobile']].map(function (pair) {
+    var src = shots[pair[0]]; if (!src) return '';
+    return '<figure class="card shot-card"><img alt="' + pair[1] + ' of shop.warnerrecords.com" src="' + src + '"><figcaption>' + pair[1] + ' · real public screenshot</figcaption></figure>';
+  }).join('');
+  $('uxIssues').innerHTML = issueLi((A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; }));
+  var funnels = [];
+  if (!demo.devices) $('uxFunnelNote').textContent = 'DEMO device split is Shopify DTC. This storefront or channel filter has no Shopify DTC orders.';
+  else {
+    $('uxFunnelNote').textContent = demo.devices.mobile.cvr == null ? 'DEMO allocation of filtered Shopify DTC orders. Conversion is hidden because a category or region filter is on.' : 'DEMO allocation of filtered Shopify DTC orders and sessions. Mobile is ' + Math.round((A.demoModel.mobileSessionShare) * 100) + '% of sessions, with a lower order share and a lower AOV.';
+    ['mobile', 'desktop'].forEach(function (name) {
+      var row = demo.devices[name];
+      funnels.push({ device: name, sessions: row.sessions, orders: row.orders, cvr: row.cvr, aov: row.aov, revenue: row.revenue });
+    });
+  }
+  table('tUxFunnel', [{ k: 'device', l: 'Device' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'orders', l: 'Orders', n: 1, f: fn }, { k: 'cvr', l: 'Conversion', n: 1, f: function (v) { return v == null ? '—' : fp(v, 2); } }, { k: 'aov', l: 'AOV', n: 1, f: function (v) { return fm(v, 2); } }, { k: 'revenue', l: 'Net revenue', n: 1, f: fm }], funnels, 'revenue', true);
+}
+window.WRAuditDemo = auditDemo;
 function renderOverview(cur, cmp, R) {
   var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
   $('trendNote').textContent = (B.w === 7 ? 'Weekly' : 'Daily') + ' · dashed = comparison period';
@@ -605,7 +721,8 @@ function init() {
     data: function () { return D; }, today: function () { return T; },
     agg: agg, mediaAgg: mediaAgg, crmAgg: crmAgg, getForecast: getForecast, invFor: invFor,
     fm: fm, fn: fn, fp: fp, pct: pct, sgn: sgn, storeLabel: storeLabel, peakLabel: peakLabel,
-    pageFilters: function () { return { store: +$('fStore').value, chan: +$('fChan').value, cat: +$('fCat').value }; }
+    pageFilters: function () { return { store: +$('fStore').value, chan: +$('fChan').value, cat: +$('fCat').value, reg: +$('fReg').value }; },
+    auditDemo: function (s, e, f) { return auditDemo(s, e, Object.assign({ reg: -1, cat: -1, chan: -1, store: -1 }, f || {})); }
   });
   $('loading').remove(); window.__WR_READY = true;
 }
