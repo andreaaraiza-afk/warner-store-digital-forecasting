@@ -7,7 +7,7 @@
 <body>
 <header class="top">
   <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast · Suggestions</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
-  <nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#suggest">Suggestions</a></nav>
+  <div class="head-actions"><button type="button" id="btnReport" class="btn-report">Generate report</button><nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#suggest">Suggestions</a></nav></div>
 </header>
 <section class="filters">
   <label class="store">Storefront<select id="fStore"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select></label>
@@ -89,7 +89,43 @@
 <footer>DEMO DATA only. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. The Product suggestions section is separate: public artist store catalogs, scraped Oct 27, 2026. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
 </main>
 <div id="loading">Generating demo dataset…</div>
+<div id="reportOverlay" class="hide" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+  <div class="report-shell">
+    <aside class="report-tools no-print">
+      <div class="card-h"><h2 id="reportTitle">Report builder</h2><button type="button" id="rClose" class="btn-quiet">Close</button></div>
+      <p class="muted">Last full month by default. Storefront, channel, and category start from the dashboard filters.</p>
+      <label>Period<select id="rPeriod"><option value="last-month" selected>Last full month</option><option value="mtd">This month to date</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="custom">Custom range</option></select></label>
+      <div id="rCustom" class="hide"><label>From<input type="date" id="rFrom"></label><label>To<input type="date" id="rTo"></label></div>
+      <label>Storefront<select id="rStore"></select></label>
+      <label>Channel<select id="rChan"></select></label>
+      <label>Category<select id="rCat"></select></label>
+      <label>Audience<select id="rTone"><option value="exec">Executive summary</option><option value="marketing" selected>Marketing team</option><option value="detailed">Detailed</option></select></label>
+      <label>Top items<select id="rTop"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></label>
+      <label class="check"><input type="checkbox" id="rKeep" checked> Keep edited text on regenerate</label>
+      <div id="rSectionList"></div>
+      <div class="preset-box">
+        <label>Preset name<input id="rPresetName" type="text" placeholder="September readout"></label>
+        <div class="preset-row"><button type="button" id="rSave">Save preset</button><select id="rPresets"><option value="">Saved presets</option></select></div>
+        <div class="preset-row"><button type="button" id="rLoad">Load</button><button type="button" id="rDelete">Delete</button></div>
+      </div>
+      <p class="muted" id="rStatus"></p>
+    </aside>
+    <div class="report-stage">
+      <div class="report-actions no-print">
+        <button type="button" id="rRegen" class="btn-report">Regenerate</button>
+        <button type="button" id="rPdf">Download PDF</button>
+        <button type="button" id="rHtml">Download HTML</button>
+        <button type="button" id="rMd">Download Markdown</button>
+        <button type="button" id="rCopy">Copy</button>
+        <a id="rMail" href="mailto:?subject=Warner%20Records%20Store%20analysis">Open email draft</a>
+        <button type="button" id="rDiscard">Discard edits</button>
+      </div>
+      <article id="reportDoc" class="report-doc"></article>
+    </div>
+  </div>
+</div>
 <script>/*CATALOG*/</script>
 <script>/*DATAGEN*/</script>
+<script>/*REPORT*/</script>
 <script>/*APP*/</script>
 </body></html>

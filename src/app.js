@@ -601,6 +601,12 @@ function init() {
   $('dataLink').addEventListener('click', function (e) { e.preventDefault(); var blob = new Blob([JSON.stringify(WRData.exportSummary(D))], { type: 'application/json' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wr-store-demo-data.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); });
   render();
   sugInit();
+  if (window.WRReportInstall) window.WRReportInstall({
+    data: function () { return D; }, today: function () { return T; },
+    agg: agg, mediaAgg: mediaAgg, crmAgg: crmAgg, getForecast: getForecast, invFor: invFor,
+    fm: fm, fn: fn, fp: fp, pct: pct, sgn: sgn, storeLabel: storeLabel, peakLabel: peakLabel,
+    pageFilters: function () { return { store: +$('fStore').value, chan: +$('fChan').value, cat: +$('fCat').value }; }
+  });
   $('loading').remove(); window.__WR_READY = true;
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
