@@ -17,7 +17,16 @@ function delta(a, b, inv) { var p = pct(a, b); if (p == null || !isFinite(p)) re
 function ddelta(a, b) { if (a == null || b == null || isNaN(a) || isNaN(b)) return '<span class="d neu">n/a</span>'; var x = a - b; return '<span class="d ' + (x >= 0 ? 'up' : 'dn') + '">' + (x >= 0 ? '▲ ' : '▼ ') + Math.abs(x * 100).toFixed(1) + ' pts</span>'; }
 function sum(a, s, e) { var t = 0; for (var i = s; i <= e; i++) t += a[i] || 0; return t; }
 function mk(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), cfg); return charts[id]; }
-function kpiHtml(k) { return k.map(function (x) { return '<div class="kpi"><div class="l">' + x[0] + '</div><div class="v">' + x[1] + '</div>' + (x[2] || '<span class="d neu">n/a</span>') + '</div>'; }).join(''); }
+function kpiHtml(k) { return k.map(function (x) { return '<div class="kpi"><div class="l">' + x[0] + '</div><div class="v">' + x[1] + '</div>' + (x[2] || '<span class="d neu">n/a</span>') + (x[3] || '') + '</div>'; }).join(''); }
+function spark(arr, good) {
+  if (!arr || arr.length < 2) return '';
+  var mx = -Infinity, mn = Infinity, i;
+  for (i = 0; i < arr.length; i++) { if (arr[i] == null || !isFinite(arr[i])) continue; if (arr[i] > mx) mx = arr[i]; if (arr[i] < mn) mn = arr[i]; }
+  if (!isFinite(mx)) return '';
+  var pts = arr.map(function (v, n) { var y = 20 - ((v - mn) / (mx - mn || 1)) * 18; return (n / (arr.length - 1) * 100).toFixed(1) + ',' + y.toFixed(1); }).join(' ');
+  return '<svg viewBox="0 0 100 22" preserveAspectRatio="none" aria-hidden="true"><polyline fill="none" stroke="' + (good ? '#3ddc97' : '#ff6b6b') + '" stroke-width="1.6" vector-effect="non-scaling-stroke" points="' + pts + '"/></svg>';
+}
+function goodDelta(html) { return html && html.indexOf('class="d up"') >= 0; }
 
 // ---------- storefront helpers ----------
 // store filter: -1 all, 0 Shopify DTC, 10 all Amazon, 1..3 a single Amazon marketplace
@@ -45,7 +54,7 @@ function agg(s, e, f) {
       if (!stOk(so, f.store)) continue; if (f.chan >= 0 && O.chan[o] !== f.chan) continue; if (f.reg >= 0 && O.reg[o] !== f.reg) continue;
       var hit = 0, orev = 0, sc = O.soc[o];
       for (var l = O.line[o]; l < O.line[o + 1]; l++) {
-        var p = L.prod[l], c = D.products[p].cat; if (f.cat >= 0 && c !== f.cat) continue;
+        var p = L.prod[l], c = D.products[p].cat; if (f.cat >= 0 && c !== f.cat) continue; if (f.artist && D.products[p].artist !== f.artist) continue;
         hit = 1; var v = L.rev[l], q = L.qty[l], nv = L.ret[l] ? 0 : v, fe = L.fee[l];
         r.gross += v; if (L.ret[l]) { r.ret += v; r.pru[p] += q; } r.units += q; r.cat[c] += nv; r.pu[p] += q; r.pr[p] += nv; orev += nv;
         r.fee += fe; r.feeRef += L.feeRef[l]; r.pfee[p] += fe; r.stFee[so] += fe; r.stFeeRef[so] += L.feeRef[l]; r.stUnits[so] += q; r.puS[so][p] += q;
@@ -65,7 +74,7 @@ function agg(s, e, f) {
   r.amzNet = r.st[1] + r.st[2] + r.st[3];
   r.dSess = [];
   for (d = s; d <= e; d++) { var row = D.sessions[d], t = 0; for (var st = 0; st < NST; st++) if (stOk(st, f.store)) for (var ch = 0; ch < NCH; ch++) if (f.chan < 0 || ch === f.chan) t += row[st * NCH + ch]; r.dSess.push(t); }
-  if (f.cat < 0 && f.reg < 0) { r.sessions = r.dSess.reduce(function (a, b) { return a + b; }, 0); r.cvr = r.sessions ? r.orders / r.sessions : null; } else { r.sessions = null; r.cvr = null; }
+  if (f.cat < 0 && f.reg < 0 && !f.artist) { r.sessions = r.dSess.reduce(function (a, b) { return a + b; }, 0); r.cvr = r.sessions ? r.orders / r.sessions : null; } else { r.sessions = null; r.cvr = null; }
   return r;
 }
 function mediaOk(m, plat, store) { if (plat && m.platform !== plat) return false; return stOk(m.store, store); }
@@ -103,7 +112,7 @@ function getRange() {
   var len = e - s + 1, cmp = $('fCmp').value === 'yoy' ? [s - 364, e - 364] : [s - len, s - 1];
   return { s: s, e: e, len: len, cs: cmp[0], ce: cmp[1] };
 }
-function filt() { return { cat: +$('fCat').value, chan: +$('fChan').value, reg: +$('fReg').value, store: +$('fStore').value }; }
+function filt() { return { cat: +$('fCat').value, chan: +$('fChan').value, reg: +$('fReg').value, store: +$('fStore').value, artist: ($('fArtist') && $('fArtist').value) || '' }; }
 function buckets(s, e) { var len = e - s + 1, w = len > 120 ? 7 : 1, out = []; for (var d = s; d <= e; d += w) out.push([d, Math.min(e, d + w - 1)]); return { w: w, b: out }; }
 function bsum(arr, s0, b) { return b.map(function (x) { var t = 0; for (var d = x[0]; d <= x[1]; d++) t += arr[d - s0] || 0; return t; }); }
 function syncChannelOptions() {
@@ -116,7 +125,41 @@ function syncChannelOptions() {
 
 // ---------- render ----------
 var state = {};
+var ui = { chan: 'social', bk: 'chan', prodOpen: false, mediaOpen: false, crmOpen: false, amzOpen: false, socOpen: false, healthCols: false, fixesOpen: false, sugAll: false, focusSku: '', focusCamp: '' };
+function dailySpend(s, e, store) {
+  var out = [];
+  for (var d = s; d <= e; d++) { var t = 0; D.media.forEach(function (mm) { if (mediaOk(mm, '', store)) t += mm.spend[d] || 0; }); out.push(t); }
+  return out;
+}
+function artistNamed(name, artist) { return !!(artist && name && String(name).toLowerCase().indexOf(artist.toLowerCase()) >= 0); }
+function moreLink(flag, label) { return '<button type="button" class="link" data-more="' + flag + '">' + label + '</button>'; }
+function bindDrawer(id, fn) {
+  var el = $(id); if (!el) return;
+  el._draw = fn;
+  if (!el._wired) { el._wired = true; el.addEventListener('toggle', function () { if (el.open && el._draw) el._draw(); }); }
+  if (el.open) fn();
+}
+function setStorefront(v, skipRender) {
+  $('fStore').value = String(v);
+  var amz = v > 0;
+  $('fAmz').classList.toggle('hide', !amz);
+  if (amz) $('fAmz').value = String(v);
+  $('storeSeg').querySelectorAll('button').forEach(function (b) {
+    var dv = b.getAttribute('data-v');
+    b.classList.toggle('on', dv === 'amazon' ? amz : dv === String(v));
+  });
+  if (!skipRender) render();
+}
+function moreCount() {
+  var n = 0;
+  if ($('fCat').value !== '-1') n++;
+  if ($('fChan').value !== '-1') n++;
+  if ($('fReg').value !== '-1') n++;
+  if ($('fCmp').value !== 'prev') n++;
+  return n;
+}
 function render() {
+  if (!state.holdFocus) { state.focusSku = ''; ui.focusCamp = ''; }
   syncChannelOptions();
   var R = getRange(), F = filt(); state.R = R; state.F = F;
   var cur = agg(R.s, R.e, F), cmp = R.cs >= 0 ? agg(R.cs, R.ce, F) : null;
@@ -124,20 +167,41 @@ function render() {
   var c = crmAgg(R.s, R.e), cc = R.cs >= 0 ? crmAgg(R.cs, R.ce) : null;
   state.cur = cur; state.cmp = cmp; state.dtcAll = (F.chan < 0 ? cur : agg(R.s, R.e, Object.assign({}, F, { chan: -1 }))).st[0]; state.m = m; state.mc = mc; state.c = c; state.cc = cc;
   state.FC = getForecast(F.store);
-  $('rangeInfo').innerHTML = '<b>' + storeLabel(F.store) + '</b> · ' + D.iso(R.s) + ' → ' + D.iso(R.e) + ' (' + R.len + 'd) vs ' + (R.cs >= 0 ? D.iso(R.cs) + ' → ' + D.iso(R.ce) : 'n/a (before data start)');
-  var dtc = incDTC(F.store), amz = incAmz(F.store);
+  state.spend = dailySpend(R.s, R.e, F.store);
+  state.spendC = R.cs >= 0 ? dailySpend(R.cs, R.ce, F.store) : null;
+  var who = F.artist || 'All artists';
+  $('rangeInfo').innerHTML = '<b>' + storeLabel(F.store) + '</b> · ' + esc(who) + ' · ' + D.iso(R.s) + ' → ' + D.iso(R.e) + ' (' + R.len + 'd) vs ' + (R.cs >= 0 ? D.iso(R.cs) + ' → ' + D.iso(R.ce) : 'n/a (before data start)');
+  var nMore = moreCount();
+  $('moreBtn').textContent = nMore ? 'More filters · ' + nMore : 'More filters';
+  var merHtml, merSpark = '';
+  if (F.artist) merHtml = '<span class="d neu">Spend is not split by artist</span>';
+  else if (m.spend) {
+    var mer = cur.net / m.spend, merP = cmp && mc && mc.spend ? cmp.net / mc.spend : null;
+    merHtml = (cmp && mc && mc.spend ? delta(mer, merP) : '<span class="d neu">n/a</span>');
+    merSpark = spark(state.spend.map(function (sp, i) { return sp ? cur.dRev[i] / sp : null; }), !(merP != null && mer < merP));
+  } else merHtml = '<span class="d neu">n/a</span>';
+  var cvrHtml = cur.cvr == null ? '<span class="d neu">n/a with category, region, or artist</span>' : (cmp && cmp.cvr != null ? delta(cur.cvr, cmp.cvr) : '<span class="d neu">n/a</span>');
+  var cvrSeries = cur.cvr == null ? null : cur.dOrd.map(function (o, i) { return cur.dSess[i] ? o / cur.dSess[i] : null; });
+  var aovSeries = cur.dOrd.map(function (o, i) { return o ? cur.dRev[i] / o : null; });
+  var newSeries = cur.dOrd.map(function (o, i) { return o ? cur.dNew[i] / o : null; });
+  var dNet = cmp && delta(cur.net, cmp.net), dOrd = cmp && delta(cur.orders, cmp.orders), dAov = cmp && delta(cur.aov, cmp.aov), dNew = cmp && ddelta(cur.newShare, cmp.newShare);
   var k = [
-    ['Net revenue', fm(cur.net), cmp && delta(cur.net, cmp.net)], ['Orders', fn(cur.orders), cmp && delta(cur.orders, cmp.orders)],
-    ['AOV', fm(cur.aov, 2), cmp && delta(cur.aov, cmp.aov)], ['Units sold', fn(cur.units), cmp && delta(cur.units, cmp.units)],
-    [F.store > 0 || F.store === 10 ? 'Unit session %' : 'Conversion rate', cur.cvr == null ? '—' : fp(cur.cvr, 2), cur.cvr == null ? '<span class="d neu">n/a with category/region filter</span>' : cmp && delta(cur.cvr, cmp.cvr)],
-    [dtc ? 'New customer share' : 'New-to-brand share', fp(cur.newShare), cmp && ddelta(cur.newShare, cmp.newShare)], ['Return rate', fp(cur.retRate), cmp && delta(cur.retRate, cmp.retRate, true)],
-    ['Paid media MER', m.spend ? (cur.net / m.spend).toFixed(2) + 'x' : '—', cmp && mc && mc.spend ? delta(cur.net / m.spend, cmp.net / mc.spend) : '']
+    ['Net revenue', fm(cur.net), dNet || '<span class="d neu">n/a</span>', spark(cur.dRev, goodDelta(dNet))],
+    ['Orders', fn(cur.orders), dOrd || '<span class="d neu">n/a</span>', spark(cur.dOrd, goodDelta(dOrd))],
+    ['AOV', fm(cur.aov, 2), dAov || '<span class="d neu">n/a</span>', spark(aovSeries, goodDelta(dAov))],
+    [F.store > 0 || F.store === 10 ? 'Unit session %' : 'Conversion rate', cur.cvr == null ? '—' : fp(cur.cvr, 2), cvrHtml, spark(cvrSeries, goodDelta(cvrHtml))],
+    [incDTC(F.store) ? 'New customer share' : 'New-to-brand share', fp(cur.newShare), dNew || '<span class="d neu">n/a</span>', spark(newSeries, goodDelta(dNew))],
+    ['Paid media MER', F.artist || !m.spend ? '—' : (cur.net / m.spend).toFixed(2) + 'x', merHtml, merSpark]
   ];
-  if (dtc) k.push(['Organic social revenue', fm(cur.socNet), cmp && delta(cur.socNet, cmp.socNet)]);
-  if (amz) k.push(['Amazon fees', fm(cur.fee), cmp && delta(cur.fee, cmp.fee, true)]);
-  k.push(['CRM revenue (DTC)', dtc ? fm(c.rev) : '—', dtc ? cc && delta(c.rev, cc.rev) : '<span class="d neu">Klaviyo covers Shopify DTC only</span>']);
   $('kpis').innerHTML = kpiHtml(k);
-  renderOverview(cur, cmp, R); renderProducts(); renderAmazon(); renderMedia(); renderCrm(); renderForecast(); renderInsights(); renderSeoUx();
+  var moved = [];
+  moved.push('Units ' + fn(cur.units) + (cmp ? ' ' + sgn(pct(cur.units, cmp.units)) : ''));
+  moved.push('Return rate ' + fp(cur.retRate));
+  $('ovMoved').textContent = 'Units and return rate sit with products. Organic social, CRM, and Amazon fees sit on their channel tab.';
+  state.movedLine = moved.join(' · ');
+  renderOverview(cur, cmp, R); renderChannels(); renderProducts(); renderForecast(); renderInsights(); renderSeoUx();
+  state.holdFocus = false;
+  if (state.focusSku) { var hit = document.querySelector('#tProd tr.hit'); if (hit && hit.scrollIntoView) hit.scrollIntoView({ block: 'nearest' }); }
 }
 function auditRun(id, form) {
   var A = window.WRAudit; if (!A || !A.runs) return null;
@@ -190,71 +254,120 @@ function issueLi(list) {
     return '<li><span class="sev ' + sevClass(it.severity) + '">' + it.severity.toUpperCase() + '</span><b>' + it.title + '</b><div class="muted">' + it.detail + '</div></li>';
   }).join('');
 }
+function scoreSpan(n) {
+  if (n == null || n === '') return '—';
+  var c = n < 50 ? 's-bad' : n < 90 ? 's-mid' : 's-ok';
+  return '<span class="score ' + c + '">' + n + '</span>';
+}
 function renderSeoUx() {
   var A = window.WRAudit;
-  if (!$('seo') || !A) return;
-  var homeM = auditRun('home', 'mobile'), homeD = auditRun('home', 'desktop');
-  $('seoBanner').textContent = A.source;
+  if (!$('health') || !A) return;
+  $('seoBanner').textContent = (A.source || '') + (A.uxNote ? ' ' + A.uxNote : '');
   $('seoNote').textContent = 'Audited ' + (A.auditedAt || '').replace('T', ' ').slice(0, 16) + ' UTC · Lighthouse ' + (A.lighthouseVersion || '') + ' · ' + (A.fieldNote || '');
-  var pills = [];
-  [['Performance', homeM && homeM.scores.performance, homeD && homeD.scores.performance], ['Accessibility', homeM && homeM.scores.accessibility, homeD && homeD.scores.accessibility], ['Best practices', homeM && homeM.scores.bestPractices, homeD && homeD.scores.bestPractices], ['SEO', homeM && homeM.scores.seo, homeD && homeD.scores.seo]].forEach(function (row) {
-    pills.push('<div class="score-pill"><span>' + row[0] + '</span><b style="color:' + scoreColor(row[1]) + '">' + (row[1] == null ? '—' : row[1]) + '</b><span>mobile · desktop ' + (row[2] == null ? '—' : row[2]) + '</span></div>');
-  });
-  $('seoScores').innerHTML = pills.join('');
-  if (homeM && homeD) {
-    var labs = ['performance', 'accessibility', 'bestPractices', 'seo'];
-    var labels = ['Performance', 'Accessibility', 'Best practices', 'SEO'];
-    mk('cSeoScore', { type: 'bar', data: { labels: labels, datasets: [
-      { label: 'Mobile', data: labs.map(function (k) { return homeM.scores[k]; }), backgroundColor: '#5aa9ff', borderRadius: 3 },
-      { label: 'Desktop', data: labs.map(function (k) { return homeD.scores[k]; }), backgroundColor: '#f5c542', borderRadius: 3 }
-    ] }, options: { maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } } });
-  }
-  var realIssues = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; });
-  $('seoIssues').innerHTML = issueLi(realIssues);
-  var demo = auditDemo(state.R.s, state.R.e, state.F);
-  var kwNote = 'DEMO · not Search Console. ';
-  if (!demo.dtc) kwNote += 'Storefront filter is Amazon, so Shopify organic keywords are hidden.';
-  else if (demo.organicBlocked) kwNote += 'Channel filter excludes Organic Search, so keyword revenue is hidden.';
-  else if (demo.organic) kwNote += 'Revenue and clicks allocate this period’s Shopify Organic Search (' + fm(demo.organic.net) + ', ' + fn(demo.organic.orders) + ' orders).';
-  else kwNote += 'Demo model is not in this build.';
-  $('seoKwNote').textContent = kwNote;
-  table('tSeoKw', [{ k: 'query', l: 'Keyword' }, { k: 'position', l: 'Position', n: 1, f: function (v) { return v.toFixed(1); } }, { k: 'impressions', l: 'Impressions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'clicks', l: 'Clicks', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'ctr', l: 'CTR', n: 1, f: function (v) { return fp(v, 1); } }, { k: 'revenue', l: 'Revenue', n: 1, f: fm }], demo.keywords, 'revenue', true);
-  table('tSeoPages', [{ k: 'path', l: 'Page' }, { k: 'title', l: 'Title' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'revenue', l: 'Organic revenue', n: 1, f: fm }], demo.pages, 'revenue', true);
-  table('tSeoFix', [{ k: 'rank', l: '#', n: 1 }, { k: 'title', l: 'Fix' }, { k: 'source', l: 'Source' }, { k: 'impact', l: 'Impact' }, { k: 'effort', l: 'Effort' }], (A.fixes || []).filter(function (x) { return x.area !== 'ux'; }), 'rank', false);
-  $('uxBanner').textContent = A.uxNote || A.source;
   var pages = ['home', 'collection', 'product', 'search', 'cart'];
-  var vitalRows = pages.map(function (id) {
+  var rows = pages.map(function (id) {
     var m = auditRun(id, 'mobile'), d = auditRun(id, 'desktop');
-    return m ? { page: id, lcpM: m.lab.lcpMs, lcpD: d && d.lab.lcpMs, clsM: m.lab.cls, clsD: d && d.lab.cls, tbtM: m.lab.tbtMs, tbtD: d && d.lab.tbtMs } : null;
+    if (!m) return null;
+    return { page: id, perf: m.scores.performance, perfD: d && d.scores.performance, seo: m.scores.seo, seoD: d && d.scores.seo, a11y: m.scores.accessibility, a11yD: d && d.scores.accessibility, bp: m.scores.bestPractices, bpD: d && d.scores.bestPractices, lcp: m.lab.lcpMs / 1000, lcpD: d && d.lab.lcpMs / 1000, cls: m.lab.cls, clsD: d && d.lab.cls, tbt: m.lab.tbtMs, tbtD: d && d.lab.tbtMs };
   }).filter(Boolean);
-  if (vitalRows.length) mk('cUxVital', { type: 'bar', data: { labels: vitalRows.map(function (r) { return r.page; }), datasets: [
-    { label: 'Mobile LCP (s)', data: vitalRows.map(function (r) { return r.lcpM / 1000; }), backgroundColor: '#e8453c', borderRadius: 3 },
-    { label: 'Desktop LCP (s)', data: vitalRows.map(function (r) { return r.lcpD / 1000; }), backgroundColor: '#f5c542', borderRadius: 3 }
-  ] }, options: { maintainAspectRatio: false, scales: { y: { ticks: { callback: function (v) { return v + 's'; } } } } } });
-  function cell(run) { return !run ? '—' : '<b style="color:' + scoreColor(run.scores.performance) + '">' + run.scores.performance + '</b> / ' + run.scores.accessibility + ' / ' + run.scores.bestPractices + ' / ' + run.scores.seo; }
-  $('uxScoreTable').innerHTML = '<table><thead><tr><th>Page</th><th>Mobile P / A / BP / SEO</th><th>Desktop</th><th>Mobile LCP</th><th>CLS</th><th>TBT</th></tr></thead><tbody>' + pages.map(function (id) {
-    var m = auditRun(id, 'mobile'), d = auditRun(id, 'desktop');
-    if (!m) return '';
-    return '<tr><td>' + id + '</td><td>' + cell(m) + '</td><td>' + cell(d) + '</td><td>' + (m.lab.lcpMs / 1000).toFixed(1) + 's</td><td>' + m.lab.cls + '</td><td>' + Math.round(m.lab.tbtMs) + 'ms</td></tr>';
-  }).join('') + '</tbody></table>';
+  var cols = [
+    { k: 'page', l: 'Page' },
+    { k: 'perf', l: 'Perf M / D', f: function (v, r) { return scoreSpan(r.perf) + ' / ' + scoreSpan(r.perfD); } },
+    { k: 'seo', l: 'SEO M / D', f: function (v, r) { return scoreSpan(r.seo) + ' / ' + scoreSpan(r.seoD); } },
+    { k: 'a11y', l: 'A11y', cls: 'hide-m', f: function (v, r) { return scoreSpan(r.a11y) + ' / ' + scoreSpan(r.a11yD); } },
+    { k: 'lcp', l: 'Mobile LCP', n: 1, f: function (v) { return '<span class="score ' + (v >= 4 ? 's-bad' : v >= 2.5 ? 's-mid' : 's-ok') + '">' + v.toFixed(1) + 's</span>'; } },
+    { k: 'cls', l: 'CLS', n: 1, f: function (v) { return '<span class="score ' + (v >= 0.1 ? 's-bad' : 's-ok') + '">' + v + '</span>'; } }
+  ];
+  if (ui.healthCols) cols.push(
+    { k: 'bp', l: 'Best practices M / D', f: function (v, r) { return scoreSpan(r.bp) + ' / ' + scoreSpan(r.bpD); } },
+    { k: 'lcpD', l: 'Desktop LCP', n: 1, f: function (v) { return v == null ? '—' : v.toFixed(1) + 's'; } },
+    { k: 'clsD', l: 'Desktop CLS', n: 1, f: function (v) { return v == null ? '—' : String(v); } },
+    { k: 'tbt', l: 'TBT M / D', f: function (v, r) { return Math.round(r.tbt) + ' / ' + (r.tbtD == null ? '—' : Math.round(r.tbtD)) + ' ms'; } }
+  );
+  table('tScore', cols, rows, 'page', false);
+  var homeM = auditRun('home', 'mobile'), homeD = auditRun('home', 'desktop');
+  var bp = homeM && homeD ? 'Homepage best practices ' + homeM.scores.bestPractices + ' / ' + homeD.scores.bestPractices + '. TBT and desktop vitals are in all columns.' : '';
+  $('healthMore').innerHTML = '<span>' + bp + '</span>' + moreLink('healthCols', ui.healthCols ? 'Fewer columns' : 'All columns');
+  var fixes = (A.fixes || []).slice().sort(function (a, b) { return a.rank - b.rank; });
+  var shownF = ui.fixesOpen ? fixes : fixes.slice(0, 5);
+  function sevOf(impact) { return impact === 'High' ? 'h' : impact === 'Low' ? 'l' : 'm'; }
+  function tagOf(area) { return area === 'ux' ? 'UX' : area === 'seo' ? 'SEO' : String(area || '').toUpperCase(); }
+  var fixHtml = shownF.map(function (fx) {
+    var badge = fx.source === 'DEMO' ? '<span class="badge-demo">DEMO</span>' : '<span class="badge-real">REAL</span>';
+    return '<div class="issue"><span class="sev ' + sevOf(fx.impact) + '">' + esc(String(fx.impact || '').toUpperCase()) + '</span><div><div class="t">' + esc(fx.title) + ' <span class="tag">' + esc(tagOf(fx.area)) + '</span> ' + badge + '</div><div class="m">Impact ' + esc(fx.impact) + ' · effort ' + esc(fx.effort) + ' · ' + esc(fx.source) + '</div></div></div>';
+  }).join('') || '<p class="muted">No ranked fixes in the audit file.</p>';
+  var issues = A.issues || [];
+  if (ui.fixesOpen && issues.length) {
+    fixHtml += '<p class="muted" style="margin-top:8px">Audit findings</p>' + issues.map(function (it) {
+      return '<div class="issue"><span class="sev ' + (it.severity === 'high' ? 'h' : it.severity === 'low' ? 'l' : 'm') + '">' + esc(it.severity.toUpperCase()) + '</span><div><div class="t">' + esc(it.title) + ' <span class="tag">' + esc(tagOf(it.area)) + '</span></div><div class="m">' + esc(it.detail) + '</div></div></div>';
+    }).join('');
+  }
+  $('fixes').innerHTML = fixHtml;
+  $('fixesMore').innerHTML = '<span>' + (ui.fixesOpen ? 'All ' + fixes.length + ' fixes plus the audit findings' : 'Top ' + shownF.length + ' of ' + fixes.length + ' · findings open with Show all') + '</span>' + moreLink('fixesOpen', ui.fixesOpen ? 'Show less' : 'Show all ' + fixes.length);
   var shots = A.screenshots || {};
   $('uxShots').innerHTML = [['homeDesktop', 'Homepage · desktop'], ['homeMobile', 'Homepage · mobile'], ['productDesktop', 'Product · desktop'], ['productMobile', 'Product · mobile']].map(function (pair) {
     var src = shots[pair[0]]; if (!src) return '';
-    return '<figure class="card shot-card"><img alt="' + pair[1] + ' of shop.warnerrecords.com" src="' + src + '"><figcaption>' + pair[1] + ' · real public screenshot</figcaption></figure>';
+    return '<figure class="card shot-card"><img alt="' + esc(pair[1]) + ' of shop.warnerrecords.com" src="' + src + '"><figcaption>' + esc(pair[1]) + ' · real public screenshot</figcaption></figure>';
   }).join('');
-  $('uxIssues').innerHTML = issueLi((A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; }));
-  var funnels = [];
-  if (!demo.devices) $('uxFunnelNote').textContent = 'DEMO device split is Shopify DTC. This storefront or channel filter has no Shopify DTC orders.';
-  else {
-    $('uxFunnelNote').textContent = demo.devices.mobile.cvr == null ? 'DEMO allocation of filtered Shopify DTC orders. Conversion is hidden because a category or region filter is on.' : 'DEMO allocation of filtered Shopify DTC orders and sessions. Mobile is ' + Math.round((A.demoModel.mobileSessionShare) * 100) + '% of sessions, with a lower order share and a lower AOV.';
+  var demo = auditDemo(state.R.s, state.R.e, state.F);
+  var kw = demo.keywords || [], pageRows = demo.pages || [];
+  var kwNote = 'DEMO · not Search Console. ';
+  if (state.F.artist) {
+    var al = state.F.artist.toLowerCase();
+    kw = kw.filter(function (k) { return String(k.query).toLowerCase().indexOf(al) >= 0; });
+    pageRows = pageRows.filter(function (pg) { return (pg.title + ' ' + pg.path).toLowerCase().indexOf(al) >= 0; });
+    kwNote += kw.length ? 'Rows whose query names ' + state.F.artist + '. Revenue is still the Organic Search allocation, not an artist slice. ' : 'No demo keyword is named for ' + state.F.artist + '. ';
+  }
+  if (!demo.dtc) kwNote += 'Storefront filter is Amazon, so Shopify organic keywords are hidden.';
+  else if (demo.organicBlocked) kwNote += 'Channel filter excludes Organic Search, so keyword revenue is hidden.';
+  else if (demo.organic) kwNote += 'Revenue and clicks allocate this period’s Shopify Organic Search (' + fm(demo.organic.net) + ', ' + fn(demo.organic.orders) + ' orders).';
+  $('seoKwNote').textContent = kwNote;
+  table('tSeoKw', [{ k: 'query', l: 'Keyword' }, { k: 'position', l: 'Position', n: 1, f: function (v) { return v.toFixed(1); } }, { k: 'impressions', l: 'Impressions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'clicks', l: 'Clicks', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'ctr', l: 'CTR', n: 1, f: function (v) { return fp(v, 1); } }, { k: 'revenue', l: 'Revenue', n: 1, f: fm }], kw, 'revenue', true);
+  table('tSeoPages', [{ k: 'path', l: 'Page' }, { k: 'title', l: 'Title', cls: 'hide-m' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'revenue', l: 'Organic revenue', n: 1, f: fm }], pageRows, 'revenue', true);
+  var funnels = [], sum = $('funnelSum');
+  if (state.F.artist) {
+    sum.innerHTML = 'Demo device funnel <span class="badge-demo">DEMO</span>';
+    $('uxFunnelNote').textContent = 'The demo device model is not split by artist. Clear the artist filter to see the Shopify DTC mobile and desktop allocation.';
+  } else if (!demo.devices) {
+    sum.innerHTML = 'Demo device funnel <span class="badge-demo">DEMO</span>';
+    $('uxFunnelNote').textContent = 'DEMO device split is Shopify DTC. This storefront or channel filter has no Shopify DTC orders.';
+  } else {
+    var mob = demo.devices.mobile, desk = demo.devices.desktop;
+    var line = 'Demo device funnel · mobile AOV ' + fm(mob.aov, 2) + ' vs desktop ' + fm(desk.aov, 2);
+    if (mob.cvr != null) line += ' · conversion ' + fp(mob.cvr, 2) + ' vs ' + fp(desk.cvr, 2);
+    sum.innerHTML = esc(line) + ' <span class="badge-demo">DEMO</span>';
+    $('uxFunnelNote').textContent = mob.cvr == null ? 'DEMO allocation of filtered Shopify DTC orders. Conversion is hidden because a category or region filter is on.' : 'DEMO allocation of filtered Shopify DTC orders and sessions. Mobile is ' + Math.round((A.demoModel.mobileSessionShare) * 100) + '% of sessions, with a lower order share and a lower AOV.';
     ['mobile', 'desktop'].forEach(function (name) {
       var row = demo.devices[name];
       funnels.push({ device: name, sessions: row.sessions, orders: row.orders, cvr: row.cvr, aov: row.aov, revenue: row.revenue });
     });
   }
-  table('tUxFunnel', [{ k: 'device', l: 'Device' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'orders', l: 'Orders', n: 1, f: fn }, { k: 'cvr', l: 'Conversion', n: 1, f: function (v) { return v == null ? '—' : fp(v, 2); } }, { k: 'aov', l: 'AOV', n: 1, f: function (v) { return fm(v, 2); } }, { k: 'revenue', l: 'Net revenue', n: 1, f: fm }], funnels, 'revenue', true);
+  table('tUxFunnel', [{ k: 'device', l: 'Device' }, { k: 'sessions', l: 'Sessions', n: 1, f: function (v) { return v == null ? '—' : fn(v); } }, { k: 'orders', l: 'Orders', n: 1, f: fn }, { k: 'cvr', l: 'Conversion', n: 1, f: function (v) { return v == null ? '—' : fp(v, 2); } }, { k: 'aov', l: 'AOV', n: 1, f: function (v) { return fm(v, 2); } }, { k: 'revenue', l: 'Net revenue', n: 1, cls: 'hide-m', f: fm }], funnels, 'revenue', true);
 }
 window.WRAuditDemo = auditDemo;
+function breakRows(labels, curArr, cmpArr) {
+  var rows = [];
+  for (var i = 0; i < labels.length; i++) {
+    var v = curArr[i] || 0, p = cmpArr ? (cmpArr[i] || 0) : null;
+    if (v < 1 && !(p > 1)) continue;
+    rows.push({ name: labels[i], v: v, g: p == null ? null : (p ? v / p - 1 : (v ? 1 : 0)) });
+  }
+  rows.sort(function (a, b) { return b.v - a.v; });
+  return rows;
+}
+function drawBreak(cur, cmp) {
+  var F = state.F, rows;
+  if (ui.bk === 'cat') rows = breakRows(D.categories, cur.cat, cmp && cmp.cat);
+  else if (ui.bk === 'store') rows = breakRows(D.stores, cur.st, cmp && cmp.st);
+  else if (ui.bk === 'reg') rows = breakRows(D.regions, cur.reg, cmp && cmp.reg);
+  else {
+    var idx = D.channels.map(function (_, i) { return i; }).filter(function (i) { return i < NDTC ? incDTC(F.store) : incAmz(F.store); });
+    rows = breakRows(idx.map(function (i) { return D.channels[i]; }), idx.map(function (i) { return cur.chan[i]; }), cmp && idx.map(function (i) { return cmp.chan[i]; }));
+  }
+  var colors = rows.map(function (r) { return r.g == null ? '#f5c542' : r.g >= 0 ? '#3ddc97' : '#ff6b6b'; });
+  mk('cBreak', { type: 'bar', data: { labels: rows.map(function (r) { return r.name; }), datasets: [{ label: 'Net revenue', data: rows.map(function (r) { return r.v; }), backgroundColor: colors, borderRadius: 4 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { var r = rows[c.dataIndex]; return fm(r.v) + (r.g == null ? '' : ' · ' + sgn(r.g) + ' vs comparison'); } } } }, scales: { x: { ticks: { callback: function (v) { return fm(v); } } }, y: { ticks: { font: { size: 11 } }, grid: { display: false } } } } });
+  $('bkNote').textContent = rows.length ? 'Bar length is net revenue. Green is up versus the comparison, red is down.' : 'No revenue in this cut.';
+}
 function renderOverview(cur, cmp, R) {
   var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
   $('trendNote').textContent = (B.w === 7 ? 'Weekly' : 'Daily') + ' · dashed = comparison period';
@@ -262,27 +375,13 @@ function renderOverview(cur, cmp, R) {
     { type: 'line', label: 'Orders', data: bsum(cur.dOrd, R.s, B.b), borderColor: '#5aa9ff', pointRadius: 0, tension: .3, yAxisID: 'y1' }];
   if (cmp) { var cb = B.b.map(function (x) { return [x[0] - R.s + cmp.s, x[1] - R.s + cmp.s]; }); ds.push({ type: 'line', label: 'Net revenue (comparison)', data: bsum(cmp.dRev, cmp.s, cb), borderColor: 'rgba(255,255,255,.45)', borderDash: [5, 4], pointRadius: 0, tension: .3, yAxisID: 'y' }); }
   mk('cTrend', { data: { labels: labels, datasets: ds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false } } }, plugins: { tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + (c.dataset.yAxisID === 'y' ? fm(c.raw) : fn(c.raw)); } } } } } });
-  var cats = D.categories;
-  mk('cMix', { type: 'doughnut', data: { labels: cats, datasets: [{ data: Array.from(cur.cat), backgroundColor: COL, borderColor: '#14141b' }] }, options: { maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } }, tooltip: { callbacks: { label: function (c) { return c.label + ': ' + fm(c.raw) + ' (' + fp(c.raw / cur.net) + ')'; } } } } } });
-  var chIdx = D.channels.map(function (_, i) { return i; }).filter(function (i) { return (i < NDTC ? incDTC(state.F.store) : incAmz(state.F.store)); });
-  mk('cChan', { type: 'bar', data: { labels: chIdx.map(function (i) { return D.channels[i]; }), datasets: [{ label: 'Current', data: chIdx.map(function (i) { return cur.chan[i]; }), backgroundColor: chIdx.map(function (i) { return i === 1 ? '#e1306c' : i >= NDTC ? '#ff9900' : '#f5c542'; }), borderRadius: 3 }].concat(cmp ? [{ label: 'Comparison', data: chIdx.map(function (i) { return cmp.chan[i]; }), backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 3 }] : []) }, options: { indexAxis: 'y', maintainAspectRatio: false, scales: { x: { ticks: { callback: function (v) { return fm(v); } } } } } });
-  var g = cats.map(function (_, i) { return cmp && cmp.cat[i] ? (cur.cat[i] / cmp.cat[i] - 1) * 100 : 0; });
-  mk('cCatGrowth', { type: 'bar', data: { labels: cats.map(function (c) { return c.replace(' & Limited Vinyl', ' Vinyl').replace(' & Store Exclusives', ' & Excl.').replace(' Singles', '').replace(' & Deluxe', '').replace(' & Posters', ''); }), datasets: [{ label: '% change', data: g, backgroundColor: g.map(function (v) { return v >= 0 ? '#3ddc97' : '#ff6b6b'; }), borderRadius: 3 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: function (v) { return v + '%'; } } }, x: { ticks: { font: { size: 10 } } } } } });
-  mk('cReg', { type: 'bar', data: { labels: D.regions, datasets: [{ label: 'Current', data: Array.from(cur.reg), backgroundColor: '#e8453c', borderRadius: 3 }].concat(cmp ? [{ label: 'Comparison', data: Array.from(cmp.reg), backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 3 }] : []) }, options: { maintainAspectRatio: false, scales: { y: { ticks: { callback: function (v) { return fm(v); } } } } } });
-  mk('cStore', { type: 'bar', data: { labels: D.stores, datasets: [{ label: 'Current', data: Array.from(cur.st), backgroundColor: STC, borderRadius: 3 }].concat(cmp ? [{ label: 'Comparison', data: Array.from(cmp.st), backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 3 }] : []) }, options: { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + fm(c.raw) + (cur.net ? ' (' + fp(c.raw / (c.datasetIndex ? cmp.net : cur.net)) + ')' : ''); } } } }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } } } } });
-  // Organic social
-  var socOn = incDTC(state.F.store) && (state.F.chan < 0 || state.F.chan === 1);
-  $('socNote').textContent = socOn ? 'Social referrer, no paid UTM, no affiliate link' : 'Not in current filter (Shopify DTC + Organic Social only)';
-  mk('cSoc', { type: 'bar', data: { labels: D.social, datasets: [{ label: 'Net revenue', data: Array.from(cur.soc), backgroundColor: SOCC, borderRadius: 3 }].concat(cmp ? [{ label: 'Comparison', data: Array.from(cmp.soc), backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 3 }] : []) }, options: { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function (c) { var src = c.datasetIndex ? cmp : cur; return c.dataset.label + ': ' + fm(c.raw) + ' · ' + fn(src.socOrd[c.dataIndex]) + ' orders'; } } } }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } } } } });
-  var dtcRev = cur.dSt[0];
-  var sds = D.social.map(function (n, i) { return { type: 'bar', label: n, stack: 's', backgroundColor: SOCC[i], data: bsum(cur.dSocP[i], R.s, B.b), yAxisID: 'y' }; });
-  var shr = bsum(cur.dSoc, R.s, B.b), dt = bsum(dtcRev, R.s, B.b);
-  sds.push({ type: 'line', label: '% of DTC revenue', data: shr.map(function (v, i) { return dt[i] ? v / dt[i] * 100 : null; }), borderColor: '#fff', pointRadius: 0, tension: .3, yAxisID: 'y1' });
-  mk('cSocTrend', { data: { labels: labels, datasets: sds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { labels: { font: { size: 10 } } } }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return v.toFixed(0) + '%'; } } } } } });
-  var nw = bsum(cur.dNew, R.s, B.b), od = bsum(cur.dOrd, R.s, B.b);
-  mk('cNew', { type: 'bar', data: { labels: labels, datasets: [{ label: 'New', data: nw, backgroundColor: '#a78bfa', stack: 's' }, { label: 'Returning', data: od.map(function (v, i) { return v - nw[i]; }), backgroundColor: '#4dd0e1', stack: 's' }] }, options: { maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } });
-  var se = bsum(cur.dSess, R.s, B.b);
-  mk('cCvr', { data: { labels: labels, datasets: [{ type: 'line', label: 'Conversion rate %', data: cur.cvr == null ? [] : od.map(function (v, i) { return se[i] ? v / se[i] * 100 : null; }), borderColor: '#3ddc97', pointRadius: 0, tension: .3, yAxisID: 'y1' }, { type: 'bar', label: 'Sessions', data: se, backgroundColor: 'rgba(90,169,255,.35)', yAxisID: 'y' }] }, options: { maintainAspectRatio: false, scales: { y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return v.toFixed(1) + '%'; } } } } } });
+  $('bkSeg').querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === ui.bk); });
+  drawBreak(cur, cmp);
+  bindDrawer('ovExtra', function () {
+    var nw = bsum(cur.dNew, R.s, B.b), od = bsum(cur.dOrd, R.s, B.b), se = bsum(cur.dSess, R.s, B.b);
+    mk('cNew', { type: 'bar', data: { labels: labels, datasets: [{ label: 'New', data: nw, backgroundColor: '#a78bfa', stack: 's' }, { label: 'Returning', data: od.map(function (v, i) { return v - nw[i]; }), backgroundColor: '#4dd0e1', stack: 's' }] }, options: { maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } } });
+    mk('cCvr', { data: { labels: labels, datasets: [{ type: 'line', label: 'Conversion rate %', data: cur.cvr == null ? [] : od.map(function (v, i) { return se[i] ? v / se[i] * 100 : null; }), borderColor: '#3ddc97', pointRadius: 0, tension: .3, yAxisID: 'y1' }, { type: 'bar', label: 'Sessions', data: se, backgroundColor: 'rgba(90,169,255,.35)', yAxisID: 'y' }] }, options: { maintainAspectRatio: false, scales: { y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return v.toFixed(1) + '%'; } } } } } });
+  });
 }
 
 // ---------- tables ----------
@@ -290,37 +389,141 @@ function table(id, cols, rows, sortKey, desc) {
   var t = $(id); t._cols = cols; t._rows = rows; t._sort = t._sort || { k: sortKey, d: desc };
   if (!cols.some(function (c) { return c.k === t._sort.k; })) t._sort = { k: sortKey, d: desc };
   var s = t._sort, r = rows.slice().sort(function (a, b) { var x = a[s.k], y = b[s.k]; if (x == null) return 1; if (y == null) return -1; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * (s.d ? -1 : 1); });
-  t.tHead.innerHTML = '<tr>' + cols.map(function (c) { return '<th data-k="' + c.k + '" class="' + (c.n ? 'n' : '') + '">' + c.l + (s.k === c.k ? (s.d ? ' ↓' : ' ↑') : '') + '</th>'; }).join('') + '</tr>';
-  t.tBodies[0].innerHTML = r.length ? r.map(function (row) { return '<tr>' + cols.map(function (c) { return '<td class="' + (c.n ? 'n' : '') + '">' + (c.f ? c.f(row[c.k], row) : row[c.k]) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + cols.length + '" class="muted">No rows for the current filters.</td></tr>';
+  t.tHead.innerHTML = '<tr>' + cols.map(function (c) { var cls = ((c.n ? 'n ' : '') + (c.cls || '')).trim(); return '<th data-k="' + c.k + '"' + (cls ? ' class="' + cls + '"' : '') + '>' + c.l + (s.k === c.k ? (s.d ? ' ↓' : ' ↑') : '') + '</th>'; }).join('') + '</tr>';
+  t.tBodies[0].innerHTML = r.length ? r.map(function (row) { var hit = state.focusSku && row.sku === state.focusSku ? ' class="hit"' : ''; return '<tr' + hit + '>' + cols.map(function (c) { var cls = ((c.n ? 'n ' : '') + (c.cls || '')).trim(); return '<td' + (cls ? ' class="' + cls + '"' : '') + '>' + (c.f ? c.f(row[c.k], row) : row[c.k]) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + cols.length + '" class="muted">No rows for the current filters.</td></tr>';
   t.tHead.onclick = function (ev) { var k = ev.target.getAttribute('data-k'); if (!k) return; t._sort = { k: k, d: t._sort.k === k ? !t._sort.d : true }; table(id, t._cols, t._rows); };
 }
 function statusOf(p, cover, inv) { if (p.alloc && p.stock[0] === 0) return ['Sold out', 'p-mut']; if (inv.vel === 0 && inv.onHand === 0) return ['Not listed', 'p-mut']; if (cover < 14) return ['Stockout risk', 'p-bad']; if (cover < 30) return ['Low stock', 'p-warn']; if (cover > 180) return ['Overstock', 'p-mut']; return ['Healthy', 'p-ok']; }
 var prodMode = 'best';
 function productRows() {
-  var cur = state.cur, cmp = state.cmp, F = state.F;
+  var cur = state.cur, cmp = state.cmp, F = state.F, FC = state.FC;
   return D.products.map(function (p, i) {
     if (F.cat >= 0 && p.cat !== F.cat) return null;
+    if (F.artist && p.artist !== F.artist) return null;
     if (F.store > 0 && !p.amz) return null;
     var inv = invFor(p, F.store), cover = inv.vel > 0 ? inv.onHand / inv.vel : 999, st = statusOf(p, cover, inv);
     var amzU = cur.puS[1][i] + cur.puS[2][i] + cur.puS[3][i];
-    return { name: p.title, artist: p.artist, sku: p.sku, cat: D.categories[p.cat], units: cur.pu[i], rev: cur.pr[i], du: cmp && cmp.pu[i] ? cur.pu[i] / cmp.pu[i] - 1 : null, rr: cur.pu[i] ? cur.pru[i] / cur.pu[i] : 0, amzS: cur.pu[i] ? amzU / cur.pu[i] : (p.amz ? 0 : null), vel: inv.vel, onHand: inv.onHand, inbound: inv.inbound, eta: inv.eta || '', cover: Math.min(cover, 999), status: st[0], cls: st[1], launched: p.launch <= state.R.s, invCost: inv.onHand * p.cost, amz: p.amz, alloc: p.alloc };
+    var fc = FC.prods[i], days = fc.so ? fc.so - T : null;
+    return { name: p.title, artist: p.artist, sku: p.sku, cat: D.categories[p.cat], units: cur.pu[i], rev: cur.pr[i], du: cmp && cmp.pu[i] ? cur.pu[i] / cmp.pu[i] - 1 : null, rr: cur.pu[i] ? cur.pru[i] / cur.pu[i] : 0, amzS: cur.pu[i] ? amzU / cur.pu[i] : (p.amz ? 0 : null), vel: inv.vel, onHand: inv.onHand, inbound: inv.inbound, eta: inv.eta || '', cover: Math.min(cover, 999), status: st[0], cls: st[1], launched: p.launch <= state.R.s, invCost: inv.onHand * p.cost, amz: p.amz, alloc: p.alloc, so: fc.so ? D.iso(fc.so) : '', days: days == null ? 999 : days, lost: fc.lost, fcUnits: fc.units, us: cur.puS[1][i], uk: cur.puS[2][i], de: cur.puS[3][i], fee: cur.pfee[i], amzRev: (function () { var u = amzU, dtcU = cur.puS[0][i], share = F.store === -1 ? (u + dtcU ? u / (u + dtcU) : 0) : 1; return cur.pr[i] * share; })() };
   }).filter(Boolean);
 }
+function duCell(v) { return v == null ? '<span class="d neu">new</span>' : '<span class="d ' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%</span>'; }
+function roasBar(v) {
+  if (v == null || !isFinite(v)) return '—';
+  var w = Math.max(4, Math.min(88, v / 7.5 * 88));
+  var tick = 2.5 / 7.5 * 88;
+  return '<span class="bar" style="width:' + w + 'px;background:' + (v >= 2.5 ? '#3ddc97' : '#ff6b6b') + '"><span class="tick" style="left:' + tick + 'px"></span></span><b class="' + (v >= 2.5 ? 'up' : 'dn') + '">' + v.toFixed(2) + 'x</b>';
+}
+function sliceRows(rows, open) { return open ? rows : rows.slice(0, 5); }
+function paintMore(id, shown, total, open, flag, extra) {
+  var el = $(id); if (!el) return;
+  var left = open ? 'All ' + total + (extra ? ' · ' + extra : '') : 'Top ' + Math.min(5, total) + ' of ' + total + (extra ? ' · ' + extra : '');
+  el.innerHTML = '<span>' + left + '</span>' + (total > 5 || extra ? moreLink(flag, open ? 'Show less' : 'Show all ' + total + (extra ? ' · ' + extra : '')) : '');
+}
+function setChanTab(tab, skipPaint) {
+  ui.chan = tab;
+  document.querySelectorAll('.chan-pane').forEach(function (p) { p.classList.toggle('hide', p.id !== 'pane-' + tab); });
+  document.querySelectorAll('#chanTabs .chtab').forEach(function (b) { var on = b.getAttribute('data-tab') === tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  document.querySelectorAll('#notes-channels .note-group').forEach(function (n) { n.classList.toggle('hide', n.getAttribute('data-tab') !== tab); });
+  if (!skipPaint) renderChannels();
+}
+function renderChannels() {
+  var cur = state.cur, cmp = state.cmp, F = state.F, R = state.R, m = state.m, mc = state.mc, c = state.c, cc = state.cc;
+  var dtc = incDTC(F.store), socOn = dtc && (F.chan < 0 || F.chan === 1);
+  var topPlat = 0; for (var i = 1; i < 5; i++) if (cur.soc[i] > cur.soc[topPlat]) topPlat = i;
+  var socD = cmp ? delta(cur.socNet, cmp.socNet) : '';
+  $('tabSocialV').innerHTML = (socOn ? fm(cur.socNet) : '—') + (socD ? ' ' + socD : '');
+  $('tabSocialS').textContent = socOn ? fp(cur.socNet / (state.dtcAll || 1)) + ' of DTC · ' + D.social[topPlat] + ' ' + (cur.socNet ? Math.round(cur.soc[topPlat] / cur.socNet * 100) : 0) + '%' : 'Not in this storefront or channel';
+  var roasD = mc && mc.roas && m.roas ? delta(m.roas, mc.roas) : '';
+  $('tabPaidV').innerHTML = (m.roas ? m.roas.toFixed(2) + 'x' : '—') + (roasD ? ' ' + roasD : '');
+  $('tabPaidS').textContent = fm(m.spend) + ' spend → ' + fm(m.rev);
+  var crmD = dtc && cc ? delta(c.rev, cc.rev) : '';
+  $('tabCrmV').innerHTML = (dtc ? fm(c.rev) : '—') + (crmD ? ' ' + crmD : '');
+  $('tabCrmS').textContent = (state.dtcAll ? fp(c.rev / state.dtcAll) : '—') + ' of DTC · flows ' + fp(c.flowRev / (c.rev || 1));
+  var mk3 = [1, 2, 3].filter(function (s) { return stOk(s, F.store); });
+  function tot(r, k) { return r ? mk3.reduce(function (a, s) { return a + r[k][s]; }, 0) : 0; }
+  var aRev = tot(cur, 'st'), aPrev = cmp ? tot(cmp, 'st') : null, aFee = tot(cur, 'stFee');
+  var amzStore = F.store === -1 ? 10 : F.store;
+  var ads = incAmz(F.store) ? mediaAgg(R.s, R.e, 'Amazon Ads', amzStore) : { spend: 0, roas: null, acos: null };
+  var amzD = cmp && incAmz(F.store) ? delta(aRev, aPrev) : '';
+  $('tabAmzV').innerHTML = (incAmz(F.store) ? fm(aRev) : '—') + (amzD ? ' ' + amzD : '');
+  $('tabAmzS').textContent = incAmz(F.store) ? 'Fees ' + fp(aFee / (aRev || 1)) + ' · TACoS ' + fp(ads.spend / (aRev || 1)) : 'Shopify DTC only';
+  document.querySelectorAll('.chan-pane').forEach(function (p) { p.classList.toggle('hide', p.id !== 'pane-' + ui.chan); });
+  document.querySelectorAll('#notes-channels .note-group').forEach(function (n) { n.classList.toggle('hide', n.getAttribute('data-tab') !== ui.chan); });
+  if (ui.chan === 'social') renderSocialPane();
+  else if (ui.chan === 'paid') renderMedia();
+  else if (ui.chan === 'crm') renderCrm();
+  else renderAmazon();
+}
+function renderSocialPane() {
+  var cur = state.cur, cmp = state.cmp, F = state.F, R = state.R;
+  var socOn = incDTC(F.store) && (F.chan < 0 || F.chan === 1);
+  $('socNote').textContent = socOn ? 'Social referrer, no paid UTM, no affiliate link.' + (F.artist ? ' Limited to ' + F.artist + '.' : '') : 'Organic social is Shopify DTC only, and only when the channel filter includes it.';
+  var k = [
+    ['Organic social revenue', socOn ? fm(cur.socNet) : '—', cmp && socOn ? delta(cur.socNet, cmp.socNet) : '<span class="d neu">n/a</span>'],
+    ['Share of DTC', socOn && state.dtcAll ? fp(cur.socNet / state.dtcAll) : '—', ''],
+    ['Orders', socOn ? fn(cur.socOrders) : '—', cmp && socOn ? delta(cur.socOrders, cmp.socOrders) : ''],
+    ['New-customer share', socOn && cur.socOrders ? fp(cur.socNew / cur.socOrders) : '—', '']
+  ];
+  $('socialKpis').innerHTML = kpiHtml(k);
+  var chips = D.social.map(function (name, i) {
+    var rev = cur.soc[i]; if (!rev) return '';
+    return '<span class="chip">' + name + ' <b>' + fm(rev) + '</b> · ' + (cur.socNet ? Math.round(rev / cur.socNet * 100) : 0) + '%</span>';
+  }).join('');
+  $('socialChips').innerHTML = chips ? '<span class="muted">Platform revenue</span>' + chips : '';
+  var arts = Object.keys(cur.socArt).map(function (a) { return { artist: a, rev: cur.socArt[a] }; }).sort(function (a, b) { return b.rev - a.rev; });
+  var shown = sliceRows(arts, ui.socOpen);
+  table('tSocial', [{ k: 'artist', l: 'Artist', f: function (v) { return '<button type="button" class="prod-link" data-artist-jump="' + esc(v) + '">' + esc(v) + '</button>'; } }, { k: 'rev', l: 'Organic social revenue', n: 1, f: function (v) { return fm(v); } }], shown, 'rev', true);
+  paintMore('socialMore', shown.length, arts.length, ui.socOpen, 'socOpen', '');
+  bindDrawer('socialChart', function () {
+    var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
+    mk('cSoc', { type: 'bar', data: { labels: D.social, datasets: [{ label: 'Net revenue', data: Array.from(cur.soc), backgroundColor: SOCC, borderRadius: 3 }].concat(cmp ? [{ label: 'Comparison', data: Array.from(cmp.soc), backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 3 }] : []) }, options: { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function (c) { var src = c.datasetIndex ? cmp : cur; return c.dataset.label + ': ' + fm(c.raw) + ' · ' + fn(src.socOrd[c.dataIndex]) + ' orders'; } } } }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } } } } });
+    var dtcRev = cur.dSt[0];
+    var sds = D.social.map(function (n, i) { return { type: 'bar', label: n, stack: 's', backgroundColor: SOCC[i], data: bsum(cur.dSocP[i], R.s, B.b), yAxisID: 'y' }; });
+    var shr = bsum(cur.dSoc, R.s, B.b), dt = bsum(dtcRev, R.s, B.b);
+    sds.push({ type: 'line', label: '% of DTC revenue', data: shr.map(function (v, i) { return dt[i] ? v / dt[i] * 100 : null; }), borderColor: '#fff', pointRadius: 0, tension: .3, yAxisID: 'y1' });
+    mk('cSocTrend', { data: { labels: labels, datasets: sds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { labels: { font: { size: 10 } } } }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return v.toFixed(0) + '%'; } } } } } });
+  });
+}
 function renderProducts() {
-  var rows = productRows(), F = state.F, cols = [
-    { k: 'name', l: 'Product' }, { k: 'artist', l: 'Artist' }, { k: 'sku', l: 'SKU', f: function (v) { return '<span class="muted">' + v + '</span>'; } }, { k: 'cat', l: 'Category' },
-    { k: 'units', l: 'Units', n: 1, f: fn }, { k: 'rev', l: 'Net revenue', n: 1, f: function (v) { return fm(v); } }, { k: 'du', l: 'Δ units', n: 1, f: function (v) { return v == null ? '<span class="d neu">new</span>' : '<span class="d ' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%</span>'; } }];
-  if (F.store === -1) cols.push({ k: 'amzS', l: 'Amazon share', n: 1, f: function (v, r) { return r.amz ? fp(v, 0) : '<span class="muted">DTC only</span>'; } });
-  cols = cols.concat([{ k: 'rr', l: 'Return rate', n: 1, f: function (v) { return fp(v); } }, { k: 'vel', l: 'Units/day (28d)', n: 1, f: function (v) { return v.toFixed(1); } }, { k: 'onHand', l: F.store > 0 || F.store === 10 ? 'FBA on hand' : 'On hand', n: 1, f: fn },
-    { k: 'inbound', l: 'Inbound', n: 1, f: function (v, r) { return v ? fn(v) + ' <span class="muted">' + r.eta.slice(5) + '</span>' : '—'; } }, { k: 'cover', l: 'Days of cover', n: 1, f: function (v) { return v >= 999 ? '∞' : v.toFixed(0); } },
-    { k: 'status', l: 'Status', f: function (v, r) { return '<span class="pill ' + r.cls + '">' + v + '</span>'; } }]);
-  var t = $('tProd');
-  if (prodMode === 'best') { t._sort = { k: 'rev', d: true }; rows = rows.sort(function (a, b) { return b.rev - a.rev; }).slice(0, 25); }
-  else if (prodMode === 'slow') { t._sort = { k: 'cover', d: true }; rows = rows.filter(function (r) { return r.launched && r.onHand > 0 && !r.alloc; }).sort(function (a, b) { return a.rev / Math.max(1, a.invCost) - b.rev / Math.max(1, b.invCost); }).slice(0, 15); }
-  else if (prodMode === 'risk') { t._sort = { k: 'cover', d: false }; rows = rows.filter(function (r) { return r.cover < 30 && r.status !== 'Sold out' && r.vel > 0; }); }
-  else t._sort = t._sort || { k: 'rev', d: true };
-  $('prodNote').textContent = 'Storefront: ' + storeLabel(F.store) + (F.store > 0 || F.store === 10 ? ' · store exclusives, signed items and bundles are not listed on Amazon' : '');
-  table('tProd', cols, rows, 'rev', true);
+  var rows = productRows(), F = state.F, pool, sortK = 'rev', sortD = true;
+  if (prodMode === 'best') { pool = rows.slice().sort(function (a, b) { return b.rev - a.rev; }).slice(0, 25); sortK = 'rev'; }
+  else if (prodMode === 'slow') { pool = rows.filter(function (r) { return r.launched && r.onHand > 0 && !r.alloc; }).sort(function (a, b) { return a.rev / Math.max(1, a.invCost) - b.rev / Math.max(1, b.invCost); }).slice(0, 15); sortK = 'cover'; sortD = true; }
+  else if (prodMode === 'risk') { pool = rows.filter(function (r) { return r.cover < 30 && r.status !== 'Sold out' && r.vel > 0; }).sort(function (a, b) { return a.cover - b.cover; }); sortK = 'cover'; sortD = false; }
+  else { pool = rows.filter(function (r) { return r.amz && (r.us + r.uk + r.de) > 0; }).sort(function (a, b) { return b.amzRev - a.amzRev; }).slice(0, 20); sortK = 'amzRev'; }
+  var cols = [
+    { k: 'name', l: 'Product · Artist', cls: 'w', f: function (v, r) { return '<b>' + esc(v) + '</b><div class="muted">' + esc(r.artist) + (ui.prodOpen ? ' · ' + esc(r.sku) : '') + '</div>'; } },
+    { k: 'units', l: 'Units', n: 1, f: fn },
+    { k: 'rev', l: 'Net revenue', n: 1, f: function (v) { return fm(v); } },
+    { k: 'du', l: 'Δ units', n: 1, cls: 'hide-m', f: duCell },
+    { k: 'vel', l: 'Units/day', n: 1, cls: 'hide-m', f: function (v) { return v.toFixed(1); } },
+    { k: 'cover', l: 'Days of cover', n: 1, f: function (v) { return v >= 999 ? '∞' : v.toFixed(0); } },
+    { k: 'so', l: 'Projected stockout', cls: 'hide-m', f: function (v, r) { return v ? v.slice(5) + ' (' + r.days + 'd)' : '—'; } },
+    { k: 'lost', l: 'Revenue at risk', n: 1, cls: 'hide-m', f: function (v) { return v > 0 ? '<span class="dn">' + fm(v) + '</span>' : '—'; } },
+    { k: 'status', l: 'Status', f: function (v, r) { return '<span class="pill ' + r.cls + '">' + v + '</span>'; } }
+  ];
+  if (ui.prodOpen) cols.push(
+    { k: 'cat', l: 'Category', cls: 'hide-m' },
+    { k: 'rr', l: 'Return rate', n: 1, f: function (v) { return fp(v); } },
+    { k: 'amzS', l: 'Amazon share', n: 1, f: function (v, r) { return r.amz ? fp(v, 0) : '<span class="muted">DTC only</span>'; } },
+    { k: 'onHand', l: F.store > 0 || F.store === 10 ? 'FBA on hand' : 'On hand', n: 1, f: fn },
+    { k: 'inbound', l: 'Inbound', n: 1, f: function (v, r) { return v ? fn(v) + ' <span class="muted">' + (r.eta || '').slice(5) + '</span>' : '—'; } },
+    { k: 'fcUnits', l: 'Fcst units 90d', n: 1, f: function (v) { return fn(v); } }
+  );
+  if (prodMode === 'amazon' && ui.prodOpen) cols.push(
+    { k: 'us', l: 'US', n: 1, f: fn }, { k: 'uk', l: 'UK', n: 1, f: fn }, { k: 'de', l: 'DE', n: 1, f: fn },
+    { k: 'fee', l: 'Amazon fees', n: 1, f: function (v) { return fm(v); } }
+  );
+  var shown = sliceRows(pool, ui.prodOpen);
+  var t = $('tProd'); t._sort = { k: sortK, d: sortD };
+  $('prodNote').textContent = state.movedLine + ' · ' + storeLabel(F.store) + (F.artist ? ' · ' + F.artist : '') + (F.store > 0 || F.store === 10 ? ' · store exclusives are not on Amazon' : '');
+  if (prodMode === 'amazon' && !incAmz(F.store)) {
+    t.tHead.innerHTML = ''; t.tBodies[0].innerHTML = '<tr><td class="muted">Storefront is Shopify DTC, so Amazon rows are hidden. Switch to All or Amazon.</td></tr>';
+    $('prodMore').innerHTML = '';
+    return;
+  }
+  table('tProd', cols, shown, sortK, sortD);
+  paintMore('prodMore', shown.length, pool.length, ui.prodOpen, 'prodOpen', 'SKU, returns, Amazon share, on hand, inbound, forecast units');
 }
 function renderAmazon() {
   var F = state.F, R = state.R, cur = state.cur, cmp = state.cmp;
@@ -332,71 +535,125 @@ function renderAmazon() {
   var prev = tot(cmp, 'st'), pfee = tot(cmp, 'stFee');
   var amzStore = F.store === -1 ? 10 : F.store;
   var ads = mediaAgg(R.s, R.e, 'Amazon Ads', amzStore), adsP = R.cs >= 0 ? mediaAgg(R.cs, R.ce, 'Amazon Ads', amzStore) : null;
-  var k = [['Amazon net revenue', fm(rev), cmp && delta(rev, prev)], ['Orders · units', fn(ord) + ' <span class="muted" style="font-size:13px">' + fn(un) + ' u</span>', cmp && delta(ord, tot(cmp, 'stOrd'))],
-    ['Amazon fees', fm(fee), cmp && delta(fee, pfee, true)], ['Fees % of revenue', fp(fee / (rev || 1)), cmp && ddelta(fee / (rev || 1), pfee / (prev || 1))],
-    ['Net proceeds', fm(rev - fee), cmp && delta(rev - fee, prev - pfee)], ['Sponsored ads spend', fm(ads.spend), adsP && delta(ads.spend, adsP.spend, true)],
-    ['Ads ROAS · ACoS', (ads.roas ? ads.roas.toFixed(2) + 'x' : '—') + ' <span class="muted" style="font-size:13px">' + fp(ads.acos) + '</span>', adsP && delta(ads.roas, adsP.roas)], ['TACoS', fp(ads.spend / (rev || 1)), adsP && cmp ? ddelta(ads.spend / (rev || 1), adsP.spend / (prev || 1)) : '']];
-  $('amzKpis').innerHTML = kpiHtml(k);
-  var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
-  var ds = mk3.map(function (s) { return { type: 'bar', label: D.stores[s], stack: 's', backgroundColor: STC[s], data: bsum(cur.dSt[s], R.s, B.b) }; });
-  ds.push({ type: 'line', label: 'Sponsored ads spend', yAxisID: 'y1', borderColor: '#fff', pointRadius: 0, tension: .3, data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mediaOk(mm, 'Amazon Ads', amzStore)) t += sum(mm.spend, x[0], x[1]); }); return t; }) });
-  mk('cAmzTrend', { data: { labels: labels, datasets: ds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return fm(v); } } } } } });
-  mk('cAmzFees', { type: 'bar', data: { labels: mk3.map(function (s) { return D.stores[s]; }), datasets: [
-    { label: 'Net proceeds', data: mk3.map(function (s) { return cur.st[s] - cur.stFee[s]; }), backgroundColor: '#3ddc97', stack: 'f' },
-    { label: 'Referral fees', data: mk3.map(function (s) { return cur.stFeeRef[s]; }), backgroundColor: '#ff9900', stack: 'f' },
-    { label: 'FBA + closing fees', data: mk3.map(function (s) { return cur.stFee[s] - cur.stFeeRef[s]; }), backgroundColor: '#e8453c', stack: 'f' }] },
-    options: { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function (c) { var s = mk3[c.dataIndex]; return c.dataset.label + ': ' + fm(c.raw) + ' (' + fp(c.raw / (cur.st[s] || 1)) + ' of net rev)'; } } } }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } } } } });
+  $('amzKpis').innerHTML = kpiHtml([
+    ['Amazon fees', fm(fee), cmp ? delta(fee, pfee, true) : ''],
+    ['Fees % of revenue', fp(fee / (rev || 1)), cmp ? ddelta(fee / (rev || 1), pfee / (prev || 1)) : ''],
+    ['Net proceeds', fm(rev - fee), cmp ? delta(rev - fee, prev - pfee) : ''],
+    ['TACoS', fp(ads.spend / (rev || 1)), adsP && cmp ? ddelta(ads.spend / (rev || 1), adsP.spend / (prev || 1)) : '']
+  ]);
+  $('amzExtra').textContent = 'Orders ' + fn(ord) + ' · units ' + fn(un) + ' · referral fees ' + fm(feeRef) + ' · FBA + closing ' + fm(fee - feeRef) + ' · Sponsored ads ' + fm(ads.spend) + ' at ' + (ads.roas ? ads.roas.toFixed(2) + 'x ROAS' : '—') + ' · ACoS ' + fp(ads.acos) + (F.artist ? ' · revenue is ' + F.artist + ' only. Ads are not split by artist.' : '');
   var rows = D.products.map(function (p, i) {
-    if (!p.amz || (F.cat >= 0 && p.cat !== F.cat)) return null;
+    if (!p.amz || (F.cat >= 0 && p.cat !== F.cat) || (F.artist && p.artist !== F.artist)) return null;
     var u = mk3.reduce(function (a, s) { return a + cur.puS[s][i]; }, 0); if (!u) return null;
-    var inv = invFor(p, amzStore), share = F.store === -1 ? u / (cur.pu[i] || 1) : 1, r = cur.pr[i] * share, fe = cur.pfee[i];
-    if (F.store === -1) { var dtcU = cur.puS[0][i]; r = cur.pr[i] * (u / (u + dtcU)); }
-    return { name: p.title, artist: p.artist, cat: D.categories[p.cat], us: cur.puS[1][i], uk: cur.puS[2][i], de: cur.puS[3][i], rev: r, fee: fe, feeP: r ? fe / r : null, np: r - fe, fba: inv.onHand, cover: inv.vel ? Math.min(999, inv.onHand / inv.vel) : 999 };
-  }).filter(Boolean).sort(function (a, b) { return b.rev - a.rev; }).slice(0, 20);
-  table('tAmz', [{ k: 'name', l: 'Product' }, { k: 'artist', l: 'Artist' }, { k: 'cat', l: 'Category' }, { k: 'us', l: 'US units', n: 1, f: fn }, { k: 'uk', l: 'UK units', n: 1, f: fn }, { k: 'de', l: 'DE units', n: 1, f: fn },
-    { k: 'rev', l: 'Net revenue', n: 1, f: function (v) { return fm(v); } }, { k: 'fee', l: 'Amazon fees', n: 1, f: function (v) { return fm(v); } }, { k: 'feeP', l: 'Fee %', n: 1, f: function (v) { return '<span style="color:' + (v > .4 ? '#ff6b6b' : 'inherit') + '">' + fp(v) + '</span>'; } },
-    { k: 'np', l: 'Net proceeds', n: 1, f: function (v) { return fm(v); } }, { k: 'fba', l: 'FBA on hand', n: 1, f: fn }, { k: 'cover', l: 'FBA days of cover', n: 1, f: function (v) { return '<span style="color:' + (v < 14 ? '#ff6b6b' : 'inherit') + '">' + (v >= 999 ? '∞' : v.toFixed(0)) + '</span>'; } }], rows, 'rev', true);
+    var inv = invFor(p, amzStore), dtcU = cur.puS[0][i], share = F.store === -1 ? u / (u + dtcU || 1) : 1, r = cur.pr[i] * share, fe = cur.pfee[i];
+    var fc = state.FC.prods[i];
+    return { name: p.title, artist: p.artist, sku: p.sku, us: cur.puS[1][i], uk: cur.puS[2][i], de: cur.puS[3][i], rev: r, fee: fe, feeP: r ? fe / r : null, np: r - fe, fba: inv.onHand, cover: inv.vel ? Math.min(999, inv.onHand / inv.vel) : 999, lost: fc.lost };
+  }).filter(Boolean).sort(function (a, b) { return b.rev - a.rev; });
+  var shown = sliceRows(rows, ui.amzOpen);
+  var cols = [
+    { k: 'name', l: 'Product', cls: 'w', f: function (v, r) { return '<b>' + esc(v) + '</b><div class="muted">' + esc(r.artist) + '</div>'; } },
+    { k: 'rev', l: 'Net revenue', n: 1, f: function (v) { return fm(v); } },
+    { k: 'feeP', l: 'Fee %', n: 1, f: function (v) { return '<span class="' + (v > .4 ? 'dn' : '') + '">' + fp(v) + '</span>'; } },
+    { k: 'cover', l: 'FBA cover', n: 1, f: function (v) { return '<span class="' + (v < 14 ? 'dn' : '') + '">' + (v >= 999 ? '∞' : v.toFixed(0)) + '</span>'; } },
+    { k: 'fba', l: 'FBA on hand', n: 1, cls: 'hide-m', f: fn }
+  ];
+  if (ui.amzOpen) cols.push({ k: 'us', l: 'US', n: 1, f: fn }, { k: 'uk', l: 'UK', n: 1, f: fn }, { k: 'de', l: 'DE', n: 1, f: fn }, { k: 'fee', l: 'Fees', n: 1, f: function (v) { return fm(v); } }, { k: 'np', l: 'Net proceeds', n: 1, f: function (v) { return fm(v); } }, { k: 'lost', l: 'Revenue at risk', n: 1, f: function (v) { return v > 0 ? fm(v) : '—'; } });
+  var t = $('tAmz'); t._sort = { k: 'rev', d: true };
+  table('tAmz', cols, shown, 'rev', true);
+  paintMore('amzMore', shown.length, rows.length, ui.amzOpen, 'amzOpen', 'marketplace units, fees, proceeds');
+  bindDrawer('amzChart', function () {
+    var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
+    var ds = mk3.map(function (s) { return { type: 'bar', label: D.stores[s], stack: 's', backgroundColor: STC[s], data: bsum(cur.dSt[s], R.s, B.b) }; });
+    ds.push({ type: 'line', label: 'Sponsored ads spend', yAxisID: 'y1', borderColor: '#fff', pointRadius: 0, tension: .3, data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mediaOk(mm, 'Amazon Ads', amzStore)) t += sum(mm.spend, x[0], x[1]); }); return t; }) });
+    mk('cAmzTrend', { data: { labels: labels, datasets: ds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return fm(v); } } } } } });
+    mk('cAmzFees', { type: 'bar', data: { labels: mk3.map(function (s) { return D.stores[s]; }), datasets: [
+      { label: 'Net proceeds', data: mk3.map(function (s) { return cur.st[s] - cur.stFee[s]; }), backgroundColor: '#3ddc97', stack: 'f' },
+      { label: 'Referral fees', data: mk3.map(function (s) { return cur.stFeeRef[s]; }), backgroundColor: '#ff9900', stack: 'f' },
+      { label: 'FBA + closing fees', data: mk3.map(function (s) { return cur.stFee[s] - cur.stFeeRef[s]; }), backgroundColor: '#e8453c', stack: 'f' }] },
+      options: { maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function (c) { var s = mk3[c.dataIndex]; return c.dataset.label + ': ' + fm(c.raw) + ' (' + fp(c.raw / (cur.st[s] || 1)) + ' of net rev)'; } } } }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } } } } });
+  });
 }
 function renderMedia() {
   var R = state.R, F = state.F, plat = $('fPlat').value, m = mediaAgg(R.s, R.e, plat, F.store), mc = R.cs >= 0 ? mediaAgg(R.cs, R.ce, plat, F.store) : null;
   var platforms = ['Google', 'Meta', 'TikTok', 'Amazon Ads'].filter(function (p) { return D.media.some(function (mm) { return mm.platform === p && mediaOk(mm, '', F.store); }); });
-  $('mediaNote').textContent = 'Platform-reported, last-click (synthetic) · ' + storeLabel(F.store) + (F.store === 0 ? ' (Google, Meta, TikTok)' : F.store > 0 || F.store === 10 ? ' (Amazon Sponsored Products & Brands)' : '');
-  var k = [['Spend', fm(m.spend), mc && delta(m.spend, mc.spend, true)], ['Attributed revenue', fm(m.rev), mc && delta(m.rev, mc.rev)], ['ROAS', m.roas ? m.roas.toFixed(2) + 'x' : '—', mc && delta(m.roas, mc.roas)], ['CAC (new customers)', fm(m.cac, 2), mc && delta(m.cac, mc.cac, true)], ['CTR', fp(m.ctr, 2), mc && delta(m.ctr, mc.ctr)], ['CPC', fm(m.cpc, 2), mc && delta(m.cpc, mc.cpc, true)]];
-  platforms.forEach(function (p) { var x = m.plat[p], y = mc && mc.plat[p]; if (x && (!plat || plat === p)) k.push([p + ' ROAS · CAC', (x.spend ? (x.rev / x.spend).toFixed(2) + 'x' : '—') + ' <span class="muted" style="font-size:13px">' + fm(x.newc ? x.spend / x.newc : null) + '</span>', y && y.spend && x.spend ? delta(x.rev / x.spend, y.rev / y.spend) : '']); });
-  $('mediaKpis').innerHTML = kpiHtml(k);
-  var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
-  var ds = platforms.filter(function (p) { return !plat || plat === p; }).map(function (p) { return { type: 'bar', label: p + ' spend', stack: 's', backgroundColor: PLAT[p], data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mm.platform === p && mediaOk(mm, '', F.store)) t += sum(mm.spend, x[0], x[1]); }); return t; }) }; });
-  ds.push({ type: 'line', label: 'Attributed revenue', yAxisID: 'y1', borderColor: '#f5c542', pointRadius: 0, tension: .3, data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mediaOk(mm, plat, F.store)) t += sum(mm.rev, x[0], x[1]); }); return t; }) });
-  mk('cMediaTrend', { data: { labels: labels, datasets: ds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return fm(v); } } } } } });
-  var act = m.rows.filter(function (x) { return x.spend > 0; }).sort(function (a, b) { return b.roas - a.roas; });
-  mk('cRoas', { type: 'bar', data: { labels: act.map(function (x) { return (x.m.platform === 'Amazon Ads' ? 'Amazon' : x.m.platform) + ' · ' + x.m.name; }), datasets: [{ label: 'ROAS', data: act.map(function (x) { return x.roas; }), backgroundColor: act.map(function (x) { return x.roas < 1.5 ? '#ff6b6b' : x.roas < 2.5 ? '#f5c542' : '#3ddc97'; }), borderRadius: 3 }] }, options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 9 } } }, x: { ticks: { callback: function (v) { return v + 'x'; } } } } }, plugins: [{ id: 'tgt', afterDraw: function (ch) { var x = ch.scales.x.getPixelForValue(2.5), a = ch.chartArea, g = ch.ctx; g.save(); g.setLineDash([4, 4]); g.strokeStyle = 'rgba(255,255,255,.5)'; g.beginPath(); g.moveTo(x, a.top); g.lineTo(x, a.bottom); g.stroke(); g.restore(); } }] });
+  $('mediaNote').textContent = 'Platform-reported, last-click (synthetic) · ' + storeLabel(F.store) + (F.store === 0 ? ' · Google, Meta, TikTok' : F.store > 0 || F.store === 10 ? ' · Amazon Sponsored Products' : '') + (F.artist ? ' · Platform totals are not split by artist. The table lists campaigns named for ' + F.artist + ' when any exist.' : '');
+  $('mediaKpis').innerHTML = kpiHtml([
+    ['Spend', fm(m.spend), mc && delta(m.spend, mc.spend, true)],
+    ['Attributed revenue', fm(m.rev), mc && delta(m.rev, mc.rev)],
+    ['CAC (new customers)', fm(m.cac, 2), mc && delta(m.cac, mc.cac, true)],
+    ['CTR · CPC', fp(m.ctr, 2) + ' · ' + fm(m.cpc, 2), (mc ? delta(m.ctr, mc.ctr) : '') + (mc ? ' ' + delta(m.cpc, mc.cpc, true) : '')]
+  ]);
+  $('mediaChips').innerHTML = '<span class="muted">Platform ROAS · CAC</span>' + platforms.map(function (p) {
+    var x = m.plat[p]; if (!x || !x.spend) return '';
+    var roas = x.rev / x.spend, cac = x.newc ? x.spend / x.newc : null;
+    var flag = p === 'TikTok' && roas < 1;
+    return '<span class="chip' + (flag ? ' flag' : '') + '">' + (flag ? 'FLAG · ' : '') + p + ' <b class="' + (roas >= 2.5 ? 'up' : 'dn') + '">' + roas.toFixed(2) + 'x</b> · ' + fm(cac, 0) + '</span>';
+  }).join('');
   var prevMap = {}; if (mc) mc.rows.forEach(function (x) { prevMap[x.m.id] = x; });
-  var rows = m.rows.filter(function (x) { return x.spend > 0; }).map(function (x) { var p = prevMap[x.m.id]; return { plat: x.m.platform, name: x.m.name, type: x.m.type, spend: x.spend, impr: x.impr, clicks: x.clicks, ctr: x.ctr, cpc: x.cpc, conv: x.conv, cvr: x.cvr, rev: x.rev, roas: x.roas, acos: x.acos, cac: x.cac, droas: p && p.roas ? x.roas / p.roas - 1 : null }; });
-  table('tMedia', [{ k: 'plat', l: 'Platform', f: function (v) { return '<span class="pill" style="background:' + PLAT[v] + '22;color:' + PLAT[v] + '">' + v + '</span>'; } }, { k: 'name', l: 'Campaign' }, { k: 'type', l: 'Type', f: function (v) { return '<span class="muted">' + v + '</span>'; } },
-    { k: 'spend', l: 'Spend', n: 1, f: function (v) { return fm(v); } }, { k: 'impr', l: 'Impr.', n: 1, f: fn }, { k: 'clicks', l: 'Clicks', n: 1, f: fn }, { k: 'ctr', l: 'CTR', n: 1, f: function (v) { return fp(v, 2); } }, { k: 'cpc', l: 'CPC', n: 1, f: function (v) { return fm(v, 2); } },
-    { k: 'conv', l: 'Conv.', n: 1, f: fn }, { k: 'cvr', l: 'CVR', n: 1, f: function (v) { return fp(v, 2); } }, { k: 'rev', l: 'Revenue', n: 1, f: function (v) { return fm(v); } },
-    { k: 'roas', l: 'ROAS', n: 1, f: function (v) { return '<b style="color:' + (v < 1.5 ? '#ff6b6b' : v < 2.5 ? '#f5c542' : '#3ddc97') + '">' + v.toFixed(2) + 'x</b>'; } }, { k: 'acos', l: 'ACoS', n: 1, f: function (v) { return fp(v); } }, { k: 'cac', l: 'CAC', n: 1, f: function (v) { return fm(v, 2); } },
-    { k: 'droas', l: 'Δ ROAS', n: 1, f: function (v) { return v == null ? '<span class="d neu">new</span>' : '<span class="d ' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%</span>'; } }], rows, 'spend', true);
+  var rows = m.rows.filter(function (x) { return x.spend > 0; }).map(function (x) { var p = prevMap[x.m.id]; return { id: x.m.id, plat: x.m.platform, name: x.m.name, type: x.m.type, spend: x.spend, impr: x.impr, clicks: x.clicks, ctr: x.ctr, cpc: x.cpc, conv: x.conv, cvr: x.cvr, rev: x.rev, roas: x.roas, acos: x.acos, cac: x.cac, droas: p && p.roas ? x.roas / p.roas - 1 : null, sku: 'camp-' + x.m.id }; });
+  if (F.artist) { var named = rows.filter(function (x) { return artistNamed(x.name, F.artist); }); if (named.length) rows = named; }
+  if (ui.focusCamp) { var hitC = rows.filter(function (x) { return x.name === ui.focusCamp; }); if (hitC.length) rows = hitC; }
+  rows.sort(function (a, b) { return b.spend - a.spend; });
+  var shown = ui.focusCamp ? rows : sliceRows(rows, ui.mediaOpen);
+  var cols = [
+    { k: 'plat', l: 'Platform', f: function (v) { return '<span class="pill" style="background:' + PLAT[v] + '22;color:' + PLAT[v] + '">' + v + '</span>'; } },
+    { k: 'name', l: 'Campaign', cls: 'w', f: function (v) { return esc(v); } },
+    { k: 'spend', l: 'Spend', n: 1, f: function (v) { return fm(v); } },
+    { k: 'rev', l: 'Revenue', n: 1, f: function (v) { return fm(v); } },
+    { k: 'roas', l: 'ROAS', f: function (v) { return roasBar(v); } },
+    { k: 'cac', l: 'CAC', n: 1, cls: 'hide-m', f: function (v) { return fm(v, 2); } }
+  ];
+  if (ui.mediaOpen) cols.push(
+    { k: 'type', l: 'Type' }, { k: 'impr', l: 'Impr.', n: 1, f: fn }, { k: 'clicks', l: 'Clicks', n: 1, f: fn },
+    { k: 'ctr', l: 'CTR', n: 1, f: function (v) { return fp(v, 2); } }, { k: 'cpc', l: 'CPC', n: 1, f: function (v) { return fm(v, 2); } },
+    { k: 'conv', l: 'Conv.', n: 1, f: fn }, { k: 'cvr', l: 'CVR', n: 1, f: function (v) { return fp(v, 2); } },
+    { k: 'acos', l: 'ACoS', n: 1, f: function (v) { return fp(v); } },
+    { k: 'droas', l: 'Δ ROAS', n: 1, f: function (v) { return v == null ? '<span class="d neu">new</span>' : '<span class="d ' + (v >= 0 ? 'up' : 'dn') + '">' + (v >= 0 ? '+' : '') + (v * 100).toFixed(0) + '%</span>'; } }
+  );
+  var t = $('tMedia'); t._sort = { k: 'spend', d: true };
+  table('tMedia', cols, shown, 'spend', true);
+  paintMore('mediaMore', shown.length, rows.length, ui.mediaOpen, 'mediaOpen', 'all columns');
+  bindDrawer('mediaChart', function () {
+    var B = buckets(R.s, R.e), labels = B.b.map(function (x) { return D.iso(x[0]).slice(5); });
+    var ds = platforms.filter(function (p) { return !plat || plat === p; }).map(function (p) { return { type: 'bar', label: p + ' spend', stack: 's', backgroundColor: PLAT[p], data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mm.platform === p && mediaOk(mm, '', F.store)) t += sum(mm.spend, x[0], x[1]); }); return t; }) }; });
+    ds.push({ type: 'line', label: 'Attributed revenue', yAxisID: 'y1', borderColor: '#f5c542', pointRadius: 0, tension: .3, data: B.b.map(function (x) { var t = 0; D.media.forEach(function (mm) { if (mediaOk(mm, plat, F.store)) t += sum(mm.rev, x[0], x[1]); }); return t; }) });
+    mk('cMediaTrend', { data: { labels: labels, datasets: ds }, options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: function (v) { return fm(v); } } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: function (v) { return fm(v); } } } } } });
+  });
 }
 var crmMode = '';
 function renderCrm() {
-  var c = state.c, cc = state.cc, cur = state.cur, R = state.R, F = state.F, dtcNet = state.dtcAll;
-  $('crmNote').innerHTML = incDTC(F.store) ? 'Klaviyo-style campaigns & flows (synthetic) · Shopify DTC customers only' : '<span style="color:#ff9900">Storefront filter is Amazon — Klaviyo CRM only covers Shopify DTC, so this section shows DTC CRM for context.</span>';
-  var k = [['CRM attributed revenue', fm(c.rev), cc && delta(c.rev, cc.rev)], ['Share of DTC revenue', dtcNet ? fp(c.rev / dtcNet) : '—', ''], ['Flows share of CRM', fp(c.flowRev / (c.rev || 1)), cc && ddelta(c.flowRev / c.rev, cc.flowRev / cc.rev)],
-    ['Email open rate', fp(c.openRate), cc && ddelta(c.openRate, cc.openRate)], ['Email click rate', fp(c.clickRate, 2), cc && ddelta(c.clickRate, cc.clickRate)], ['SMS click rate', fp(c.smsCtr, 1), cc && ddelta(c.smsCtr, cc.smsCtr)],
-    ['Email list', fn(c.eList), '<span class="d ' + (c.eGrowth >= 0 ? 'up' : 'dn') + '">' + (c.eGrowth >= 0 ? '+' : '') + fn(c.eGrowth) + ' net</span>'], ['SMS list', fn(c.sList), '<span class="d ' + (c.sGrowth >= 0 ? 'up' : 'dn') + '">' + (c.sGrowth >= 0 ? '+' : '') + fn(c.sGrowth) + ' net</span>'], ['Email unsub rate', fp(c.unsubRate, 2), cc && delta(c.unsubRate, cc.unsubRate, true)]];
-  $('crmKpis').innerHTML = kpiHtml(k);
-  var fl = c.flows.slice().sort(function (a, b) { return b.rev - a.rev; });
-  mk('cFlows', { type: 'bar', data: { labels: fl.map(function (f) { return f.name; }), datasets: [{ label: 'Revenue', data: fl.map(function (f) { return f.rev; }), backgroundColor: '#a78bfa', borderRadius: 3, xAxisID: 'x' }, { label: 'Revenue per recipient', data: fl.map(function (f) { return f.rpr; }), backgroundColor: '#f5c542', borderRadius: 3, xAxisID: 'x1' }] }, options: { indexAxis: 'y', maintainAspectRatio: false, scales: { y: { ticks: { font: { size: 10 } } }, x: { ticks: { callback: function (v) { return fm(v); } } }, x1: { position: 'top', grid: { display: false }, ticks: { callback: function (v) { return '$' + v.toFixed(2); } } } } } });
-  var s0 = Math.min(R.s, T - 179), lab = [], e1 = [], s1 = []; for (var d = s0; d <= R.e; d += (R.e - s0 > 200 ? 7 : 1)) { lab.push(D.iso(d).slice(5)); e1.push(D.crm.emailList[d].size); s1.push(D.crm.smsList[d].size); }
-  mk('cList', { type: 'line', data: { labels: lab, datasets: [{ label: 'Email subscribers', data: e1, borderColor: '#a78bfa', pointRadius: 0, tension: .3 }, { label: 'SMS subscribers', data: s1, borderColor: '#4dd0e1', pointRadius: 0, tension: .3, yAxisID: 'y1' }] }, options: { maintainAspectRatio: false, scales: { y: { ticks: { callback: fn } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: fn } } } } });
-  var rows = c.camps.filter(function (x) { return !crmMode || x.channel === crmMode; }).map(function (x) { return { date: x.date, ch: x.channel, name: x.name, rec: x.recipients, or: x.opens == null ? null : x.opens / x.recipients, cr: x.clicks / x.recipients, conv: x.conv, rev: x.rev, rpr: x.rev / x.recipients, ur: x.unsubs / x.recipients }; });
-  table('tCrm', [{ k: 'date', l: 'Date' }, { k: 'ch', l: 'Channel', f: function (v) { return '<span class="pill ' + (v === 'sms' ? 'p-ok' : 'p-warn') + '">' + v.toUpperCase() + '</span>'; } }, { k: 'name', l: 'Campaign' }, { k: 'rec', l: 'Recipients', n: 1, f: fn },
-    { k: 'or', l: 'Open rate', n: 1, f: function (v) { return v == null ? '—' : fp(v); } }, { k: 'cr', l: 'Click rate', n: 1, f: function (v) { return fp(v, 2); } }, { k: 'conv', l: 'Orders', n: 1, f: fn }, { k: 'rev', l: 'Revenue', n: 1, f: function (v) { return fm(v); } }, { k: 'rpr', l: 'Rev / recip.', n: 1, f: function (v) { return '$' + v.toFixed(3); } },
-    { k: 'ur', l: 'Unsub rate', n: 1, f: function (v) { return '<span style="color:' + (v > .005 ? '#ff6b6b' : 'inherit') + '">' + fp(v, 2) + '</span>'; } }], rows, 'date', true);
+  var c = state.c, cc = state.cc, R = state.R, F = state.F, dtcNet = state.dtcAll, dtc = incDTC(F.store);
+  $('crmNote').innerHTML = dtc ? 'Klaviyo-style campaigns and flows (synthetic) · Shopify DTC customers only.' : '<span style="color:#ff9900">Storefront filter is Amazon. Klaviyo covers Shopify DTC only, so this tab still shows DTC CRM for context.</span>';
+  $('crmKpis').innerHTML = kpiHtml([
+    ['CRM attributed revenue', fm(c.rev), cc && delta(c.rev, cc.rev)],
+    ['Share of DTC revenue', dtcNet ? fp(c.rev / dtcNet) : '—', ''],
+    ['Flows share of CRM', fp(c.flowRev / (c.rev || 1)), cc && ddelta(c.flowRev / (c.rev || 1), cc.flowRev / (cc.rev || 1))],
+    ['Email open rate', fp(c.openRate), cc && ddelta(c.openRate, cc.openRate)]
+  ]);
+  $('crmExtra').textContent = 'Email click ' + fp(c.clickRate, 2) + ' · SMS click ' + fp(c.smsCtr, 1) + ' · email list ' + fn(c.eList) + ' (' + (c.eGrowth >= 0 ? '+' : '') + fn(c.eGrowth) + ') · SMS list ' + fn(c.sList) + ' (' + (c.sGrowth >= 0 ? '+' : '') + fn(c.sGrowth) + ') · unsub ' + fp(c.unsubRate, 2) + (F.artist ? ' · Sends are not split by artist. Campaigns named for ' + F.artist + ' are listed when any exist.' : '');
+  var camps = c.camps.filter(function (x) { return !crmMode || x.channel === crmMode; });
+  if (F.artist) { var named = camps.filter(function (x) { return artistNamed(x.name, F.artist); }); if (named.length) camps = named; }
+  if (ui.focusCamp) { var one = camps.filter(function (x) { return x.name === ui.focusCamp; }); if (one.length) camps = one; }
+  var rows = camps.map(function (x) { return { date: x.date, ch: x.channel, name: x.name, rec: x.recipients, or: x.opens == null ? null : x.opens / x.recipients, cr: x.clicks / x.recipients, conv: x.conv, rev: x.rev, rpr: x.rev / x.recipients, ur: x.unsubs / x.recipients }; }).sort(function (a, b) { return b.rev - a.rev; });
+  var shown = ui.focusCamp ? rows : sliceRows(rows, ui.crmOpen);
+  var cols = [
+    { k: 'date', l: 'Date', cls: 'hide-m' },
+    { k: 'ch', l: 'Channel', f: function (v) { return '<span class="pill ' + (v === 'sms' ? 'p-ok' : 'p-warn') + '">' + v.toUpperCase() + '</span>'; } },
+    { k: 'name', l: 'Campaign', cls: 'w', f: function (v) { return esc(v); } },
+    { k: 'rev', l: 'Revenue', n: 1, f: function (v) { return fm(v); } },
+    { k: 'cr', l: 'Click rate', n: 1, f: function (v) { return fp(v, 2); } }
+  ];
+  if (ui.crmOpen) cols.push({ k: 'rec', l: 'Recipients', n: 1, f: fn }, { k: 'or', l: 'Open rate', n: 1, f: function (v) { return v == null ? '—' : fp(v); } }, { k: 'conv', l: 'Orders', n: 1, f: fn }, { k: 'rpr', l: 'Rev / recip.', n: 1, f: function (v) { return '$' + v.toFixed(3); } }, { k: 'ur', l: 'Unsub', n: 1, f: function (v) { return '<span class="' + (v > .005 ? 'dn' : '') + '">' + fp(v, 2) + '</span>'; } });
+  var t = $('tCrm'); t._sort = { k: 'rev', d: true };
+  table('tCrm', cols, shown, 'rev', true);
+  paintMore('crmMore', shown.length, rows.length, ui.crmOpen, 'crmOpen', 'recipients, open rate, orders, unsub');
+  bindDrawer('crmChart', function () {
+    var fl = c.flows.slice().sort(function (a, b) { return b.rev - a.rev; });
+    mk('cFlows', { type: 'bar', data: { labels: fl.map(function (f) { return f.name; }), datasets: [{ label: 'Revenue', data: fl.map(function (f) { return f.rev; }), backgroundColor: '#a78bfa', borderRadius: 3, xAxisID: 'x' }, { label: 'Revenue per recipient', data: fl.map(function (f) { return f.rpr; }), backgroundColor: '#f5c542', borderRadius: 3, xAxisID: 'x1' }] }, options: { indexAxis: 'y', maintainAspectRatio: false, scales: { y: { ticks: { font: { size: 10 } } }, x: { ticks: { callback: function (v) { return fm(v); } } }, x1: { position: 'top', grid: { display: false }, ticks: { callback: function (v) { return '$' + v.toFixed(2); } } } } } });
+    var s0 = Math.min(R.s, T - 179), lab = [], e1 = [], s1 = []; for (var d = s0; d <= R.e; d += (R.e - s0 > 200 ? 7 : 1)) { lab.push(D.iso(d).slice(5)); e1.push(D.crm.emailList[d].size); s1.push(D.crm.smsList[d].size); }
+    mk('cList', { type: 'line', data: { labels: lab, datasets: [{ label: 'Email subscribers', data: e1, borderColor: '#a78bfa', pointRadius: 0, tension: .3 }, { label: 'SMS subscribers', data: s1, borderColor: '#4dd0e1', pointRadius: 0, tension: .3, yAxisID: 'y1' }] }, options: { maintainAspectRatio: false, scales: { y: { ticks: { callback: fn } }, y1: { position: 'right', grid: { display: false }, ticks: { callback: fn } } } } });
+  });
 }
-
-// ---------- forecast (per storefront, cached) ----------
 var FCC = {};
 function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
 function getForecast(store) {
@@ -410,7 +667,6 @@ function getForecast(store) {
   var fc = []; for (var h = 1; h <= H; h++) { var base = A[T + h - LAG] * g; fc.push({ d: T + h, f: base, lo80: base * Math.exp(-1.2816 * sd), hi80: base * Math.exp(1.2816 * sd), lo95: base * Math.exp(-1.96 * sd), hi95: base * Math.exp(1.96 * sd) }); }
   var tot = fc.reduce(function (a, x) { return a + x.f; }, 0), ly = sum(A, T + 1 - LAG, T + H - LAG), last90 = sum(A, T - H + 1, T);
   var totErr = Math.abs(sa / sf - 1), totSd = Math.max(sd / Math.sqrt(H) * 3, totErr);
-  // product unit forecast: seasonal index by category (holiday titles get their own index); limited drops decay
   var C = D.categories.length, grp = []; for (var c = 0; c <= C; c++) grp.push(new Float64Array(N));
   for (var oo = 0; oo < D.orders.day.length; oo++) { if (!stOk(D.orders.store[oo], store)) continue; var dd = D.orders.day[oo]; for (var l = D.orders.line[oo]; l < D.orders.line[oo + 1]; l++) { var pp = D.products[D.lines.prod[l]]; grp[pp.holiday ? C : pp.cat][dd] += D.lines.qty[l]; } }
   var idxs = grp.map(function (u) { var b = sum(u, T - 27 - LAG, T - LAG) / 28; var arr = []; for (var h = 1; h <= H; h++) arr.push(b ? u[T + h - LAG] / b : 1); return arr; });
@@ -428,12 +684,25 @@ function getForecast(store) {
   return (FCC[store] = { A: A, fc: fc, sd: sd, mape: mape, g: g, tot: tot, ly: ly, last90: last90, totSd: totSd, totErr: totErr, prods: prods, peak: fc.reduce(function (a, x) { return x.f > a.f ? x : a; }, fc[0]) });
 }
 function peakLabel(d) { var s = D.iso(d); return s === '2026-11-27' ? 'Black Friday + RSD' : s === '2026-11-30' ? 'Cyber Monday' : s >= '2026-12-01' && s <= '2026-12-20' ? 'Holiday gifting' : ''; }
+function riskCount(artist) {
+  return state.FC.prods.filter(function (x) {
+    if (artist && x.p.artist !== artist) return false;
+    return x.so && x.inv.vel > 0 && !(x.p.alloc && x.p.stock[0] === 0);
+  });
+}
 function renderForecast() {
-  var F0 = state.FC, st = state.F.store;
-  $('fcMethod').textContent = storeLabel(st) + ' · seasonal-naive (t−364 days, weekday-aligned) × trailing 8-week YoY growth (' + ((F0.g - 1) * 100).toFixed(1) + '%). Bands from 90-day backtest residuals (σ=' + F0.sd.toFixed(3) + ' log). Applies the storefront filter only.';
-  var k = [['Forecast net revenue (90d)', fm(F0.tot), '<span class="muted">80%: ' + fm(F0.tot * Math.exp(-1.2816 * F0.totSd)) + ' – ' + fm(F0.tot * Math.exp(1.2816 * F0.totSd)) + '</span>'], ['vs same 90 days LY', sgn(pct(F0.tot, F0.ly)), '<span class="muted">LY ' + fm(F0.ly) + '</span>'], ['vs last 90 days', sgn(pct(F0.tot, F0.last90)), '<span class="muted">Holiday seasonality</span>'],
-    ['Peak day', fm(F0.peak.f), '<span class="muted">' + D.iso(F0.peak.d) + ' ' + peakLabel(F0.peak.d) + '</span>'], ['Backtest MAPE (daily)', fp(F0.mape), '<span class="muted">90-day total error ' + fp(F0.totErr) + '</span>'], ['SKUs at stockout risk', String(F0.prods.filter(function (x) { return x.so && x.inv.vel > 0 && !(x.p.alloc && x.p.stock[0] === 0); }).length), '<span class="muted">within 90 days</span>']];
-  $('fcKpis').innerHTML = kpiHtml(k);
+  var F0 = state.FC, st = state.F.store, artist = state.F.artist;
+  var risks = riskCount(artist);
+  var lost = risks.reduce(function (a, x) { return a + x.lost; }, 0);
+  var lostAll = state.FC.prods.reduce(function (a, x) { return a + x.lost; }, 0);
+  $('fcMethod').textContent = storeLabel(st) + ' · seasonal-naive (t−364 days, weekday-aligned) × trailing 8-week YoY growth (' + ((F0.g - 1) * 100).toFixed(1) + '%). Bands from 90-day backtest residuals (σ=' + F0.sd.toFixed(3) + ' log). Vs last 90 days ' + sgn(pct(F0.tot, F0.last90)) + '. The revenue model follows the storefront only' + (artist ? '. Stockout rows below are limited to ' + artist + '.' : '.');
+  $('fcKpis').innerHTML = kpiHtml([
+    ['Forecast net revenue (90d)', fm(F0.tot), '<span class="d neu">80%: ' + fm(F0.tot * Math.exp(-1.2816 * F0.totSd)) + ' – ' + fm(F0.tot * Math.exp(1.2816 * F0.totSd)) + '</span>'],
+    ['vs same 90 days LY', sgn(pct(F0.tot, F0.ly)), '<span class="d neu">LY ' + fm(F0.ly) + '</span>'],
+    ['Peak day', fm(F0.peak.f), '<span class="d neu">' + D.iso(F0.peak.d) + ' ' + peakLabel(F0.peak.d) + '</span>'],
+    ['Backtest MAPE (daily)', fp(F0.mape), '<span class="d neu">90-day total error ' + fp(F0.totErr) + '</span>'],
+    ['SKUs at stockout risk', '<span class="' + (risks.length ? 'dn' : '') + '">' + risks.length + '</span>', '<span class="d neu">' + (artist && lost !== lostAll ? fm(lost) + ' of this artist · ' + fm(lostAll) + ' all artists' : '≈' + fm(artist ? lost : lostAll) + ' demand at risk') + '</span>']
+  ]);
   var s0 = T - 119, lab = [], act = [], f = [], l80 = [], h80 = [], l95 = [], h95 = [], ly = [];
   for (var d = s0; d <= T + 90; d++) { lab.push(D.iso(d).slice(5)); var x = d > T ? F0.fc[d - T - 1] : null; act.push(d <= T ? F0.A[d] : null); f.push(x ? x.f : d === T ? F0.A[T] : null); l80.push(x ? x.lo80 : null); h80.push(x ? x.hi80 : null); l95.push(x ? x.lo95 : null); h95.push(x ? x.hi95 : null); ly.push(F0.A[d - 364] != null ? F0.A[d - 364] : null); }
   mk('cFc', { type: 'line', data: { labels: lab, datasets: [
@@ -441,14 +710,7 @@ function renderForecast() {
     { label: '80% band', data: h80, borderColor: 'transparent', backgroundColor: 'rgba(245,197,66,.18)', fill: '+1', pointRadius: 0 }, { label: '80% low', data: l80, borderColor: 'transparent', pointRadius: 0, fill: false },
     { label: 'Actual', data: act, borderColor: '#5aa9ff', pointRadius: 0, tension: .2, borderWidth: 1.6 }, { label: 'Forecast', data: f, borderColor: '#f5c542', borderDash: [5, 3], pointRadius: 0, tension: .2, borderWidth: 2 },
     { label: 'Last year (t−364)', data: ly, borderColor: 'rgba(255,255,255,.22)', pointRadius: 0, tension: .2, borderWidth: 1 }] },
-    options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { labels: { filter: function (i) { return i.text.indexOf('low') < 0; } } }, tooltip: { filter: function (i) { return i.dataset.label.indexOf('low') < 0 && i.raw != null; }, callbacks: { label: function (c) { return c.dataset.label + ': ' + fm(c.raw); } } } }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } }, x: { ticks: { maxTicksLimit: 14 } } } } });
-  var rows = F0.prods.filter(function (x) { return x.inv.vel > 0 && !(x.p.alloc && x.p.stock[0] === 0) && (state.F.cat < 0 || x.p.cat === state.F.cat); }).sort(function (a, b) { return b.rev - a.rev; }).slice(0, 20).map(function (x) {
-    var days = x.so ? x.so - T : null, risk = !x.so ? ['Covered', 'p-ok'] : days <= 21 ? ['High', 'p-bad'] : days <= 45 ? ['Medium', 'p-warn'] : ['Low', 'p-mut'];
-    return { name: x.p.title, artist: x.p.artist, cat: D.categories[x.p.cat], vel: x.inv.vel, units: x.units, range: x.lo, hi: x.hi, rev: x.rev, onHand: x.inv.onHand, inbound: x.inv.inbound, eta: x.inv.eta || '', so: x.so ? D.iso(x.so) : '', days: days == null ? 999 : days, risk: risk[0], cls: risk[1], lost: x.lost };
-  });
-  table('tFc', [{ k: 'name', l: 'Product' }, { k: 'artist', l: 'Artist' }, { k: 'cat', l: 'Category' }, { k: 'vel', l: 'Units/day (28d)', n: 1, f: function (v) { return v.toFixed(1); } }, { k: 'units', l: 'Fcst units 90d', n: 1, f: function (v, r) { return '<b>' + fn(v) + '</b> <span class="muted">(' + fn(r.range) + '–' + fn(r.hi) + ')</span>'; } }, { k: 'rev', l: 'Fcst revenue', n: 1, f: function (v) { return fm(v); } },
-    { k: 'onHand', l: 'On hand', n: 1, f: fn }, { k: 'inbound', l: 'Inbound (ETA)', n: 1, f: function (v, r) { return v ? fn(v) + ' <span class="muted">' + r.eta.slice(5) + '</span>' : '—'; } }, { k: 'so', l: 'Projected stockout', f: function (v, r) { return v ? v + ' <span class="muted">(' + r.days + 'd)</span>' : '—'; } },
-    { k: 'days', l: 'Risk', f: function (v, r) { return '<span class="pill ' + r.cls + '">' + r.risk + '</span>'; } }, { k: 'lost', l: 'Revenue at risk', n: 1, f: function (v) { return v > 0 ? '<span style="color:#ff6b6b">' + fm(v) + '</span>' : '—'; } }], rows, 'rev', true);
+    options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { labels: { filter: function (i) { return i.text.indexOf('low') < 0; } } }, tooltip: { filter: function (i) { return i.dataset.label.indexOf('low') < 0 && i.raw != null; }, callbacks: { label: function (c) { return c.dataset.label + ': ' + fm(c.raw); } } } }, scales: { y: { ticks: { callback: function (v) { return fm(v); } } }, x: { ticks: { maxTicksLimit: 12 } } } } });
 }
 
 // ---------- insights, one pair of callouts per section ----------
@@ -482,18 +744,12 @@ function renderInsights() {
   $('hlSummary').innerHTML = hl;
 
   mountNotes('notes-overview', '', 'demo');
-  mountNotes('notes-search', 'Organic search', 'demo');
-  mountNotes('notes-affiliate', 'Affiliate', 'demo');
-  mountNotes('notes-direct', 'Direct', 'demo');
   mountNotes('notes-social', '', 'demo');
-  mountNotes('notes-products', 'Products and artists', 'demo');
-  mountNotes('notes-stock', 'Inventory', 'demo');
+  mountNotes('notes-products', '', 'demo');
   mountNotes('notes-amazon', '', 'demo');
   mountNotes('notes-paid', '', 'demo');
   mountNotes('notes-crm', '', 'demo');
-  mountNotes('notes-forecast', '', 'demo');
-  mountNotes('notes-seo', '', 'mix');
-  mountNotes('notes-ux', '', 'mix');
+  mountNotes('notes-health', '', 'mix');
   mountNotes('notes-suggest', '', 'pub');
 
   var ovIn = cmp
@@ -502,7 +758,6 @@ function renderInsights() {
   var ovSg = best < 0 ? '<p>Pick a comparison that sits inside the dataset before choosing a category to push.</p>'
     : (wv < 0 ? '<p>Review <b>' + cats[worst] + '</b> first (' + fm(wv) + ' vs comparison). Check price, on-hand stock, and whether paid and email are still pushing it.</p>'
       : '<p>Put the next release push behind <b>' + cats[best] + '</b>, the largest gain (' + (bv >= 0 ? '+' : '') + fm(bv) + ').</p>');
-  fillNotes('notes-overview', ovIn, ovSg);
 
   function chanOn(idx) { return (F.chan < 0 || F.chan === idx) && (idx < NDTC ? dtc : amz); }
   function chanBlock(idx, name) {
@@ -516,17 +771,17 @@ function renderInsights() {
   var searchSg = !chanOn(0) ? search.suggest : (search.down
     ? '<p>Search revenue is down. Refresh landing pages for the categories that grew, and point internal links at in-stock vinyl.</p>'
     : '<p>Search is holding or growing. Publish new-release pages on street date, and add collection copy for the formats buyers already search.</p>');
-  fillNotes('notes-search', search.insight, searchSg);
   var aff = chanBlock(7, 'Affiliate');
   var affSg = !chanOn(7) ? aff.suggest : (aff.down
     ? '<p>Affiliate revenue slipped. Pause codes on slow movers and point the next partner drop at <b>' + (best >= 0 ? cats[best] : 'the leading category') + '</b>.</p>'
     : '<p>Keep creator codes on the SKUs that already sell through affiliate, and brief the next drop around <b>' + (best >= 0 ? cats[best] : 'the leading category') + '</b>.</p>');
-  fillNotes('notes-affiliate', aff.insight, affSg);
   var direct = chanBlock(6, 'Direct');
   var directSg = !chanOn(6) ? direct.suggest : ((direct.share || 0) >= 0.12
     ? '<p>Direct is a large share. Hold out branded paid search before buying more brand terms, so this traffic is not purchased twice.</p>'
     : '<p>Direct is a smaller share. Make the return path obvious: recent artists, order status, and site search.</p>');
-  fillNotes('notes-direct', direct.insight, directSg);
+  ovIn += '<details class="owned"><summary>Search · Affiliate · Direct</summary>' + search.insight + searchSg + aff.insight + affSg + direct.insight + directSg + '</details>';
+  if (F.artist) ovIn += '<p class="muted">Artist filter: <b>' + esc(F.artist) + '</b>. Order revenue includes only that artist’s products. Sessions, paid spend, and CRM sends are not split by artist.</p>';
+  fillNotes('notes-overview', ovIn, ovSg);
 
   if (!(dtc && (F.chan < 0 || F.chan === 1))) {
     fillNotes('notes-social', '<p>' + (F.chan >= 0 && F.chan !== 1 ? 'The channel filter excludes Organic Social.' : 'Organic social is a Shopify DTC session source. This storefront has no DTC orders.') + '</p>', '<p>Include Shopify DTC and the Organic Social channel to get a platform suggestion.</p>');
@@ -541,7 +796,7 @@ function renderInsights() {
     fillNotes('notes-social', socIn, '<p>Put the next content sprint on <b>' + D.social[tp] + '</b>' + (arts[0] ? ' around <b>' + arts[0] + '</b>' : '') + ', and keep the other platforms as supporting cuts.</p>');
   }
 
-  var drops = D.products.filter(function (p) { return p.alloc && p.launch > R.s - 60 && p.launch <= R.e && (F.store <= 0); });
+  var drops = D.products.filter(function (p) { return (!F.artist || p.artist === F.artist) && p.alloc && p.launch > R.s - 60 && p.launch <= R.e && (F.store <= 0); });
   var rr = cats.map(function (_, i) { var g = 0, r = 0; D.products.forEach(function (p, j) { if (p.cat === i) { g += cur.pu[j]; r += cur.pru[j]; } }); return [i, g > 50 ? r / g : 0]; }).sort(function (a, b) { return b[1] - a[1]; })[0];
   var prodIn = '<p>Highest return rate: <b>' + cats[rr[0]] + '</b> at ' + fp(rr[1]) + ' of units (average ' + fp(cur.retRate) + ' of revenue).</p>';
   var prodSg = rr[0] === 6 ? '<p>Check size guides and fit notes on <b>' + cats[rr[0]] + '</b>.</p>' : '<p>Most returns look like damaged sleeves or warped vinyl in transit. Review mailer packaging' + (amz ? ' (Amazon DE returns run highest)' : '') + '.</p>';
@@ -550,17 +805,15 @@ function renderInsights() {
     prodIn += '<p><b>Limited and signed drops:</b> ' + dd.map(function (x) { return '<b>' + x[0].artist + ' – ' + x[0].title + '</b> ' + fp(x[1] / x[0].alloc, 0) + ' sold-through of ' + fn(x[0].alloc) + (x[0].stock[0] === 0 ? ' (sold out)' : ''); }).join('; ') + '.</p>';
     prodSg += '<p>Fast sell-through on those drops: consider a second color variant or a waitlist.</p>';
   } else prodIn += '<p>No limited or signed drop launched in this window' + (dtc ? '' : ' for a Shopify storefront') + '.</p>';
-  fillNotes('notes-products', prodIn, prodSg);
 
-  var top = D.products.map(function (p, i) { return { p: p, r: cur.pr[i], inv: invFor(p, F.store), fc: FC.prods[i] }; }).sort(function (a, b) { return b.r - a.r; }).slice(0, 15);
+  var top = D.products.map(function (p, i) { return { p: p, r: cur.pr[i], inv: invFor(p, F.store), fc: FC.prods[i] }; }).filter(function (x) { return !F.artist || x.p.artist === F.artist; }).sort(function (a, b) { return b.r - a.r; }).slice(0, 15);
   var risk = top.filter(function (x) { return x.inv.vel > 0 && x.inv.onHand > 0 && (x.inv.onHand / x.inv.vel < 21 || (x.fc.so && x.fc.so - T < 45)); }).slice(0, 4);
-  var over = D.products.filter(function (p) { var iv = invFor(p, F.store); return iv.vel > 0 && iv.onHand / iv.vel > 180 && !p.alloc; }), oc = over.reduce(function (a, p) { return a + invFor(p, F.store).onHand * p.cost; }, 0);
+  var over = D.products.filter(function (p) { if (F.artist && p.artist !== F.artist) return false; var iv = invFor(p, F.store); return iv.vel > 0 && iv.onHand / iv.vel > 180 && !p.alloc; }), oc = over.reduce(function (a, p) { return a + invFor(p, F.store).onHand * p.cost; }, 0);
   var stockIn = risk.length
     ? '<p><b>Inventory risk on best sellers (' + storeLabel(F.store) + '):</b> ' + risk.map(function (x) { return '<b>' + x.p.artist + ' – ' + x.p.title + '</b> (' + Math.round(x.inv.onHand / x.inv.vel) + ' days of cover' + (x.fc.so ? ', stockout ~' + D.iso(x.fc.so).slice(5) : '') + ')'; }).join(', ') + '.</p>'
     : '<p>None of the top sellers are inside 21 days of cover or a 45-day stockout for ' + storeLabel(F.store) + '.</p>';
   var stockSg = (risk.length ? '<p>Vinyl re-presses take 6–10 weeks. Place the PO or FBA replenishment now for BFCM.</p>' : '<p>No urgent replenishment on the current best sellers.</p>');
   stockSg += over.length ? '<p><b>' + over.length + ' slow movers</b> hold ' + fm(oc) + ' of inventory at cost with more than 180 days of cover (for example ' + over.slice(0, 3).map(function (p) { return p.artist + ' – ' + p.title; }).join(', ') + '). Bundle them or mark them down for BFCM.</p>' : '<p>No unallocated SKU is sitting on more than 180 days of cover.</p>';
-  fillNotes('notes-stock', stockIn, stockSg);
 
   if (!(amz && cur.amzNet > 0)) {
     fillNotes('notes-amazon', '<p>' + (amz ? 'Amazon net revenue is $0 in this cut.' : 'The storefront filter is Shopify DTC, so Amazon is excluded.') + '</p>', '<p>Switch to All storefronts or an Amazon marketplace to get a fee and ads suggestion.</p>');
@@ -601,11 +854,11 @@ function renderInsights() {
     fillNotes('notes-crm', crmIn, crmSg);
   }
 
-  var lostTot = FC.prods.reduce(function (a, x) { return a + x.lost; }, 0);
+  var lostTot = FC.prods.reduce(function (a, x) { return a + ((!F.artist || x.p.artist === F.artist) ? x.lost : 0); }, 0);
   var peak = peakLabel(FC.peak.d);
-  fillNotes('notes-forecast',
-    '<p>Next 90 days (' + storeLabel(F.store) + '): <b>' + fm(FC.tot) + '</b> net revenue (' + sgn(pct(FC.tot, FC.ly)) + ' vs last year), peaking on <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. Projected stockouts put about <b>' + fm(lostTot) + '</b> of demand at risk.</p>',
-    '<p>Cover the stockout risk before <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. The forecast follows the storefront only.</p>');
+  var fcIn = '<p>Next 90 days (' + storeLabel(F.store) + '): <b>' + fm(FC.tot) + '</b> net revenue (' + sgn(pct(FC.tot, FC.ly)) + ' vs last year), peaking on <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. Projected stockouts put about <b>' + fm(lostTot) + '</b> of demand at risk' + (F.artist ? ' for <b>' + esc(F.artist) + '</b>' : '') + '.</p>';
+  var fcSg = '<p>Cover the stockout risk before <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. The forecast revenue model follows the storefront only.</p>';
+  fillNotes('notes-products', prodIn + stockIn + fcIn, prodSg + stockSg + fcSg);
 
   renderAuditNotes();
   renderSuggestNotes();
@@ -614,8 +867,7 @@ function renderAuditNotes() {
   var A = window.WRAudit, homeM = auditRun('home', 'mobile'), homeD = auditRun('home', 'desktop');
   var demo = state.R ? auditDemo(state.R.s, state.R.e, state.F) : null;
   if (!A || !homeM) {
-    fillNotes('notes-seo', '<p>The public audit is not in this build.</p>', '<p>Rebuild so the Lighthouse results are inlined.</p>');
-    fillNotes('notes-ux', '<p>The public audit is not in this build.</p>', '<p>Rebuild so the Lighthouse results are inlined.</p>');
+    fillNotes('notes-health', '<p>The public audit is not in this build.</p>', '<p>Rebuild so the Lighthouse results are inlined.</p>');
     return;
   }
   var seoIssues = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; });
@@ -630,15 +882,16 @@ function renderAuditNotes() {
   var realFix = (A.fixes || []).filter(function (x) { return x.area === 'seo' && x.source === 'REAL'; })[0];
   var demoFix = (A.fixes || []).filter(function (x) { return x.source === 'DEMO'; })[0];
   var seoSg = (realFix ? '<p>' + realFix.title + '</p>' : '<p>No ranked SEO fix is in the audit file.</p>') + (demoFix ? '<p class="muted">DEMO: ' + demoFix.title + '</p>' : '');
-  fillNotes('notes-seo', seoIn, seoSg);
   var cartM = auditRun('cart', 'mobile'), uxIssues = (A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; });
   var uxIn = '<p><b>' + (uxIssues[0] ? uxIssues[0].title : 'Lab performance') + '.</b> Homepage LCP is ' + (homeM.lab.lcpMs / 1000).toFixed(1) + 's on mobile' + (homeD ? ' and ' + (homeD.lab.lcpMs / 1000).toFixed(1) + 's on desktop' : '') + (cartM ? '. Cart CLS is ' + cartM.lab.cls + ' on mobile' : '') + '.</p>';
-  if (demo && demo.devices) {
+  if (state.F && state.F.artist) uxIn += '<p class="muted">DEMO device split is not split by artist.</p>';
+  else if (demo && demo.devices) {
     var mob = demo.devices.mobile, desk = demo.devices.desktop;
     uxIn += '<p class="muted">DEMO device split of filtered Shopify DTC: mobile AOV ' + fm(mob.aov, 2) + ' vs desktop ' + fm(desk.aov, 2) + (mob.cvr == null ? '.' : ', conversion ' + fp(mob.cvr, 2) + ' vs ' + fp(desk.cvr, 2) + '.') + '</p>';
   } else uxIn += '<p class="muted">DEMO device split is hidden for this storefront or channel.</p>';
   var uxFixes = (A.fixes || []).filter(function (x) { return x.area === 'ux'; });
-  fillNotes('notes-ux', uxIn, uxFixes.length ? '<p>' + uxFixes.map(function (x) { return x.title; }).join('</p><p>') + '</p>' : '<p>No ranked UX fix is in the audit file.</p>');
+  var uxSg = uxFixes.length ? '<p>' + uxFixes.map(function (x) { return x.title; }).join('</p><p>') + '</p>' : '<p>No ranked UX fix is in the audit file.</p>';
+  fillNotes('notes-health', seoIn + uxIn, seoSg + uxSg);
   void seoFixes;
 }
 function renderSuggestNotes() {
@@ -741,25 +994,54 @@ function sugGroupHtml(a) {
   if (!any && sug.group !== 'all') html += '<p class="empty-note">No suggestions in this group for ' + esc(a.name) + '.</p>';
   return html;
 }
+function sugFlat(a) {
+  var cards = [];
+  a.suggestions.forEach(function (s) {
+    if (sug.group !== 'all' && s.group !== sug.group) return;
+    var g = SUG_GROUPS.filter(function (x) { return x[0] === s.group; })[0];
+    cards.push({ k: g ? g[1] : s.group, t: s.text, e: s.reason, ev: s.evidence });
+  });
+  if (sug.group === 'trending' || (sug.group === 'all' && ui.sugAll)) {
+    (a.recent || []).forEach(function (p) {
+      cards.push({ k: 'Trending items', t: p.title, e: (p.format || '') + ' · ' + money(p.price, p.currency) + ' · ' + (p.date || ''), href: p.url });
+    });
+  }
+  return cards;
+}
 function sugRenderArtist() {
   var C = window.WRCatalog, a = sugCurrent();
-  if (!a) { $('sugHead').innerHTML = '<p class="empty-note">No artist matches that search.</p>'; $('sugKpis').innerHTML = ''; $('sugGroups').innerHTML = ''; if (charts.cSugFit) { charts.cSugFit.destroy(); charts.cSugFit = null; } return; }
+  if (!a) {
+    $('sugHead').innerHTML = '<p class="empty-note">No artist matches that search.</p>';
+    $('sugKpis').innerHTML = ''; $('sugCards').innerHTML = ''; $('sugMore').innerHTML = ''; $('sugGroups').innerHTML = '';
+    $('sugFitWrap').classList.add('hide');
+    if (charts.cSugFit) { charts.cSugFit.destroy(); charts.cSugFit = null; }
+    return;
+  }
   var b = C.benchmarks, opCls = (a.operator || '').indexOf('WMG') >= 0 ? 'p-ok' : 'p-mut';
   var links = a.urls.map(function (u) { var host = u.replace(/^https?:\/\//, '').replace(/\/$/, ''); return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(host) + '</a>'; }).join('');
-  $('sugHead').innerHTML = '<div class="card-h"><div><h3>' + esc(a.name) + '</h3><div class="artist-links">' + (links || '<span class="muted">No store URL</span>') + '</div></div><div><span class="pill ' + opCls + '">' + esc(a.operator || 'Store') + '</span> <span class="pill p-mut">' + esc(a.currency || '—') + '</span></div></div>';
+  $('sugHead').innerHTML = '<div class="card-h"><div><h3>' + esc(a.name) + '</h3><div class="artist-links">' + (links || '<span class="muted">No store URL</span>') + '</div></div><div><span class="badge-public">PUBLIC</span> <span class="pill ' + opCls + '">' + esc(a.operator || 'Store') + '</span> <span class="pill p-mut">' + esc(a.currency || '—') + '</span></div></div>';
+  var low = a.inStock != null && a.inStock < b.median_in_stock_pct;
   $('sugKpis').innerHTML = kpiHtml([
     ['Products', fn(a.products), '<span class="muted">' + fn(a.music) + ' music · ' + fn(a.merch) + ' merch</span>'],
-    ['In stock', a.inStock == null ? '—' : a.inStock.toFixed(1) + '%', '<span class="muted">Roster median ' + b.median_in_stock_pct + '%</span>'],
-    ['New, last 90 days', fn(a.new90), '<span class="muted">Newest ' + esc(a.newest || '—') + '</span>'],
-    ['Suggestions', String(a.suggestions.length), '<span class="muted">' + (a.suggestions.length ? 'Gaps vs the roster' : 'No gaps flagged') + '</span>'],
-    ['Signed SKUs', fn(a.signed), '<span class="muted">' + b.pct_vinyl_sellers_with_signed + '% of vinyl sellers list signed</span>'],
-    ['Colored vinyl SKUs', fn(a.colored), '<span class="muted">' + b.pct_vinyl_sellers_with_colored + '% of vinyl sellers list colored</span>']
+    ['In stock', (low ? '<span class="dn">' : '') + (a.inStock == null ? '—' : a.inStock.toFixed(1) + '%') + (low ? '</span>' : ''), '<span class="muted">Roster median ' + b.median_in_stock_pct + '%</span>'],
+    ['Signed · colored vinyl', fn(a.signed) + ' · ' + fn(a.colored), '<span class="muted">' + b.pct_vinyl_sellers_with_signed + '% / ' + b.pct_vinyl_sellers_with_colored + '% of vinyl sellers</span>'],
+    ['New, last 90 days', fn(a.new90), '<span class="muted">Newest ' + esc(a.newest || '—') + ' · ' + a.suggestions.length + ' gaps</span>']
   ]);
+  var cards = sugFlat(a), shown = ui.sugAll ? cards : cards.slice(0, 3);
+  $('sugCards').innerHTML = shown.length ? shown.map(function (c) {
+    var title = c.href ? '<a class="prod-link" href="' + esc(c.href) + '" target="_blank" rel="noopener">' + esc(c.t) + '</a>' : esc(c.t);
+    return '<article class="sug"><div class="k">' + esc(c.k) + '</div><div class="t">' + title + '</div><div class="e">' + esc(c.e) + '</div>' + (c.ev ? evHtml(c.ev) : '') + '</article>';
+  }).join('') : '<p class="empty-note">No suggestions in this group.</p>';
+  var rest = [], seenG = {};
+  cards.slice(shown.length).forEach(function (c) { if (!seenG[c.k]) { seenG[c.k] = 1; rest.push(c.k); } });
+  $('sugMore').innerHTML = '<span>' + (cards.length ? (ui.sugAll ? 'All ' + cards.length : Math.min(3, cards.length) + ' of ' + cards.length) : 'No cards') + (rest.length ? ' · ' + rest.join(', ') : '') + '</span>' + moreLink('sugAll', ui.sugAll ? 'Show less' : 'Show all ' + cards.length + ' · format coverage chart');
+  $('sugFitWrap').classList.toggle('hide', !ui.sugAll);
+  $('sugGroups').innerHTML = ui.sugAll && sug.group === 'all' ? '' : '';
+  if (!ui.sugAll) { if (charts.cSugFit) { charts.cSugFit.destroy(); charts.cSugFit = null; } return; }
   var labels = Object.keys(b.format_adoption_pct);
   mk('cSugFit', { type: 'bar', data: { labels: labels, datasets: [{ label: 'Roster adoption', data: labels.map(function (k) { return b.format_adoption_pct[k] || 0; }), backgroundColor: labels.map(function (k) { return (a.formats[k] || 0) > 0 ? '#3ddc97' : (b.format_adoption_pct[k] || 0) >= 50 ? '#e8453c' : '#5c5c70'; }), borderRadius: 3 }] },
     options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return c.label + ': ' + c.raw + '% of stores · this store lists ' + fn(a.formats[c.label] || 0); } } } }, scales: { x: { max: 100, ticks: { callback: function (v) { return v + '%'; } } } } } });
   $('sugFitNote').textContent = 'Green = this store lists it · red = missing and at least half the roster sells it · bar length is roster adoption';
-  $('sugGroups').innerHTML = sugGroupHtml(a);
 }
 function sugCollect(group) {
   var C = window.WRCatalog, out = [];
@@ -812,11 +1094,9 @@ function sugRenderRoster() {
     ['Stores analyzed', fn(b.stores_analyzed), '<span class="muted">Public Shopify catalogs</span>'],
     ['Suggestions', fn(nSug), '<span class="muted">' + C.artists.length + ' artists</span>'],
     ['New products, 90 days', fn(b.new_products_last_90d), '<span class="muted">' + b.stores_with_new_products_last_90d + ' stores added something</span>'],
-    ['Median in stock', b.median_in_stock_pct + '%', '<span class="muted">Across the roster</span>'],
-    ['Colored vinyl', b.pct_vinyl_sellers_with_colored + '%', '<span class="muted">Of vinyl-selling stores</span>'],
-    ['Signed items', b.pct_vinyl_sellers_with_signed + '%', '<span class="muted">Of vinyl-selling stores</span>'],
-    ['Bundles', b.pct_stores_with_bundles + '%', '<span class="muted">Of roster stores</span>']
+    ['Median in stock', b.median_in_stock_pct + '%', '<span class="muted">Across the roster</span>']
   ]);
+  $('sugRosterExtra').textContent = 'Colored vinyl ' + b.pct_vinyl_sellers_with_colored + '% of vinyl sellers · signed ' + b.pct_vinyl_sellers_with_signed + '% · bundles ' + b.pct_stores_with_bundles + '% of stores.';
   $('sugPriceNote').textContent = 'USD stores only · vinyl $' + b.median_price_usd.vinyl + ' · CD $' + b.median_price_usd.cd + ' · tee $' + b.median_price_usd.tee;
   $('sugTrendNote').textContent = b.trend_note;
   sugRenderRosterList();
@@ -835,7 +1115,7 @@ function sugRender() {
 function sugJump(name) {
   sug.name = name; sug.view = 'artist'; sug.q = ''; sug.group = 'all';
   $('sugSearch').value = '';
-  $('sugTypes').querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-g') === 'all'); });
+  if ($('sugTypes')) $('sugTypes').value = 'all';
   sugSyncArtists(); sugRender();
   var el = $('suggest'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -850,24 +1130,160 @@ function sugInit() {
   sug.name = C.artists.length ? C.artists[0].name : '';
   sugSyncArtists();
   $('sugSearch').addEventListener('input', function () { sug.q = this.value.trim(); sugSyncArtists(); sugRender(); });
-  $('sugArtist').addEventListener('change', function () { if (!this.value) return; sug.name = this.value; sug.view = 'artist'; sugRender(); });
+  $('sugArtist').addEventListener('change', function () {
+    if (!this.value) return;
+    sug.name = this.value; sug.view = 'artist';
+    if ($('fArtist').value !== this.value) { $('fArtist').value = this.value; render(); }
+    sugRender();
+  });
   $('sugView').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (!v) return; sug.view = v; sugRender(); });
-  $('sugTypes').addEventListener('click', function (e) { var g = e.target.getAttribute('data-g'); if (!g) return; sug.group = g; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-g') === g); }); sugRender(); });
+  $('sugTypes').addEventListener('change', function () { sug.group = this.value; sugRender(); });
   fmtSel.addEventListener('change', function () { sug.fmt = this.value; if (sug.view === 'roster') sugRenderRosterList(); });
   document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.sug-jump'); if (!b) return; sugJump(b.getAttribute('data-artist')); });
   sugRender();
 }
 
 // ---------- init ----------
+var searchItems = [], qActive = -1;
+function syncSugFromArtist(name) {
+  if (!name || !window.WRCatalog || !$('sugArtist')) return;
+  if (!window.WRCatalog.artists.some(function (a) { return a.name === name; })) return;
+  sug.name = name; sug.view = 'artist'; sug.q = ''; sug.group = 'all';
+  if ($('sugSearch')) $('sugSearch').value = '';
+  if ($('sugTypes')) $('sugTypes').value = 'all';
+  sugSyncArtists();
+  sugRender();
+}
+function buildSearch() {
+  searchItems = [
+    { type: 'Section', label: 'Overview', go: 'overview' },
+    { type: 'Section', label: 'Channels', go: 'channels' },
+    { type: 'Section', label: 'Organic social', go: 'channels', tab: 'social' },
+    { type: 'Section', label: 'Paid media', go: 'channels', tab: 'paid' },
+    { type: 'Section', label: 'CRM', go: 'channels', tab: 'crm' },
+    { type: 'Section', label: 'Amazon', go: 'channels', tab: 'amazon' },
+    { type: 'Section', label: 'Products and forecast', go: 'products' },
+    { type: 'Section', label: 'Site health', go: 'health' },
+    { type: 'Section', label: 'SEO', go: 'health' },
+    { type: 'Section', label: 'UX', go: 'health' },
+    { type: 'Section', label: 'Product suggestions', go: 'suggest' }
+  ];
+  var seen = {};
+  D.products.forEach(function (p) { seen[p.artist] = 'sales'; });
+  if (window.WRCatalog) window.WRCatalog.artists.forEach(function (a) { if (!seen[a.name]) seen[a.name] = 'roster'; });
+  Object.keys(seen).sort(function (a, b) { return a.localeCompare(b); }).forEach(function (name) {
+    var opt = document.createElement('option'); opt.value = name; opt.textContent = name; $('fArtist').appendChild(opt);
+    searchItems.push({ type: 'Artist', label: name, sub: seen[name] === 'sales' ? 'Demo catalog' : 'Public roster', artist: name, go: seen[name] === 'sales' ? 'overview' : 'suggest' });
+  });
+  D.products.forEach(function (p) { searchItems.push({ type: 'Product', label: p.title, sub: p.artist + ' · ' + p.sku, artist: p.artist, sku: p.sku, go: 'products' }); });
+  D.media.forEach(function (m) { searchItems.push({ type: 'Campaign', label: m.name, sub: m.platform, go: 'channels', tab: m.platform === 'Amazon Ads' ? 'amazon' : 'paid', camp: m.name }); });
+  var crmSeen = {};
+  D.crm.campaigns.forEach(function (c) { if (crmSeen[c.name]) return; crmSeen[c.name] = 1; searchItems.push({ type: 'Campaign', label: c.name, sub: 'CRM · ' + c.channel, go: 'channels', tab: 'crm', camp: c.name }); });
+  D.crm.flows.forEach(function (f) { searchItems.push({ type: 'Campaign', label: f.name, sub: 'CRM flow · ' + f.channel, go: 'channels', tab: 'crm' }); });
+}
+function qShow(list) {
+  var box = $('qResults');
+  if (!list) { box.classList.add('hide'); box._list = []; $('qFind').setAttribute('aria-expanded', 'false'); return; }
+  box._list = list;
+  box.innerHTML = list.length ? list.map(function (it, i) { return '<button type="button" class="q-item' + (i === qActive ? ' on' : '') + '" role="option" data-i="' + i + '"><span class="k">' + esc(it.type) + '</span><span><b>' + esc(it.label) + '</b>' + (it.sub ? '<div class="s">' + esc(it.sub) + '</div>' : '') + '</span></button>'; }).join('') : '<div class="q-empty">No matches</div>';
+  box.classList.remove('hide');
+  $('qFind').setAttribute('aria-expanded', 'true');
+}
+function qQuery(q) {
+  q = String(q || '').trim().toLowerCase();
+  if (q.length < 1) return qShow(null);
+  var list = [];
+  for (var i = 0; i < searchItems.length && list.length < 12; i++) {
+    var it = searchItems[i], hay = (it.label + ' ' + (it.sub || '') + ' ' + (it.sku || '')).toLowerCase();
+    if (hay.indexOf(q) >= 0) list.push(it);
+  }
+  qActive = list.length ? 0 : -1;
+  qShow(list);
+}
+function qGo(it) {
+  if (!it) return;
+  qShow(null); $('qFind').value = '';
+  if (it.camp) { ui.focusCamp = it.camp; ui.mediaOpen = true; ui.crmOpen = true; ui.amzOpen = true; }
+  if (it.sku) { state.holdFocus = true; state.focusSku = it.sku; ui.prodOpen = true; prodMode = 'best'; }
+  if (it.artist) { state.holdFocus = true; $('fArtist').value = it.artist; }
+  if (it.artist || it.sku) { render(); if (it.artist) syncSugFromArtist(it.artist); }
+  if (it.tab) setChanTab(it.tab);
+  var el = $(it.go); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function init() {
   D = WRData.generate(); N = D.meta.ndays; T = N - 1; NCH = D.nch; NST = D.stores.length; NDTC = D.dtcChannels;
   D.categories.forEach(function (c, i) { $('fCat').insertAdjacentHTML('beforeend', '<option value="' + i + '">' + c.replace(/"/g, '&quot;') + '</option>'); });
   D.channels.forEach(function (c, i) { $('fChan').insertAdjacentHTML('beforeend', '<option value="' + i + '">' + c + (i >= NDTC ? ' (Amazon)' : '') + '</option>'); });
   D.regions.forEach(function (c, i) { $('fReg').insertAdjacentHTML('beforeend', '<option value="' + i + '">' + c + '</option>'); });
+  buildSearch();
   $('fFrom').value = D.iso(T - 29); $('fTo').value = D.iso(T); $('fFrom').min = $('fTo').min = D.meta.start; $('fFrom').max = $('fTo').max = D.meta.end;
-  ['fStore', 'fRange', 'fCat', 'fChan', 'fReg', 'fCmp', 'fFrom', 'fTo'].forEach(function (id) { $(id).addEventListener('change', function () { document.querySelectorAll('.custom').forEach(function (e) { e.classList.toggle('hide', $('fRange').value !== 'custom'); }); render(); }); });
-  $('fPlat').addEventListener('change', renderMedia);
-  $('prodSeg').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (!v) return; prodMode = v; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === e.target); }); $('tProd')._sort = null; renderProducts(); });
+  ['fRange', 'fCat', 'fChan', 'fReg', 'fCmp', 'fFrom', 'fTo'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      document.querySelectorAll('.custom').forEach(function (e) { e.classList.toggle('hide', $('fRange').value !== 'custom'); });
+      if ($('fRange').value === 'custom') { $('morePanel').classList.remove('hide'); $('moreBtn').setAttribute('aria-expanded', 'true'); }
+      render();
+    });
+  });
+  $('fArtist').addEventListener('change', function () { syncSugFromArtist(this.value); render(); });
+  $('storeSeg').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var v = b.getAttribute('data-v');
+    if (v === 'amazon') setStorefront(+$('fStore').value > 0 ? +$('fStore').value : 10);
+    else setStorefront(+v);
+  });
+  $('fAmz').addEventListener('change', function () { setStorefront(+this.value); });
+  $('moreBtn').addEventListener('click', function () {
+    $('morePanel').classList.toggle('hide');
+    this.setAttribute('aria-expanded', $('morePanel').classList.contains('hide') ? 'false' : 'true');
+  });
+  $('bkSeg').addEventListener('click', function (e) {
+    var v = e.target.getAttribute('data-v'); if (!v) return;
+    ui.bk = v;
+    this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-v') === v); });
+    if (state.cur) drawBreak(state.cur, state.cmp);
+  });
+  $('chanTabs').addEventListener('click', function (e) {
+    var b = e.target.closest('.chtab'); if (!b) return;
+    setChanTab(b.getAttribute('data-tab'));
+    var sec = $('channels'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  document.querySelectorAll('.tabs a').forEach(function (a) {
+    a.addEventListener('click', function () { document.querySelectorAll('.tabs a').forEach(function (x) { x.classList.toggle('on', x === a); }); });
+  });
+  $('finder').addEventListener('submit', function (e) { e.preventDefault(); var list = $('qResults')._list || []; if (list.length) qGo(list[Math.max(0, qActive)]); });
+  $('qFind').addEventListener('input', function () { qQuery(this.value); });
+  $('qFind').addEventListener('keydown', function (e) {
+    var list = $('qResults')._list || [];
+    if (e.key === 'ArrowDown' && list.length) { e.preventDefault(); qActive = Math.min(list.length - 1, qActive + 1); qShow(list); }
+    else if (e.key === 'ArrowUp' && list.length) { e.preventDefault(); qActive = Math.max(0, qActive - 1); qShow(list); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (list.length) qGo(list[Math.max(0, qActive)]); }
+    else if (e.key === 'Escape') qShow(null);
+  });
+  $('qResults').addEventListener('click', function (e) { var b = e.target.closest('.q-item'); if (!b) return; qGo(($('qResults')._list || [])[+b.getAttribute('data-i')]); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.finder')) qShow(null); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+    e.preventDefault(); $('qFind').focus();
+  });
+  document.addEventListener('click', function (e) {
+    var jump = e.target.closest && e.target.closest('[data-artist-jump]');
+    if (jump) { $('fArtist').value = jump.getAttribute('data-artist-jump'); syncSugFromArtist($('fArtist').value); render(); return; }
+    var b = e.target.closest && e.target.closest('[data-more]'); if (!b) return;
+    e.preventDefault();
+    var key = b.getAttribute('data-more');
+    ui[key] = !ui[key];
+    if (key === 'prodOpen') renderProducts();
+    else if (key === 'socOpen') renderSocialPane();
+    else if (key === 'mediaOpen') renderMedia();
+    else if (key === 'crmOpen') renderCrm();
+    else if (key === 'amzOpen') renderAmazon();
+    else if (key === 'healthCols' || key === 'fixesOpen') renderSeoUx();
+    else if (key === 'sugAll') sugRender();
+  });
+  $('fPlat').addEventListener('change', function () { ui.focusCamp = ''; renderMedia(); });
+  $('prodSeg').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (!v) return; prodMode = v; ui.prodOpen = false; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === e.target); }); $('tProd')._sort = null; renderProducts(); });
   $('crmSeg').addEventListener('click', function (e) { var v = e.target.getAttribute('data-v'); if (v == null) return; crmMode = v; this.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b === e.target); }); renderCrm(); });
   $('dataLink').addEventListener('click', function (e) { e.preventDefault(); var blob = new Blob([JSON.stringify(WRData.exportSummary(D))], { type: 'application/json' }); var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'wr-store-demo-data.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); });
   render();
@@ -876,8 +1292,8 @@ function init() {
     data: function () { return D; }, today: function () { return T; },
     agg: agg, mediaAgg: mediaAgg, crmAgg: crmAgg, getForecast: getForecast, invFor: invFor,
     fm: fm, fn: fn, fp: fp, pct: pct, sgn: sgn, storeLabel: storeLabel, peakLabel: peakLabel,
-    pageFilters: function () { return { store: +$('fStore').value, chan: +$('fChan').value, cat: +$('fCat').value, reg: +$('fReg').value }; },
-    auditDemo: function (s, e, f) { return auditDemo(s, e, Object.assign({ reg: -1, cat: -1, chan: -1, store: -1 }, f || {})); }
+    pageFilters: function () { return { store: +$('fStore').value, chan: +$('fChan').value, cat: +$('fCat').value, reg: +$('fReg').value, artist: $('fArtist').value || '' }; },
+    auditDemo: function (s, e, f) { return auditDemo(s, e, Object.assign({ reg: -1, cat: -1, chan: -1, store: -1, artist: '' }, f || {})); }
   });
   $('loading').remove(); window.__WR_READY = true;
 }

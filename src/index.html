@@ -7,191 +7,211 @@
 <style>/*CSS*/</style></head>
 <body>
 <header class="top">
-  <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Paid Media · CRM · Forecast · Suggestions</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
-  <div class="head-actions"><button type="button" id="btnReport" class="btn-report">Generate report</button><nav class="tabs"><a href="#overview">Overview</a><a href="#social">Organic Social</a><a href="#products">Products</a><a href="#amazon">Amazon</a><a href="#media">Paid Media</a><a href="#crm">CRM</a><a href="#forecast">Forecast</a><a href="#seo">SEO</a><a href="#ux">UX</a><a href="#suggest">Suggestions</a></nav></div>
+  <div class="row1">
+    <div class="brand"><div class="logo">W</div><div><h1>Warner Records Store</h1><div class="sub">Shopify DTC + Amazon · Performance</div></div><span class="badge-demo" title="All figures are synthetic sample data generated with a fixed seed. Catalog titles and prices are modeled on shop.warnerrecords.com; sales, traffic, ads, CRM and Amazon numbers are invented.">DEMO DATA</span></div>
+    <form class="finder" role="search" id="finder">
+      <label class="sr" for="qFind">Search</label>
+      <span class="finder-ico" aria-hidden="true">⌕</span>
+      <input id="qFind" type="search" placeholder="Search artists, products, campaigns, sections" aria-label="Search artists, products, campaigns, and sections" aria-autocomplete="list" aria-controls="qResults" aria-expanded="false" autocomplete="off" spellcheck="false">
+      <kbd class="finder-key" aria-hidden="true">/</kbd>
+      <div id="qResults" class="q-results hide" role="listbox"></div>
+    </form>
+    <label class="artist-pick">Artist
+      <select id="fArtist" aria-label="Artist"><option value="">All artists</option></select>
+    </label>
+    <button type="button" id="btnReport" class="btn-report">Generate report</button>
+  </div>
+  <nav class="tabs" aria-label="Sections"><a class="on" href="#overview">Overview</a><a href="#channels">Channels</a><a href="#products">Products &amp; forecast</a><a href="#health">Site health</a><a href="#suggest">Suggestions</a></nav>
+  <div class="filter-wrap">
+    <div class="filters" id="filterBar">
+      <div class="seg store" id="storeSeg" role="group" aria-label="Storefront">
+        <button type="button" data-v="-1" class="on">All</button>
+        <button type="button" data-v="0">Shopify DTC</button>
+        <button type="button" data-v="amazon" id="amzToggle">Amazon</button>
+      </div>
+      <select id="fAmz" class="hide" aria-label="Amazon marketplace"><option value="10">All marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select>
+      <select id="fStore" class="sr" aria-hidden="true" tabindex="-1"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select>
+      <label class="bare">Date range<select id="fRange"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="qtd">Quarter to date</option><option value="ytd">Year to date</option><option value="365">Last 12 months</option><option value="bf">BFCM + RSD Black Friday 2025</option><option value="rsd">Record Store Day 2026 (Apr 13–26)</option><option value="custom">Custom…</option></select></label>
+      <button type="button" class="btn" id="moreBtn" aria-expanded="false" aria-controls="morePanel">More filters</button>
+    </div>
+    <div class="rangeinfo" id="rangeInfo"></div>
+    <div id="morePanel" class="more-panel hide">
+      <label>Category<select id="fCat"><option value="-1">All categories</option></select></label>
+      <label>Channel<select id="fChan"><option value="-1">All channels</option></select></label>
+      <label>Region<select id="fReg"><option value="-1">All regions</option></select></label>
+      <label>Compare to<select id="fCmp"><option value="prev">Previous period</option><option value="yoy">Same period last year</option></select></label>
+      <label class="custom hide">From<input type="date" id="fFrom"></label>
+      <label class="custom hide">To<input type="date" id="fTo"></label>
+    </div>
+  </div>
 </header>
-<section class="filters">
-  <label class="store">Storefront<select id="fStore"><option value="-1">All storefronts</option><option value="0">Shopify DTC</option><option value="10">Amazon · all marketplaces</option><option value="1">Amazon US</option><option value="2">Amazon UK</option><option value="3">Amazon DE</option></select></label>
-  <label>Date range<select id="fRange"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="qtd">Quarter to date</option><option value="ytd">Year to date</option><option value="365">Last 12 months</option><option value="bf">BFCM + RSD Black Friday 2025</option><option value="rsd">Record Store Day 2026 (Apr 13–26)</option><option value="custom">Custom…</option></select></label>
-  <label class="custom hide">From<input type="date" id="fFrom"></label><label class="custom hide">To<input type="date" id="fTo"></label>
-  <label>Category<select id="fCat"><option value="-1">All categories</option></select></label>
-  <label>Channel<select id="fChan"><option value="-1">All channels</option></select></label>
-  <label>Region<select id="fReg"><option value="-1">All regions</option></select></label>
-  <label>Compare to<select id="fCmp"><option value="prev">Previous period</option><option value="yoy">Same period last year</option></select></label>
-  <div class="rangeinfo" id="rangeInfo"></div>
-</section>
 <main>
-<div class="demo-banner">DEMO DATA · Synthetic dataset modeled on the Warner Records Store catalog (artists, formats, price points). Not real sales, ad, CRM or Amazon results.</div>
-<section id="highlights" class="card highlights">
-  <p id="hlSummary">Reading the selected period…</p>
-  <nav class="hl-links" aria-label="Jump to a section"><a href="#overview">Overview</a><a href="#notes-search">Organic search</a><a href="#notes-affiliate">Affiliate</a><a href="#notes-direct">Direct</a><a href="#social">Organic social</a><a href="#media">Paid</a><a href="#crm">CRM</a><a href="#amazon">Amazon</a><a href="#products">Products</a><a href="#notes-stock">Inventory</a><a href="#forecast">Forecast</a><a href="#suggest">Suggestions</a><a href="#seo">SEO</a><a href="#ux">UX</a></nav>
-</section>
+<div class="legend" id="legend"><span class="badge-demo">DEMO</span> synthetic sales, ads, CRM, Amazon, rankings, and the device funnel, seed 20261027 <span class="badge-real">REAL</span> public audit of shop.warnerrecords.com <span class="badge-public">PUBLIC</span> artist store catalogs, scraped Oct 27, 2026</div>
+<p id="hlSummary" class="sr" aria-live="polite">Reading the selected period…</p>
+
 <section id="overview">
   <div class="sec-with-notes">
-    <div class="sec-main">
+    <div class="stack sec-main">
+      <div class="sec-h"><h2>Overview</h2><span class="badge-demo">DEMO</span><span class="muted" id="ovMoved"></span></div>
       <div class="kpis" id="kpis"></div>
-      <div class="grid g2-1"><div class="card"><div class="card-h"><h3>Net revenue & orders</h3><span class="muted" id="trendNote"></span></div><div class="ch h300"><canvas id="cTrend"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Category mix</h3></div><div class="ch h300"><canvas id="cMix"></canvas></div></div></div>
-      <div class="grid g2"><div class="card"><div class="card-h"><h3>Revenue by storefront</h3></div><div class="ch h260"><canvas id="cStore"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Category growth vs comparison</h3></div><div class="ch h260"><canvas id="cCatGrowth"></canvas></div></div></div>
+      <div class="grid g2-1">
+        <div class="card"><div class="card-h"><h3>Net revenue &amp; orders</h3><span class="badge-demo">DEMO</span><span class="muted" id="trendNote"></span></div><div class="ch h260"><canvas id="cTrend"></canvas></div></div>
+        <div class="card"><div class="card-h"><h3>Revenue breakdown</h3><span class="badge-demo">DEMO</span><div class="seg" id="bkSeg"><button type="button" class="on" data-v="chan">Channel</button><button type="button" data-v="cat">Category</button><button type="button" data-v="store">Storefront</button><button type="button" data-v="reg">Region</button></div></div>
+          <div class="ch h260"><canvas id="cBreak"></canvas></div>
+          <p class="muted" id="bkNote">Bar length is net revenue. Green is up versus the comparison, red is down.</p></div>
+      </div>
+      <details class="acc" id="ovExtra"><summary>New vs returning and conversion</summary><div class="grid g2" style="margin-top:10px"><div><div class="muted">New vs returning customers</div><div class="ch h220"><canvas id="cNew"></canvas></div></div><div><div class="muted">Conversion rate &amp; sessions</div><div class="ch h220"><canvas id="cCvr"></canvas></div></div></div></details>
     </div>
     <aside class="sec-notes" id="notes-overview" aria-label="Overview insights and suggestions"></aside>
   </div>
+</section>
+
+<section id="channels">
+  <div class="sec-h"><h2>Channels</h2><span class="badge-demo">DEMO</span><span class="muted" id="chanNote"></span></div>
+  <div class="chtabs" id="chanTabs" role="tablist">
+    <button type="button" class="chtab on" data-tab="social" role="tab" aria-selected="true"><div class="n">Organic social</div><div class="v" id="tabSocialV">—</div><div class="s" id="tabSocialS"></div></button>
+    <button type="button" class="chtab" data-tab="paid" role="tab" aria-selected="false"><div class="n">Paid media</div><div class="v" id="tabPaidV">—</div><div class="s" id="tabPaidS"></div></button>
+    <button type="button" class="chtab" data-tab="crm" role="tab" aria-selected="false"><div class="n">CRM · Email &amp; SMS (DTC)</div><div class="v" id="tabCrmV">—</div><div class="s" id="tabCrmS"></div></button>
+    <button type="button" class="chtab" data-tab="amazon" role="tab" aria-selected="false"><div class="n">Amazon storefronts</div><div class="v" id="tabAmzV">—</div><div class="s" id="tabAmzS"></div></button>
+  </div>
   <div class="sec-with-notes">
-    <div class="card sec-main"><div class="card-h"><h3>Revenue by channel</h3></div><div class="ch h320"><canvas id="cChan"></canvas></div></div>
-    <aside class="sec-notes" aria-label="Channel insights for search, affiliate, and direct">
-      <div class="note-group" id="notes-search"></div>
-      <div class="note-group" id="notes-affiliate"></div>
-      <div class="note-group" id="notes-direct"></div>
+    <div class="stack sec-main">
+      <div id="pane-social" class="chan-pane">
+        <div class="kpis k4" id="socialKpis"></div>
+        <div class="chips" id="socialChips"></div>
+        <p class="muted" id="socNote"></p>
+        <div class="card"><div class="card-h"><h3>Top artists from organic social</h3><span class="badge-demo">DEMO</span><span class="muted" title="Order's landing session referrer is Instagram, TikTok, YouTube, Facebook, or X, with no paid UTM, no ad click id, and no affiliate or creator ref.">how it's defined</span></div>
+          <div class="tablewrap"><table id="tSocial"><thead></thead><tbody></tbody></table></div>
+          <div class="more" id="socialMore"></div></div>
+        <details class="acc" id="socialChart"><summary>Organic social by day and platform</summary><div class="grid g2" style="margin-top:10px"><div class="ch h240"><canvas id="cSoc"></canvas></div><div class="ch h240"><canvas id="cSocTrend"></canvas></div></div></details>
+      </div>
+      <div id="pane-paid" class="chan-pane hide">
+        <div class="kpis k4" id="mediaKpis"></div>
+        <div class="chips" id="mediaChips"></div>
+        <p class="muted" id="mediaNote"></p>
+        <div class="card"><div class="card-h"><h3>Campaign performance</h3><span class="badge-demo">DEMO</span><span class="muted">ROAS bar · tick at 2.5x</span><select id="fPlat" aria-label="Platform"><option value="">All platforms</option><option>Google</option><option>Meta</option><option>TikTok</option><option>Amazon Ads</option></select></div>
+          <div class="tablewrap"><table id="tMedia"><thead></thead><tbody></tbody></table></div>
+          <div class="more" id="mediaMore"></div></div>
+        <details class="acc" id="mediaChart"><summary>Spend vs attributed revenue (daily)</summary><div class="ch h260" style="margin-top:10px"><canvas id="cMediaTrend"></canvas></div></details>
+      </div>
+      <div id="pane-crm" class="chan-pane hide">
+        <div class="kpis k4" id="crmKpis"></div>
+        <p class="muted" id="crmNote"></p>
+        <p class="muted" id="crmExtra"></p>
+        <div class="card"><div class="card-h"><h3>Campaigns in period</h3><span class="badge-demo">DEMO</span><div class="seg" id="crmSeg"><button type="button" data-v="" class="on">All</button><button type="button" data-v="email">Email</button><button type="button" data-v="sms">SMS</button></div></div>
+          <div class="tablewrap"><table id="tCrm"><thead></thead><tbody></tbody></table></div>
+          <div class="more" id="crmMore"></div></div>
+        <details class="acc" id="crmChart"><summary>Flow performance and list growth</summary><div class="grid g2" style="margin-top:10px"><div class="ch h260"><canvas id="cFlows"></canvas></div><div class="ch h260"><canvas id="cList"></canvas></div></div></details>
+      </div>
+      <div id="pane-amazon" class="chan-pane hide">
+        <div id="amzOff" class="card muted hide">Storefront filter is set to Shopify DTC. Switch to <b>All</b> or <b>Amazon</b> to see Amazon sales, fees, and ads.</div>
+        <div id="amzBody">
+          <div class="kpis k4" id="amzKpis"></div>
+          <p class="muted" id="amzExtra"></p>
+          <div class="card"><div class="card-h"><h3>Top Amazon products</h3><span class="badge-demo">DEMO</span></div>
+            <div class="tablewrap"><table id="tAmz"><thead></thead><tbody></tbody></table></div>
+            <div class="more" id="amzMore"></div></div>
+          <details class="acc" id="amzChart"><summary>Marketplace trend and where Amazon revenue goes</summary><div class="grid g2" style="margin-top:10px"><div class="ch h260"><canvas id="cAmzTrend"></canvas></div><div class="ch h260"><canvas id="cAmzFees"></canvas></div></div></details>
+        </div>
+      </div>
+    </div>
+    <aside class="sec-notes" id="notes-channels" aria-label="Channel insights and suggestions">
+      <div class="note-group" id="notes-social" data-tab="social"></div>
+      <div class="note-group hide" id="notes-paid" data-tab="paid"></div>
+      <div class="note-group hide" id="notes-crm" data-tab="crm"></div>
+      <div class="note-group hide" id="notes-amazon" data-tab="amazon"></div>
     </aside>
   </div>
 </section>
-<section id="social">
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div class="grid g1-2"><div class="card"><div class="card-h"><h3>Organic social by platform</h3><span class="muted" id="socNote"></span></div><div class="ch h260"><canvas id="cSoc"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Organic social revenue by platform & share of DTC</h3><span class="muted" title="Order's landing session referrer is instagram.com / l.instagram.com, tiktok.com, youtube.com, facebook.com / l.facebook.com or t.co / x.com, with no paid utm_medium (cpc, paid, paid_social), no ad click id tied to a campaign, and no affiliate / creator code or ref param.">ⓘ how it's defined</span></div><div class="ch h260"><canvas id="cSocTrend"></canvas></div></div></div>
-      <div class="grid g3"><div class="card"><div class="card-h"><h3>Revenue by region</h3></div><div class="ch h240"><canvas id="cReg"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>New vs returning customers</h3></div><div class="ch h240"><canvas id="cNew"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Conversion rate & sessions</h3></div><div class="ch h240"><canvas id="cCvr"></canvas></div></div></div>
-    </div>
-    <aside class="sec-notes" id="notes-social" aria-label="Organic social insights and suggestions"></aside>
-  </div>
-</section>
+
 <section id="products">
+  <div class="sec-h"><h2>Products &amp; forecast · next 90 days</h2><span class="badge-demo">DEMO</span><span class="muted" id="prodNote"></span></div>
   <div class="sec-with-notes">
-    <div class="card sec-main"><div class="card-h"><h2>Products</h2><span class="muted" id="prodNote"></span><div class="seg" id="prodSeg"><button data-v="best" class="on">Best sellers</button><button data-v="slow">Slow movers</button><button data-v="risk">Stock risk</button><button data-v="all">All</button></div></div>
-      <div class="tablewrap"><table id="tProd"><thead></thead><tbody></tbody></table></div></div>
-    <aside class="sec-notes" aria-label="Product and inventory insights">
-      <div class="note-group" id="notes-products"></div>
-      <div class="note-group" id="notes-stock"></div>
-    </aside>
-  </div>
-</section>
-<section id="amazon"><div class="sec-h"><h2>Amazon storefronts</h2><span class="muted">Seller Central-style sales, fees (referral + FBA + closing) & Sponsored ads · reported in USD (synthetic)</span></div>
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div id="amzOff" class="card muted hide">Storefront filter is set to Shopify DTC. Switch to <b>All storefronts</b> or an <b>Amazon</b> marketplace to see Amazon sales, fees and ads.</div>
-      <div id="amzBody"><div class="kpis small" id="amzKpis"></div>
-      <div class="grid g2"><div class="card"><div class="card-h"><h3>Amazon revenue by marketplace & ad spend</h3></div><div class="ch h280"><canvas id="cAmzTrend"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Where Amazon revenue goes</h3><span class="muted">net proceeds vs fees</span></div><div class="ch h280"><canvas id="cAmzFees"></canvas></div></div></div>
-      <div class="card"><div class="card-h"><h3>Top Amazon products</h3></div><div class="tablewrap"><table id="tAmz"><thead></thead><tbody></tbody></table></div></div></div>
+    <div class="stack sec-main">
+      <div class="kpis k5" id="fcKpis"></div>
+      <p class="muted" id="fcMethod"></p>
+      <div class="card"><div class="card-h"><h3>Daily net revenue: actual vs forecast</h3><span class="badge-demo">DEMO</span><span class="muted">bands: 80% / 95% prediction interval</span></div><div class="ch h240"><canvas id="cFc"></canvas></div></div>
+      <div class="card"><div class="card-h"><h3>Best sellers, stock &amp; 90-day forecast</h3><span class="badge-demo">DEMO</span><div class="seg" id="prodSeg"><button type="button" data-v="best" class="on">Best sellers</button><button type="button" data-v="risk">Stock risk</button><button type="button" data-v="slow">Slow movers</button><button type="button" data-v="amazon">Amazon</button></div></div>
+        <div class="tablewrap"><table id="tProd"><thead></thead><tbody></tbody></table></div>
+        <div class="more" id="prodMore"></div></div>
     </div>
-    <aside class="sec-notes" id="notes-amazon" aria-label="Amazon insights and suggestions"></aside>
+    <aside class="sec-notes" id="notes-products" aria-label="Product, inventory, and forecast insights"></aside>
   </div>
 </section>
-<section id="media"><div class="sec-h"><h2>Paid media</h2><span class="muted" id="mediaNote">Platform-reported, last-click (synthetic)</span></div>
+
+<section id="health">
+  <div class="sec-h"><h2>Site health · SEO &amp; UX, mobile vs desktop</h2><span class="badge-real">REAL PUBLIC AUDIT</span><span class="badge-demo">DEMO</span></div>
+  <p class="muted" id="seoBanner"></p>
+  <p class="muted" id="seoNote"></p>
   <div class="sec-with-notes">
-    <div class="sec-main">
-      <div class="kpis small" id="mediaKpis"></div>
-      <div class="grid g2"><div class="card"><div class="card-h"><h3>Spend vs attributed revenue</h3></div><div class="ch h280"><canvas id="cMediaTrend"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>ROAS by campaign</h3><span class="muted">dashed line = 2.5x target</span></div><div class="ch h320"><canvas id="cRoas"></canvas></div></div></div>
-      <div class="card"><div class="card-h"><h3>Campaign performance</h3><select id="fPlat"><option value="">All platforms</option><option>Google</option><option>Meta</option><option>TikTok</option><option>Amazon Ads</option></select></div><div class="tablewrap"><table id="tMedia"><thead></thead><tbody></tbody></table></div></div>
-    </div>
-    <aside class="sec-notes" id="notes-paid" aria-label="Paid media insights and suggestions"></aside>
-  </div>
-</section>
-<section id="crm"><div class="sec-h"><h2>CRM · Email & SMS</h2><span class="muted" id="crmNote">Klaviyo-style campaigns & flows (synthetic)</span></div>
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div class="kpis small" id="crmKpis"></div>
-      <div class="grid g2"><div class="card"><div class="card-h"><h3>Flow performance</h3></div><div class="ch h280"><canvas id="cFlows"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>List growth</h3></div><div class="ch h280"><canvas id="cList"></canvas></div></div></div>
-      <div class="card"><div class="card-h"><h3>Campaigns in period</h3><div class="seg" id="crmSeg"><button data-v="" class="on">All</button><button data-v="email">Email</button><button data-v="sms">SMS</button></div></div><div class="tablewrap"><table id="tCrm"><thead></thead><tbody></tbody></table></div></div>
-    </div>
-    <aside class="sec-notes" id="notes-crm" aria-label="CRM insights and suggestions"></aside>
-  </div>
-</section>
-<section id="forecast"><div class="sec-h"><h2>Forecast · next 90 days</h2><span class="muted" id="fcMethod"></span></div>
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div class="kpis small" id="fcKpis"></div>
-      <div class="card"><div class="card-h"><h3>Daily net revenue: actual vs forecast</h3><span class="muted">bands: 80% / 95% prediction interval</span></div><div class="ch h320"><canvas id="cFc"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Top products: 90-day unit forecast & stockout risk</h3></div><div class="tablewrap"><table id="tFc"><thead></thead><tbody></tbody></table></div></div>
-    </div>
-    <aside class="sec-notes" id="notes-forecast" aria-label="Forecast insights and suggestions"></aside>
-  </div>
-</section>
-<section id="seo">
-  <div class="sec-h"><h2>SEO</h2><span class="badge-public" id="seoRealBadge">REAL PUBLIC AUDIT</span><span class="badge-demo">DEMO DATA</span></div>
-  <div class="pub-banner" id="seoBanner">Public Lighthouse and on-page crawl of shop.warnerrecords.com. Rankings, impressions, and keyword revenue below are synthetic demo data scaled to this dashboard’s Organic Search channel.</div>
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div id="seoNote" class="muted"></div>
-      <div class="kpis small" id="seoScores"></div>
+    <div class="stack sec-main">
       <div class="grid g2">
-        <div class="card"><div class="card-h"><h3>Homepage scores</h3><span class="muted">Lighthouse lab · mobile vs desktop</span></div><div class="ch h280"><canvas id="cSeoScore"></canvas></div></div>
-        <div class="card"><div class="card-h"><h3>Issues by severity</h3><span class="muted" id="seoIssueNote">Real crawl and lab audit</span></div><ul class="issue-list" id="seoIssues"></ul></div>
+        <div class="card"><div class="card-h"><h3>Lighthouse lab scoreboard</h3><span class="badge-real">REAL</span></div>
+          <div class="tablewrap"><table id="tScore"><thead></thead><tbody></tbody></table></div>
+          <div class="more" id="healthMore"></div></div>
+        <div class="card"><div class="card-h"><h3>Top fixes, ranked by impact</h3><span class="badge-real">REAL</span></div><div id="fixes"></div><div class="more" id="fixesMore"></div></div>
       </div>
-      <div class="card"><div class="card-h"><h3>Demo keywords</h3><span class="muted" id="seoKwNote">DEMO · scaled to Organic Search in this filter</span></div><div class="tablewrap"><table id="tSeoKw"><thead></thead><tbody></tbody></table></div></div>
-      <div class="card"><div class="card-h"><h3>Demo landing pages</h3><span class="muted">DEMO · same Organic Search pool</span></div><div class="tablewrap"><table id="tSeoPages"><thead></thead><tbody></tbody></table></div></div>
-      <div class="card"><div class="card-h"><h3>Recommended fixes</h3><span class="muted">Ranked by impact, then effort</span></div><div class="tablewrap"><table id="tSeoFix"><thead></thead><tbody></tbody></table></div></div>
-    </div>
-    <aside class="sec-notes" id="notes-seo" aria-label="SEO insights and suggestions"></aside>
-  </div>
-</section>
-<section id="ux">
-  <div class="sec-h"><h2>UX · Mobile vs desktop</h2><span class="badge-public">REAL PUBLIC AUDIT</span><span class="badge-demo">DEMO DATA</span></div>
-  <div class="pub-banner" id="uxBanner">Lab scores and screenshots are from the public Shopify store. The conversion funnel and AOV by device are a demo allocation of the filtered Shopify DTC orders, not measured device analytics.</div>
-  <div class="sec-with-notes">
-    <div class="sec-main">
-      <div id="uxNote" class="muted"></div>
-      <div class="grid g2" id="uxShots"></div>
-      <div class="grid g2">
-        <div class="card"><div class="card-h"><h3>Lab Web Vitals</h3><span class="muted">LCP, CLS, TBT, FCP, TTFB</span></div><div class="ch h300"><canvas id="cUxVital"></canvas></div></div>
-        <div class="card"><div class="card-h"><h3>Score comparison</h3><span class="muted" id="uxPageNote">Homepage</span></div><div id="uxScoreTable"></div></div>
-      </div>
-      <div class="grid g2">
-        <div class="card"><div class="card-h"><h3>Demo device funnel</h3><span class="muted" id="uxFunnelNote">DEMO</span></div><div class="tablewrap"><table id="tUxFunnel"><thead></thead><tbody></tbody></table></div></div>
-        <div class="card"><div class="card-h"><h3>UX issues and fixes</h3></div><ul class="issue-list" id="uxIssues"></ul></div>
+      <div class="acc-list">
+        <details class="acc" id="shotAcc"><summary>Mobile &amp; desktop screenshots (homepage, product)</summary><div class="grid g2" id="uxShots" style="margin-top:10px"></div></details>
+        <details class="acc" id="kwAcc"><summary>Demo keywords &amp; landing pages <span class="badge-demo">DEMO</span></summary>
+          <p class="muted" id="seoKwNote" style="margin-top:8px"></p>
+          <div class="tablewrap"><table id="tSeoKw"><thead></thead><tbody></tbody></table></div>
+          <div class="tablewrap"><table id="tSeoPages"><thead></thead><tbody></tbody></table></div></details>
+        <details class="acc" id="funnelAcc"><summary id="funnelSum">Demo device funnel <span class="badge-demo">DEMO</span></summary>
+          <p class="muted" id="uxFunnelNote" style="margin-top:8px"></p>
+          <div class="tablewrap"><table id="tUxFunnel"><thead></thead><tbody></tbody></table></div></details>
       </div>
     </div>
-    <aside class="sec-notes" id="notes-ux" aria-label="UX insights and suggestions"></aside>
+    <aside class="sec-notes" id="notes-health" aria-label="Site health insights and suggestions"></aside>
   </div>
 </section>
+
 <section id="suggest">
-  <div class="sec-h"><h2>Product suggestions</h2><span class="badge-public" title="This section is real public Shopify catalog data, not the synthetic demo dataset used above.">PUBLIC CATALOG</span></div>
-  <div class="pub-banner" id="sugBanner">From public artist store catalogs, scraped Oct 27, 2026. Warner Records artist roster stores on Shopify. Not the synthetic demo dataset above.</div>
+  <div class="sec-h"><h2>Product suggestions</h2><span class="badge-public" title="This section is real public Shopify catalog data, not the synthetic demo dataset used above.">PUBLIC CATALOG</span><span class="muted" id="sugBanner"></span></div>
   <div class="sec-with-notes">
-  <div class="sec-main">
-  <div class="sug-bar">
-    <label>Search<input type="search" id="sugSearch" placeholder="Artist, format, or suggestion" autocomplete="off"></label>
-    <label>Artist<select id="sugArtist"></select></label>
-    <label>View<div class="seg" id="sugView"><button type="button" data-v="artist" class="on">Artist</button><button type="button" data-v="roster">Roster</button></div></label>
-    <label>Suggestion type<div class="seg sug-types" id="sugTypes"><button type="button" data-g="all" class="on">All</button><button type="button" data-g="missing_format">Missing formats</button><button type="button" data-g="merch">Merch to add</button><button type="button" data-g="pricing">Pricing gaps</button><button type="button" data-g="bundle">Bundles</button><button type="button" data-g="signed_color">Signed / colored</button><button type="button" data-g="trending">Trending items</button><button type="button" data-g="restock">Restock</button><button type="button" data-g="stale">Freshness</button></div></label>
-  </div>
-  <div id="sugArtistPane">
-    <div class="card" id="sugHead"></div>
-    <div class="kpis small" id="sugKpis"></div>
-    <div class="card"><div class="card-h"><h3>Format coverage vs roster</h3><span class="muted" id="sugFitNote">Green = this store lists it · bar length is roster adoption</span></div><div class="ch h440"><canvas id="cSugFit"></canvas></div></div>
-    <div id="sugGroups"></div>
-  </div>
-  <div id="sugRosterPane" class="hide">
-    <div class="kpis small" id="sugRosterKpis"></div>
-    <div class="grid g2">
-      <div class="card"><div class="card-h"><h3>Format adoption</h3><span class="muted">Share of roster stores that list the format</span></div><div class="ch h440"><canvas id="cSugAdopt"></canvas></div></div>
-      <div class="card"><div class="card-h"><h3>Median price by format</h3><span class="muted" id="sugPriceNote">USD stores only</span></div><div class="ch h300"><canvas id="cSugPrice"></canvas></div></div>
+    <div class="stack sec-main">
+      <div class="sug-bar">
+        <label>Search<input type="search" id="sugSearch" placeholder="Artist, format, or suggestion" autocomplete="off" enterkeyhint="search"></label>
+        <label>Artist<select id="sugArtist"></select></label>
+        <label>Type<select id="sugTypes"><option value="all">All suggestion types</option><option value="missing_format">Missing formats</option><option value="merch">Merch to add</option><option value="pricing">Pricing gaps</option><option value="bundle">Bundles</option><option value="signed_color">Signed / colored</option><option value="trending">Trending items</option><option value="restock">Restock</option><option value="stale">Freshness</option></select></label>
+        <label>View<div class="seg" id="sugView"><button type="button" data-v="artist" class="on">Artist</button><button type="button" data-v="roster">Roster</button></div></label>
+      </div>
+      <div id="sugArtistPane">
+        <div class="card" id="sugHead"></div>
+        <div class="kpis k4" id="sugKpis"></div>
+        <div class="sugs" id="sugCards"></div>
+        <div class="more" id="sugMore"></div>
+        <div class="card hide" id="sugFitWrap"><div class="card-h"><h3>Format coverage vs roster</h3><span class="badge-public">PUBLIC</span><span class="muted" id="sugFitNote">Green = this store lists it · bar length is roster adoption</span></div><div class="ch h440"><canvas id="cSugFit"></canvas></div></div>
+        <div id="sugGroups"></div>
+      </div>
+      <div id="sugRosterPane" class="hide">
+        <div class="kpis k4" id="sugRosterKpis"></div>
+        <p class="muted" id="sugRosterExtra"></p>
+        <div class="grid g2">
+          <div class="card"><div class="card-h"><h3>Format adoption</h3><span class="badge-public">PUBLIC</span><span class="muted">Share of roster stores that list the format</span></div><div class="ch h440"><canvas id="cSugAdopt"></canvas></div></div>
+          <div class="card"><div class="card-h"><h3>Median price by format</h3><span class="badge-public">PUBLIC</span><span class="muted" id="sugPriceNote">USD stores only</span></div><div class="ch h300"><canvas id="cSugPrice"></canvas></div></div>
+        </div>
+        <div class="card"><div class="card-h"><h3>Formats added in the last 90 days</h3><span class="badge-public">PUBLIC</span><span class="muted" id="sugTrendNote"></span></div><div class="ch h440"><canvas id="cSugTrend"></canvas></div></div>
+        <div class="card"><div class="card-h"><h3>Recent additions</h3><span class="badge-public">PUBLIC</span><label class="inline">Format<select id="sugRecentFmt"><option value="">All formats</option></select></label></div><div class="tablewrap"><table id="tSugRecent"><thead></thead><tbody></tbody></table></div></div>
+      </div>
     </div>
-    <div class="card"><div class="card-h"><h3>Formats added in the last 90 days</h3><span class="muted" id="sugTrendNote"></span></div><div class="ch h440"><canvas id="cSugTrend"></canvas></div></div>
-    <div class="card"><div class="card-h"><h3>Recent additions</h3><label class="inline">Format<select id="sugRecentFmt"><option value="">All formats</option></select></label></div><div class="tablewrap"><table id="tSugRecent"><thead></thead><tbody></tbody></table></div></div>
-  </div>
-  </div>
-  <aside class="sec-notes" id="notes-suggest" aria-label="Product suggestion insights"></aside>
+    <aside class="sec-notes" id="notes-suggest" aria-label="Product suggestion insights"></aside>
   </div>
 </section>
-<footer>DEMO DATA for sales, traffic, ads, CRM, Amazon, rankings, and the device funnel. SEO and UX scores are a real public audit of shop.warnerrecords.com. Synthetic dataset (seed 20261027). Product titles, formats and prices are modeled on the public shop.warnerrecords.com catalog; all sales, traffic, organic social, paid media, Klaviyo and Amazon figures are invented and are not real Warner Records Store results. The Product suggestions section is separate: public artist store catalogs, scraped Oct 27, 2026. · <a id="dataLink" href="#">Download data (JSON)</a></footer>
+<footer>DEMO DATA except the REAL public audit and the PUBLIC catalog · seed 20261027 · <a id="dataLink" href="#">Download data (JSON)</a></footer>
 </main>
 <div id="loading">Generating demo dataset…</div>
 <div id="reportOverlay" class="hide" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
   <div class="report-shell">
     <aside class="report-tools no-print">
       <div class="card-h"><h2 id="reportTitle">Report builder</h2><button type="button" id="rClose" class="btn-quiet">Close</button></div>
-      <p class="muted">Last full month by default. Storefront, channel, and category start from the dashboard filters.</p>
+      <p class="muted">Last full month by default. Storefront, channel, category, and artist start from the dashboard filters.</p>
       <label>Period<select id="rPeriod"><option value="last-month" selected>Last full month</option><option value="mtd">This month to date</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="custom">Custom range</option></select></label>
       <div id="rCustom" class="hide"><label>From<input type="date" id="rFrom"></label><label>To<input type="date" id="rTo"></label></div>
       <label>Storefront<select id="rStore"></select></label>
       <label>Channel<select id="rChan"></select></label>
       <label>Category<select id="rCat"></select></label>
+      <label>Artist<select id="rArtist"><option value="">All artists</option></select></label>
       <label>Audience<select id="rTone"><option value="exec">Executive summary</option><option value="marketing" selected>Marketing team</option><option value="detailed">Detailed</option></select></label>
       <label>Top items<select id="rTop"><option>3</option><option selected>5</option><option>8</option><option>10</option></select></label>
       <label class="check"><input type="checkbox" id="rKeep" checked> Keep edited text on regenerate</label>
