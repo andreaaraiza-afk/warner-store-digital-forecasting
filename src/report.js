@@ -10,7 +10,6 @@
     { id: 'channels', label: 'Channel performance' },
     { id: 'products', label: 'Products and artists' },
     { id: 'forecast', label: 'Forecast outlook' },
-    { id: 'recommendations', label: 'Recommendations' },
     { id: 'seo', label: 'SEO review' },
     { id: 'ux', label: 'UX review (mobile and desktop)' },
     { id: 'method', label: 'How this report was built' },
@@ -73,6 +72,19 @@
     if (!rows.length) return '<p class="r-empty">Nothing to list for this filter.</p>';
     return '<table><thead><tr>' + headers.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
       rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+  }
+  function callouts(insight, suggest, ib, sb) {
+    function mark(kind) {
+      if (kind === 'real') return ' <span class="r-badge r-badge-pub">REAL PUBLIC AUDIT</span>';
+      if (kind === 'pub') return ' <span class="r-badge r-badge-pub">PUBLIC CATALOG</span>';
+      if (kind === 'mix') return ' <span class="r-badge r-badge-pub">REAL PUBLIC AUDIT</span> <span class="r-badge r-badge-demo">DEMO DATA</span>';
+      return ' <span class="r-badge r-badge-demo">DEMO DATA</span>';
+    }
+    var h3 = 'margin:0 0 6px;padding:0;border:0;font-size:14px;font-family:Georgia,Times New Roman,serif;color:#16150f;';
+    var cell = 'border-radius:10px;padding:10px 12px;border-bottom:0;';
+    return '<table class="r-callouts" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin:12px 0 16px;border-collapse:separate;border-spacing:8px;"><tr>' +
+      '<td class="r-callout r-callout-insight" width="50%" valign="top" style="border:1px solid #e6d48a;background:#fffdf6;' + cell + '"><h3 style="' + h3 + '">Insights' + mark(ib) + '</h3>' + insight + '</td>' +
+      '<td class="r-callout r-callout-suggest" width="50%" valign="top" style="border:1px solid #b9d4f5;background:#f5f9ff;' + cell + '"><h3 style="' + h3 + '">Suggestions' + mark(sb) + '</h3>' + suggest + '</td></tr></table>';
   }
 
   function resolvePeriod(opts) {
@@ -331,9 +343,14 @@
   }
 
   function secHighlights(m) {
+    var h = m.highlights, ins, sug;
+    ins = '<p>Net revenue is <b>' + esc(fm(h.net)) + '</b> on ' + esc(fn(h.orders)) + ' orders' + (h.prev ? ', ' + esc(vs(h.net, h.prev.net)) + ' versus the previous period' : '') + '.</p>';
+    if (h.catMove && h.catMove.worst && h.catMove.worst.delta < 0) sug = '<p>Look at <b>' + esc(h.catMove.worst.name) + '</b> first. It was the biggest drag (' + esc(fm(h.catMove.worst.delta)) + ').</p>';
+    else if (h.catMove && h.catMove.best) sug = '<p>Put the next push behind <b>' + esc(h.catMove.best.name) + '</b>, the largest category gain (' + esc(fm(h.catMove.best.delta)) + ').</p>';
+    else sug = '<p>No category comparison is available for this window.</p>';
     return '<section class="r-sec" data-sec="highlights"><h2>Highlights <span class="r-badge r-badge-demo">DEMO DATA</span></h2>' +
       '<p class="r-kicker">Synthetic store performance for ' + esc(m.period.label) + ' · ' + esc(m.filters.storeLabel) + ' · ' + esc(m.filters.chanLabel) + ' · ' + esc(m.filters.catLabel) + '.</p>' +
-      slot('highlights.lead', lead(m)) + slot('highlights.kpis', kpiGrid(m)) + '</section>';
+      slot('highlights.lead', lead(m)) + slot('highlights.kpis', kpiGrid(m)) + callouts(ins, sug) + '</section>';
   }
 
   function secChannels(m) {
@@ -344,17 +361,45 @@
     if (m.tone !== 'exec') html += htm(['Channel', 'Net revenue', 'Share', 'Vs previous', 'Vs last year'], rows);
 
     var search = findChan(c.rows, 'Organic Search'), aff = findChan(c.rows, 'Affiliate & Referral'), direct = findChan(c.rows, 'Direct');
-    html += '<h3>Organic search, affiliate, and direct</h3>' + slot('channels.owned',
-      '<p>Organic search contributed <b>' + esc(fm(search.rev)) + '</b> (' + esc(fp(search.share)) + ' of filtered revenue), ' + esc(vs(search.rev, search.prev)) + ' versus the previous period and ' + esc(vs(search.rev, search.yoy)) + ' versus last year. ' +
-      'Affiliate and referral contributed <b>' + esc(fm(aff.rev)) + '</b> (' + esc(vs(aff.rev, aff.prev)) + ' vs previous). Direct was <b>' + esc(fm(direct.rev)) + '</b> (' + esc(fp(direct.share)) + ').</p>');
+    function chanCut(idx, name) {
+      if (m.filters.chan >= 0 && m.filters.chan !== idx) return 'The channel filter is ' + m.filters.chanLabel + ', so ' + name + ' is outside this cut.';
+      if (idx < D().dtcChannels && !m.filters.dtc) return name + ' is a Shopify DTC channel. This storefront has no DTC orders.';
+      return '';
+    }
+    function ownedBlock(id, idx, name, row, suggest) {
+      var why = chanCut(idx, name);
+      html += '<h3>' + esc(name) + '</h3>';
+      if (why) {
+        html += slot(id, '<p>' + esc(why) + '</p>') + callouts('<p>' + esc(why) + '</p>', '<p>Set the storefront and channel so ' + esc(name) + ' is included.</p>');
+        return;
+      }
+      var prose = '<p><b>' + esc(name) + '</b> contributed <b>' + esc(fm(row.rev)) + '</b> (' + esc(fp(row.share)) + ' of filtered revenue), ' + esc(vs(row.rev, row.prev)) + ' versus the previous period and ' + esc(vs(row.rev, row.yoy)) + ' versus last year.</p>';
+      html += slot(id, prose) + callouts(prose, suggest);
+    }
+    var searchDown = search.yoy != null && search.rev < search.yoy;
+    ownedBlock('channels.search', 0, 'Organic search', search, m.filters.chan >= 0 && m.filters.chan !== 0
+      ? '<p>Organic search is outside this channel filter, so it is not a focus in this cut.</p>'
+      : (searchDown
+        ? '<p>It is down versus last year. Refresh artist and format pages for the categories that grew, and point internal links at in-stock vinyl.</p>'
+        : '<p>It is holding or growing. Publish new-release pages on street date, and add collection copy for formats the public roster sells that a given artist store still lacks.</p>'));
+    var affDown = aff.prev != null && aff.rev < aff.prev;
+    ownedBlock('channels.affiliate', 7, 'Affiliate', aff, affDown
+      ? '<p>Affiliate revenue slipped versus the previous period. Pause codes on slow movers and point the next partner drop at the category that gained.</p>'
+      : '<p>Keep creator codes on the SKUs that already sell through affiliate, and brief the next drop around the leading category.</p>');
+    ownedBlock('channels.direct', 6, 'Direct', direct, (direct.share || 0) >= 0.12
+      ? '<p>Direct is a large share. Hold out branded paid search before buying more brand terms, so this traffic is not purchased twice.</p>'
+      : '<p>Direct is a smaller share. Make the return path obvious: recent artists, order status, and site search.</p>');
 
     html += '<h3>Organic social</h3>';
     if (!m.filters.dtc || m.filters.chan >= 0 && m.filters.chan !== 1) {
-      html += slot('channels.social', '<p>' + (m.filters.chan >= 0 && m.filters.chan !== 1 ? 'Organic social orders are excluded by the channel filter.' : 'Organic social is a Shopify DTC session source. This storefront filter has no DTC orders, so social revenue is $0.') + '</p>');
+      var socWhy = m.filters.chan >= 0 && m.filters.chan !== 1 ? 'Organic social orders are excluded by the channel filter.' : 'Organic social is a Shopify DTC session source. This storefront filter has no DTC orders, so social revenue is $0.';
+      html += slot('channels.social', '<p>' + socWhy + '</p>') + callouts('<p>' + socWhy + '</p>', '<p>Organic social is not in this cut, so there is no social focus until the filter includes Shopify DTC and the Organic Social channel.</p>');
     } else {
       var top = c.social[0];
-      html += slot('channels.social', '<p>Organic social (referrer with no paid UTM) was <b>' + esc(fm(c.socNet)) + '</b>. <b>' + esc(top.name) + '</b> led with ' + esc(fm(top.rev)) + ' (' + esc(fp(top.share)) + ' of organic social).</p>');
+      var socProse = '<p>Organic social (referrer with no paid UTM) was <b>' + esc(fm(c.socNet)) + '</b>. <b>' + esc(top.name) + '</b> led with ' + esc(fm(top.rev)) + ' (' + esc(fp(top.share)) + ' of organic social).</p>';
+      html += slot('channels.social', socProse);
       if (m.tone !== 'exec') html += htm(['Platform', 'Revenue', 'Share of organic social'], c.social.map(function (s) { return [s.name, fm(s.rev), fp(s.share)]; }));
+      html += callouts(socProse, '<p>Put the next content sprint on <b>' + esc(top.name) + '</b> and keep the other platforms as supporting cuts.</p>');
     }
 
     html += '<h3>Paid media</h3>';
@@ -365,6 +410,11 @@
     if (shift) paidProse += 'Budget-shift idea: moving half of <b>' + esc(shift.from.name) + '</b> spend toward <b>' + esc(shift.to.name) + '</b> would add about <b>' + esc(fm(shift.gain)) + '</b> of attributed revenue if the destination kept 60% of its ROAS gap.';
     else paidProse += 'No budget shift is suggested: there is not a clearly weaker campaign with enough spend sitting next to a stronger non-brand campaign.';
     paidProse += '</p>';
+    var paidInsight = '<p>Platform-reported last-click spend was <b>' + esc(fm(p.spend)) + '</b> against <b>' + esc(fm(p.rev)) + '</b> attributed revenue (ROAS <b>' + (p.roas ? esc(p.roas.toFixed(2) + 'x') : 'n/a') + '</b>, CAC ' + esc(fm(p.cac, 2)) + ').</p>';
+    var paidSuggest = shift
+      ? '<p>Shift about half of <b>' + esc(shift.from.name) + '</b> (' + esc(shift.from.roas.toFixed(2)) + 'x) toward <b>' + esc(shift.to.name) + '</b> (' + esc(shift.to.roas.toFixed(2)) + 'x). The illustrative gain is ' + esc(fm(shift.gain)) + ' if the stronger campaign keeps 60% of the ROAS gap.</p>'
+      : '<p>Keep spend with the higher-ROAS campaigns. No single shift clears the bar used here (over $1,000 on the weak side, over $500 and not brand search on the strong side).</p>';
+    if (m.filters.chan >= 0) paidSuggest += '<p>Paid figures follow the storefront, not the order-channel filter.</p>';
     html += slot('channels.paid', paidProse);
     if (m.tone !== 'exec') {
       html += htm(['Platform', 'Spend', 'Attributed revenue', 'ROAS', 'CAC', 'Vs prev ROAS'], paid.platforms.map(function (x) {
@@ -375,11 +425,17 @@
         return [x.platform, x.name, fm(x.spend), fm(x.rev), x.roas ? x.roas.toFixed(2) + 'x' : '—', fm(x.cac, 2), x.acos != null ? fp(x.acos) : '—'];
       }));
     }
+    html += callouts(paidInsight, paidSuggest);
 
     html += '<h3>CRM · email and SMS</h3>';
     var crmNote = m.filters.dtc ? 'Klaviyo-style campaigns and flows for Shopify DTC.' : 'This storefront filter does not include Shopify DTC. CRM still describes Shopify DTC, not the filtered orders.';
     var cr = crm.cur, cp = crm.prev;
     var crmProse = '<p>' + esc(crmNote) + ' CRM revenue was <b>' + esc(fm(cr.rev)) + '</b> (' + esc(vs(cr.rev, cp && cp.rev)) + ' vs previous). Email campaigns ' + esc(fm(crm.emailRev)) + ', SMS campaigns ' + esc(fm(crm.smsRev)) + ', flows ' + esc(fm(cr.flowRev)) + ' (' + esc(fp(cr.flowRev / (cr.rev || 1))) + ' of CRM). Email open rate ' + esc(fp(cr.openRate)) + ', click rate ' + esc(fp(cr.clickRate, 2)) + ', unsub rate ' + esc(fp(cr.unsubRate, 2)) + '. SMS click rate ' + esc(fp(cr.smsCtr, 1)) + '. Email list ' + esc(fn(cr.eList)) + ' (' + (cr.eGrowth >= 0 ? '+' : '') + esc(fn(cr.eGrowth)) + ' in period); SMS list ' + esc(fn(cr.sList)) + '.</p>';
+    var hot = crm.camps.filter(function (x) { return x.recipients && x.unsubs / x.recipients > 0.005; }).sort(function (a, b) { return b.unsubs / b.recipients - a.unsubs / a.recipients; })[0];
+    var crmSuggest = hot
+      ? '<p>Review <b>' + esc(hot.name) + '</b> (' + esc(hot.date) + ', ' + esc(fp(hot.unsubs / hot.recipients, 2)) + ' unsub) before the next send.</p>'
+      : '<p>No campaign in this period cleared a 0.5% unsub rate. Put the next test on the top flow by revenue per recipient.</p>';
+    if (!m.filters.dtc) crmSuggest += '<p>This CRM read is Shopify DTC even though the report filter is Amazon.</p>';
     html += slot('channels.crm', crmProse);
     if (m.tone === 'detailed') {
       html += htm(['Date', 'Channel', 'Campaign', 'Recipients', 'Revenue', 'Unsub rate'], crm.camps.map(function (x) {
@@ -389,9 +445,10 @@
         return [x.name, x.channel, fn(x.sends), fm(x.rev), '$' + (x.rpr || 0).toFixed(2)];
       }));
     }
+    html += callouts('<p>CRM revenue was <b>' + esc(fm(cr.rev)) + '</b> (' + esc(vs(cr.rev, cp && cp.rev)) + ' vs previous). Flows were ' + esc(fp(cr.flowRev / (cr.rev || 1))) + ' of that. Email unsub rate was ' + esc(fp(cr.unsubRate, 2)) + '.</p>', crmSuggest);
 
     html += '<h3>Amazon storefronts</h3>';
-    if (!m.filters.amzOn) html += slot('channels.amazon', '<p>Amazon US, UK, and DE are excluded because the storefront filter is Shopify DTC.</p>');
+    if (!m.filters.amzOn) html += slot('channels.amazon', '<p>Amazon US, UK, and DE are excluded because the storefront filter is Shopify DTC.</p>') + callouts('<p>Amazon is excluded by the Shopify DTC storefront filter.</p>', '<p>Switch the storefront to All or an Amazon marketplace for a fee and ads suggestion.</p>');
     else {
       var amzProse = '<p>Amazon net revenue in this cut was <b>' + esc(fm(c.amazon.rev)) + '</b>, with fees of <b>' + esc(fm(c.amazon.fee)) + '</b>';
       if (c.amazon.rev) amzProse += ' (' + esc(fp(c.amazon.fee / c.amazon.rev)) + ' of Amazon net revenue)';
@@ -400,6 +457,12 @@
       if (m.tone !== 'exec') html += htm(['Marketplace', 'Net revenue', 'Orders', 'Fees', 'Fee rate', 'Ad spend', 'ACoS', 'ROAS'], c.amazon.markets.map(function (x) {
         return [x.name, fm(x.rev), fn(x.orders), fm(x.fees), x.feeRate == null ? '—' : fp(x.feeRate), fm(x.adSpend), x.acos == null ? '—' : fp(x.acos), x.roas ? x.roas.toFixed(2) + 'x' : '—'];
       }));
+      var amzCamps = paid.camps.filter(function (x) { return x.platform === 'Amazon Ads' && x.spend > 500 && x.acos != null; });
+      var amzBad = amzCamps.slice().sort(function (a, b) { return b.acos - a.acos; })[0];
+      var amzGood = amzCamps.slice().sort(function (a, b) { return a.acos - b.acos; })[0];
+      var amzSuggest = '<p>Low-priced CDs and 7"s lose about 40% to referral, FBA, and closing fees. Steer those to DTC bundles.</p>';
+      if (amzBad && amzGood && amzBad !== amzGood) amzSuggest = '<p><b>' + esc(amzBad.name) + '</b> is at ' + esc(fp(amzBad.acos)) + ' ACoS. Move budget toward <b>' + esc(amzGood.name) + '</b> (' + esc(fp(amzGood.acos)) + ' ACoS, ' + esc(amzGood.roas.toFixed(2)) + 'x).</p>' + amzSuggest;
+      html += callouts(amzProse, amzSuggest);
     }
     if (c.rows.length) html += '<div class="r-chart"><canvas id="rChanChart" aria-label="Net revenue by channel, demo data"></canvas></div>';
     html += '</section>';
@@ -414,12 +477,34 @@
       return [x.title, x.artist, x.cat, fn(x.units), fm(x.rev), vs(x.rev, x.prev)];
     }));
     html += '<h3>Best performing artists</h3>' + htm(['Artist', 'Units', 'Net revenue'], pr.artists.map(function (x) { return [x.artist, fn(x.units), fm(x.rev)]; }));
+    var bestP = pr.best[0], bestA = pr.artists[0];
+    html += callouts(
+      '<p>' + (bestP ? 'Top product: <b>' + esc(bestP.title) + '</b> by ' + esc(bestP.artist) + ' (' + esc(fm(bestP.rev)) + '). ' : 'No product had revenue in this cut. ') + (bestA ? 'Top artist: <b>' + esc(bestA.artist) + '</b> (' + esc(fm(bestA.rev)) + ').' : '') + '</p>',
+      '<p>Return rate for the whole cut was ' + esc(fp(m.highlights.retRate)) + ' of revenue. ' + (m.highlights.retRate > 0.08 ? 'Review mailer packaging and, for apparel, the size guide.' : 'Keep the size guide and mailer check on the next apparel or vinyl drop.') + '</p>'
+    );
+    var rec = m.recommendations;
+    var gapHtml = rec.gaps.length ? '<ul>' + rec.gaps.map(function (g) {
+      return '<li><b>' + esc(g.text) + '</b> (' + esc(groupName(g.group)) + ', ' + g.n + ' roster stores). ' + esc(g.reason) + (g.sample.length ? ' Examples: ' + esc(g.sample.join(', ')) + '.' : '') + '</li>';
+    }).join('') + '</ul>' : '<p>No catalog gaps were available.</p>';
+    var artHtml = rec.artists.length ? '<ul>' + rec.artists.map(function (a) {
+      return '<li><b>' + esc(a.artist) + '</b> (' + esc(fm(a.rev)) + ' in this report) — ' + a.items.map(function (sg) { return esc(sg.text); }).join('; ') + '.</li>';
+    }).join('') + '</ul>' : '<p>None of this period’s top artists have an open catalog suggestion.</p>';
+    html += '<h3>Catalog suggestions <span class="r-badge r-badge-pub">PUBLIC CATALOG</span></h3><p class="r-kicker">' + esc(rec.label) + '. These gaps are from public artist stores, not the synthetic sales above.</p>' + artHtml + gapHtml;
+    var catIns = rec.artists[0] ? '<p><b>' + esc(rec.artists[0].artist) + '</b> is both a top seller in this cut and has an open catalog gap.</p>' : (rec.gaps[0] ? '<p>The most common public-catalog gap is <b>' + esc(rec.gaps[0].text) + '</b> (' + rec.gaps[0].n + ' stores).</p>' : '<p>No catalog gaps were available.</p>');
+    var catSg = rec.artists[0] && rec.artists[0].items[0] ? '<p>Start with <b>' + esc(rec.artists[0].artist) + '</b>: ' + esc(rec.artists[0].items[0].text) + '</p>' : (rec.gaps[0] ? '<p>' + esc(rec.gaps[0].reason) + '</p>' : '<p>Nothing to add from the public catalogs for this cut.</p>');
+    html += callouts(catIns, catSg, 'pub', 'pub');
     html += '<h3>Slow movers</h3>' + (pr.slow.length ? htm(['Product', 'Artist', 'On hand', 'Days of cover', 'Net revenue'], pr.slow.map(function (x) {
       return [x.title, x.artist, fn(x.onHand), x.cover.toFixed(0), fm(x.rev)];
     })) : '<p class="r-empty">No slow movers with more than 180 days of cover for this filter.</p>');
     html += '<h3>Stock-out risks</h3>' + (pr.risk.length ? htm(['Product', 'Artist', 'On hand', 'Projected stock-out', 'Days', 'Revenue at risk'], pr.risk.map(function (x) {
       return [x.title, x.artist, fn(x.onHand), x.so, String(x.days), fm(x.lost)];
     })) : '<p class="r-empty">No SKUs project a stock-out inside 90 days for this filter.</p>');
+    var stockIns = pr.risk.length
+      ? '<p><b>' + pr.risk.length + '</b> SKUs project a stock-out inside 90 days. The soonest is <b>' + esc(pr.risk[0].title) + '</b> (' + esc(pr.risk[0].so) + ', ' + esc(fm(pr.risk[0].lost)) + ' at risk).</p>'
+      : '<p>No SKU in this filter projects a stock-out inside 90 days.</p>';
+    var stockSg = (pr.risk.length ? '<p>Vinyl re-presses take 6–10 weeks. Place the PO or FBA replenishment before the forecast peak.</p>' : '<p>No urgent replenishment on the flagged list.</p>') +
+      (pr.slow.length ? '<p><b>' + esc(pr.slow[0].title) + '</b> is a slow mover at ' + esc(pr.slow[0].cover.toFixed(0)) + ' days of cover. Bundle it or mark it down.</p>' : '<p>No slow mover is over 180 days of cover.</p>');
+    html += callouts(stockIns, stockSg);
     html += '</section>';
     return html;
   }
@@ -430,44 +515,17 @@
     var html = '<section class="r-sec" data-sec="forecast"><h2>Forecast outlook <span class="r-badge r-badge-demo">DEMO DATA</span></h2>';
     var prose = '<p>The next 90 days are forecast at <b>' + esc(fm(fc.tot)) + '</b> net revenue for <b>' + esc(m.filters.storeLabel) + '</b> (80% band ' + esc(fm(lo)) + ' – ' + esc(fm(hi)) + '). That is ' + esc(sgn(api.pct(fc.tot, fc.ly))) + ' versus the same 90 days last year (' + esc(fm(fc.ly)) + ') and ' + esc(sgn(api.pct(fc.tot, fc.last90))) + ' versus the last 90 days (' + esc(fm(fc.last90)) + '). Peak day is <b>' + esc(D().iso(peak.d)) + '</b> at ' + esc(fm(peak.f)) + (api.peakLabel(peak.d) ? ' (' + esc(api.peakLabel(peak.d)) + ')' : '') + '. Daily backtest MAPE is ' + esc(fp(fc.mape)) + '. Projected stock-outs put about <b>' + esc(fm(m.forecast.lost)) + '</b> at risk' + (m.forecast.riskCount ? ' across ' + esc(String(m.forecast.riskCount)) + ' flagged SKUs' : '') + '.</p>';
     if (m.forecast.channelNote) prose += '<p>The forecast follows the storefront only. Category and channel filters do not change the 90-day total; they do limit the stock-out list in the products section.</p>';
-    html += slot('forecast.body', prose) + '</section>';
+    var peakName = api.peakLabel(peak.d);
+    html += slot('forecast.body', prose) + callouts(
+      '<p>The next 90 days are <b>' + esc(fm(fc.tot)) + '</b> (' + esc(sgn(api.pct(fc.tot, fc.ly))) + ' vs last year). Peak day is <b>' + esc(D().iso(peak.d)) + '</b>' + (peakName ? ' (' + esc(peakName) + ')' : '') + '. About <b>' + esc(fm(m.forecast.lost)) + '</b> of demand is at risk from stock-outs.</p>',
+      '<p>Cover that stock-out risk before <b>' + esc(D().iso(peak.d)) + '</b>' + (peakName ? ' (' + esc(peakName) + ')' : '') + '.</p>'
+    ) + '</section>';
     return html;
   }
 
   function groupName(g) {
     return { missing_format: 'Missing format', merch: 'Merch to add', bundle: 'Bundle', signed_color: 'Signed or colored vinyl', pricing: 'Pricing gap' }[g] || g;
   }
-  function secRecs(m) {
-    var r = m.recommendations;
-    var html = '<section class="r-sec" data-sec="recommendations"><h2>Recommendations <span class="r-badge r-badge-demo">DEMO DATA</span> <span class="r-badge r-badge-pub">PUBLIC CATALOG</span></h2>';
-    html += '<p class="r-kicker">' + esc(r.label) + '. Focus areas below use the synthetic results in this report. The add-to-site list does not.</p>';
-    var gapHtml = r.gaps.length ? '<ul>' + r.gaps.map(function (g) {
-      return '<li><b>' + esc(g.text) + '</b> (' + esc(groupName(g.group)) + ', ' + g.n + ' roster stores). ' + esc(g.reason) + (g.sample.length ? ' Examples: ' + esc(g.sample.join(', ')) + '.' : '') + '</li>';
-    }).join('') + '</ul>' : '<p>No catalog gaps were available.</p>';
-    var artHtml = r.artists.length ? '<ul>' + r.artists.map(function (a) {
-      return '<li><b>' + esc(a.artist) + '</b> (' + esc(fm(a.rev)) + ' in this report) — ' + a.items.map(function (sg) { return esc(sg.text); }).join('; ') + '.</li>';
-    }).join('') + '</ul>' : '<p>None of this period’s top artists have an open catalog suggestion. The roster gaps above still apply.</p>';
-    html += '<h3>Products and formats to add</h3>' + slot('recs.catalog', '<p>These are the most common gaps on the public artist stores, plus any gaps on artists who already sell in this period.</p>' + artHtml + gapHtml);
-
-    var ch = m.channels, search = findChan(ch.rows, 'Organic Search'), topSoc = ch.social[0], cr = ch.crm.cur, shift = ch.paid.shift;
-    var seo = 'Organic search was ' + fm(search.rev) + ' (' + fp(search.share) + ', ' + vs(search.rev, search.prev) + ' vs previous, ' + vs(search.rev, search.yoy) + ' vs last year). ';
-    if (m.filters.chan >= 0 && m.filters.chan !== 0) seo = 'Organic search is outside the current channel filter (' + m.filters.chanLabel + '), so it is not a focus in this cut. ';
-    else seo += (search.yoy != null && search.rev < search.yoy ? 'It is down versus last year: refresh artist and format pages for the categories that grew, and point internal links at in-stock vinyl.' : 'It is holding or growing: publish new-release pages on street date and add collection copy for formats the public roster sells that a given artist store still lacks.');
-    var social = !m.filters.dtc || (m.filters.chan >= 0 && m.filters.chan !== 1)
-      ? 'Organic social is not in this cut, so there is no social focus until the filter includes Shopify DTC and the Organic Social channel.'
-      : 'Organic social was ' + fm(ch.socNet) + ', led by ' + topSoc.name + ' at ' + fm(topSoc.rev) + ' (' + fp(topSoc.share) + ' of social). Put the next content sprint on ' + topSoc.name + ' and keep the other four platforms as supporting cuts.';
-    var paid = 'Paid ROAS was ' + (ch.paid.media.roas ? ch.paid.media.roas.toFixed(2) + 'x' : 'n/a') + ' on ' + fm(ch.paid.media.spend) + ' spend (CAC ' + fm(ch.paid.media.cac, 2) + '). ';
-    paid += shift ? 'Shift about half of ' + shift.from.name + ' (' + shift.from.roas.toFixed(2) + 'x) toward ' + shift.to.name + ' (' + shift.to.roas.toFixed(2) + 'x). The illustrative gain is ' + fm(shift.gain) + ' if the stronger campaign keeps 60% of the ROAS gap.' : 'Keep spend with the higher-ROAS campaigns in the table; no single shift clears the bar used here (over $1,000 on the weak side, over $500 and not brand search on the strong side).';
-    if (m.filters.chan >= 0) paid += ' Paid figures follow the storefront, not the order-channel filter.';
-    var crmF = 'CRM revenue was ' + fm(cr.rev) + ' (' + vs(cr.rev, ch.crm.prev && ch.crm.prev.rev) + ' vs previous), with flows at ' + fp(cr.flowRev / (cr.rev || 1)) + ' of that. Email unsub rate was ' + fp(cr.unsubRate, 2) + ' and SMS click rate ' + fp(cr.smsCtr, 1) + '. ';
-    var hot = ch.crm.camps.filter(function (x) { return x.recipients && x.unsubs / x.recipients > 0.005; }).sort(function (a, b) { return b.unsubs / b.recipients - a.unsubs / a.recipients; })[0];
-    crmF += hot ? 'Review ' + hot.name + ' (' + hot.date + ', ' + fp(hot.unsubs / hot.recipients, 2) + ' unsub) before the next send.' : 'No campaign in this period cleared a 0.5% unsub rate. Put the next test on the top flow by revenue per recipient.';
-    if (!m.filters.dtc) crmF += ' This CRM read is Shopify DTC even though the report filter is Amazon.';
-    html += '<h3>Where to focus</h3>' + slot('recs.focus', '<p><b>Paid.</b> ' + esc(paid) + '</p><p><b>CRM.</b> ' + esc(crmF) + '</p><p><b>SEO.</b> ' + esc(seo) + '</p><p><b>Organic social.</b> ' + esc(social) + '</p>');
-    html += '</section>';
-    return html;
-  }
-
   function sayInt(n) {
     n = Math.round(Math.abs(Number(n) || 0));
     var small = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
@@ -628,6 +686,13 @@
     if (!demo.keywords.length) html += '<p>Organic Search demo keywords are hidden for this storefront or channel filter.</p>';
     else html += htm(['Keyword', 'Position', 'Clicks', 'CTR', 'Revenue'], demo.keywords.slice(0, m.topN).map(function (k) { return [k.query, k.position.toFixed(1), k.clicks == null ? '—' : fn(k.clicks), fp(k.ctr, 1), fm(k.revenue)]; }));
     html += '<h3>Fixes, ranked</h3>' + htm(['#', 'Fix', 'Source', 'Impact', 'Effort'], (A.fixes || []).filter(function (x) { return x.area !== 'ux'; }).map(function (x) { return [String(x.rank), x.title, x.source, x.impact, x.effort]; }));
+    var home = findRun('home', 'mobile'), homeD = findRun('home', 'desktop');
+    var seoIssue = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; })[0];
+    var seoIns = '<p>' + (home ? 'Homepage lab performance is <b>' + home.scores.performance + '</b> on mobile (LCP ' + (home.lab.lcpMs / 1000).toFixed(1) + 's)' + (homeD ? ' and <b>' + homeD.scores.performance + '</b> on desktop' : '') + '. SEO score is <b>' + home.scores.seo + '</b>.' : 'Homepage lab scores are not in this build.') + '</p>' + (seoIssue ? '<p><b>' + esc(seoIssue.title) + '.</b> ' + esc(seoIssue.detail) + '</p>' : '');
+    if (demo.keywords && demo.keywords.length) seoIns += '<p>DEMO keyword model, not Search Console: <b>' + esc(demo.keywords[0].query) + '</b> accounts for ' + esc(fm(demo.keywords[0].revenue)) + ' in this allocation.</p>';
+    var realFix = (A.fixes || []).filter(function (x) { return x.area === 'seo' && x.source === 'REAL'; })[0];
+    var demoFix = (A.fixes || []).filter(function (x) { return x.source === 'DEMO'; })[0];
+    html += callouts(seoIns, (realFix ? '<p>' + esc(realFix.title) + '</p>' : '<p>No ranked public SEO fix is in the audit.</p>') + (demoFix ? '<p>DEMO: ' + esc(demoFix.title) + '</p>' : ''), 'mix', 'mix');
     html += '</section>';
     return html;
   }
@@ -649,6 +714,12 @@
     var issues = (A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; });
     html += '<h3>UX issues</h3><ul>' + issues.map(function (i) { return '<li><b>' + esc(i.severity) + '.</b> ' + esc(i.title) + ' ' + esc(i.detail) + '</li>'; }).join('') + '</ul>';
     html += '<h3>Fixes, ranked</h3>' + htm(['#', 'Fix', 'Source', 'Impact', 'Effort'], (A.fixes || []).filter(function (x) { return x.area === 'ux'; }).map(function (x) { return [String(x.rank), x.title, x.source, x.impact, x.effort]; }));
+    var homeM = findRun('home', 'mobile'), homeDesk = findRun('home', 'desktop'), cartM = findRun('cart', 'mobile');
+    var uxIssue = (A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; })[0];
+    var uxIns = '<p>' + (uxIssue ? '<b>' + esc(uxIssue.title) + '.</b> ' : '') + (homeM ? 'Homepage LCP is ' + (homeM.lab.lcpMs / 1000).toFixed(1) + 's on mobile' + (homeDesk ? ' and ' + (homeDesk.lab.lcpMs / 1000).toFixed(1) + 's on desktop' : '') : '') + (cartM ? '. Cart CLS is ' + cartM.lab.cls + ' on mobile.' : '') + '</p>';
+    if (demo.devices) uxIns += '<p>DEMO device split: mobile AOV ' + esc(fm(demo.devices.mobile.aov, 2)) + ' versus desktop ' + esc(fm(demo.devices.desktop.aov, 2)) + '.</p>';
+    var uxFixes = (A.fixes || []).filter(function (x) { return x.area === 'ux'; });
+    html += callouts(uxIns, uxFixes.length ? '<p>' + uxFixes.map(function (x) { return esc(x.title); }).join('</p><p>') + '</p>' : '<p>No ranked UX fix is in the audit.</p>', 'mix', 'mix');
     html += '</section>';
     return html;
   }
@@ -669,7 +740,7 @@
   }
 
   function renderHtml(m) {
-    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, recommendations: secRecs, seo: secSeo, ux: secUx, method: secMethod, notes: secNotes };
+    var map = { highlights: secHighlights, channels: secChannels, products: secProducts, forecast: secForecast, seo: secSeo, ux: secUx, method: secMethod, notes: secNotes };
     var partsHtml = state.order.map(function (id) {
       if (!map[id]) return '';
       var chunk = map[id](m);
@@ -782,11 +853,23 @@
       if (sec.classList.contains('hide')) return;
       var h = sec.querySelector('h2');
       lines.push('## ' + textOf(h).replace(/\s+/g, ' '));
-      Array.prototype.forEach.call(sec.querySelectorAll('[data-block], table, h3'), function (el) {
-        if (el.tagName === 'TABLE') lines.push('', tableMd(el));
-        else if (el.tagName === 'H3') lines.push('', '### ' + textOf(el));
-        else lines.push('', textOf(el));
-      });
+      function walkNode(el) {
+        if (!el || !el.classList) return;
+        if (el.classList.contains('hide')) return;
+        if (el.classList.contains('r-callouts')) {
+          Array.prototype.forEach.call(el.querySelectorAll('.r-callout'), function (box) {
+            var hh = box.querySelector('h3');
+            if (hh) lines.push('', '### ' + textOf(hh).replace(/\s+/g, ' '));
+            Array.prototype.forEach.call(box.querySelectorAll('p'), function (p) { lines.push('', textOf(p)); });
+          });
+          return;
+        }
+        if (el.tagName === 'TABLE') { lines.push('', tableMd(el)); return; }
+        if (el.tagName === 'H3') { lines.push('', '### ' + textOf(el)); return; }
+        if (el.hasAttribute && el.hasAttribute('data-block')) { lines.push('', textOf(el)); return; }
+        Array.prototype.forEach.call(el.children || [], walkNode);
+      }
+      Array.prototype.forEach.call(sec.children, walkNode);
       lines.push('');
     });
     return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';

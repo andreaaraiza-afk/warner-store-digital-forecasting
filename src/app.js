@@ -451,61 +451,215 @@ function renderForecast() {
     { k: 'days', l: 'Risk', f: function (v, r) { return '<span class="pill ' + r.cls + '">' + r.risk + '</span>'; } }, { k: 'lost', l: 'Revenue at risk', n: 1, f: function (v) { return v > 0 ? '<span style="color:#ff6b6b">' + fm(v) + '</span>' : '—'; } }], rows, 'rev', true);
 }
 
-// ---------- insights ----------
+// ---------- insights, one pair of callouts per section ----------
+function noteCards(label, kind) {
+  var realPill = '<span class="pill" style="background:rgba(90,169,255,.15);color:var(--blue)">REAL</span>';
+  var pill = kind === 'real' ? realPill : kind === 'pub' ? '<span class="pill" style="background:rgba(90,169,255,.15);color:var(--blue)">PUBLIC</span>' : kind === 'mix' ? realPill + ' <span class="pill p-warn">DEMO</span>' : '<span class="pill p-warn">DEMO</span>';
+  var kick = label ? '<p class="note-kicker">' + label + '</p>' : '';
+  return kick + '<article class="callout callout-insight"><h3>Insights ' + pill + '</h3><div class="callout-body"></div></article><article class="callout callout-suggest"><h3>Suggestions ' + pill + '</h3><div class="callout-body"></div></article>';
+}
+function mountNotes(id, label, kind) {
+  var root = $(id); if (!root || root.querySelector('.callout')) return;
+  root.innerHTML = noteCards(label, kind);
+}
+function fillNotes(id, insight, suggest) {
+  var root = $(id); if (!root) return;
+  var ib = root.querySelector('.callout-insight .callout-body');
+  var sb = root.querySelector('.callout-suggest .callout-body');
+  if (ib) ib.innerHTML = insight;
+  if (sb) sb.innerHTML = suggest;
+}
 function renderInsights() {
-  var cur = state.cur, cmp = state.cmp, m = state.m, mc = state.mc, c = state.c, R = state.R, F = state.F, FC = state.FC, out = [], cats = D.categories;
-  var cmpLbl = $('fCmp').value === 'yoy' ? 'vs same period last year' : 'vs previous ' + R.len + ' days';
+  var cur = state.cur, cmp = state.cmp, m = state.m, mc = state.mc, c = state.c, R = state.R, F = state.F, FC = state.FC, cats = D.categories;
+  var cmpLbl = $('fCmp').value === 'yoy' ? 'vs same period last year' : 'vs the previous ' + R.len + ' days';
   var dtc = incDTC(F.store), amz = incAmz(F.store);
-  if (cmp) {
-    var dl = cur.net - cmp.net, best = -1, bv = -Infinity, worst = -1, wv = Infinity;
-    cats.forEach(function (_, i) { var x = cur.cat[i] - cmp.cat[i]; if (x > bv) { bv = x; best = i; } if (x < wv) { wv = x; worst = i; } });
-    out.push(['📈', 'Net revenue (' + storeLabel(F.store) + ') is <b>' + fm(cur.net) + '</b>, ' + (dl >= 0 ? 'up' : 'down') + ' <b>' + fp(Math.abs(pct(cur.net, cmp.net))) + '</b> ' + cmpLbl + '. <b>' + cats[best] + '</b> contributed the largest gain (' + (bv >= 0 ? '+' : '') + fm(bv) + ')' + (wv < 0 ? '; <b>' + cats[worst] + '</b> was the biggest drag (' + fm(wv) + ').' : '.')]);
+  var best = -1, bv = -Infinity, worst = -1, wv = Infinity;
+  if (cmp) cats.forEach(function (_, i) { var x = cur.cat[i] - cmp.cat[i]; if (x > bv) { bv = x; best = i; } if (x < wv) { wv = x; worst = i; } });
+  var hl = 'Net revenue is <b>' + fm(cur.net) + '</b> on ' + storeLabel(F.store) + ' (' + D.iso(R.s).slice(5) + '–' + D.iso(R.e).slice(5) + ')';
+  if (cmp) hl += ', ' + (cur.net >= cmp.net ? 'up' : 'down') + ' <b>' + fp(Math.abs(pct(cur.net, cmp.net))) + '</b> ' + cmpLbl;
+  hl += '.';
+  if (best >= 0) hl += ' <b>' + cats[best] + '</b> led the category move.';
+  $('hlSummary').innerHTML = hl;
+
+  mountNotes('notes-overview', '', 'demo');
+  mountNotes('notes-search', 'Organic search', 'demo');
+  mountNotes('notes-affiliate', 'Affiliate', 'demo');
+  mountNotes('notes-direct', 'Direct', 'demo');
+  mountNotes('notes-social', '', 'demo');
+  mountNotes('notes-products', 'Products and artists', 'demo');
+  mountNotes('notes-stock', 'Inventory', 'demo');
+  mountNotes('notes-amazon', '', 'demo');
+  mountNotes('notes-paid', '', 'demo');
+  mountNotes('notes-crm', '', 'demo');
+  mountNotes('notes-forecast', '', 'demo');
+  mountNotes('notes-seo', '', 'mix');
+  mountNotes('notes-ux', '', 'mix');
+  mountNotes('notes-suggest', '', 'pub');
+
+  var ovIn = cmp
+    ? '<p>Net revenue (' + storeLabel(F.store) + ') is <b>' + fm(cur.net) + '</b>, ' + (cur.net >= cmp.net ? 'up' : 'down') + ' <b>' + fp(Math.abs(pct(cur.net, cmp.net))) + '</b> ' + cmpLbl + '. <b>' + cats[best] + '</b> contributed the largest gain (' + (bv >= 0 ? '+' : '') + fm(bv) + ')' + (wv < 0 ? '; <b>' + cats[worst] + '</b> was the biggest drag (' + fm(wv) + ').' : '.') + '</p>'
+    : '<p>Net revenue (' + storeLabel(F.store) + ') is <b>' + fm(cur.net) + '</b> on <b>' + fn(cur.orders) + '</b> orders (AOV ' + fm(cur.aov, 2) + '). The comparison window starts before the dataset, so there is no prior period.</p>';
+  var ovSg = best < 0 ? '<p>Pick a comparison that sits inside the dataset before choosing a category to push.</p>'
+    : (wv < 0 ? '<p>Review <b>' + cats[worst] + '</b> first (' + fm(wv) + ' vs comparison). Check price, on-hand stock, and whether paid and email are still pushing it.</p>'
+      : '<p>Put the next release push behind <b>' + cats[best] + '</b>, the largest gain (' + (bv >= 0 ? '+' : '') + fm(bv) + ').</p>');
+  fillNotes('notes-overview', ovIn, ovSg);
+
+  function chanOn(idx) { return (F.chan < 0 || F.chan === idx) && (idx < NDTC ? dtc : amz); }
+  function chanBlock(idx, name) {
+    if (F.chan >= 0 && F.chan !== idx) return { insight: '<p>The channel filter is <b>' + D.channels[F.chan] + '</b>, so ' + name + ' is outside this cut.</p>', suggest: '<p>Set Channel to All or ' + name + ' to read this one.</p>' };
+    if (idx < NDTC && !dtc) return { insight: '<p>' + name + ' is a Shopify DTC channel. This storefront has no DTC orders.</p>', suggest: '<p>Switch the storefront to All or Shopify DTC.</p>' };
+    var rev = cur.chan[idx], share = cur.net ? rev / cur.net : 0;
+    var bit = cmp ? ' It is <b>' + sgn(pct(rev, cmp.chan[idx])) + '</b> ' + cmpLbl + '.' : '';
+    return { rev: rev, share: share, down: !!(cmp && cmp.chan[idx] && rev < cmp.chan[idx]), insight: '<p><b>' + name + '</b> is <b>' + fm(rev) + '</b>, ' + fp(share) + ' of filtered net revenue.' + bit + '</p>' };
   }
-  // Organic social
-  if (dtc && cur.socNet > 0 && (F.chan < 0 || F.chan === 1)) {
+  var search = chanBlock(0, 'Organic search');
+  var searchSg = !chanOn(0) ? search.suggest : (search.down
+    ? '<p>Search revenue is down. Refresh landing pages for the categories that grew, and point internal links at in-stock vinyl.</p>'
+    : '<p>Search is holding or growing. Publish new-release pages on street date, and add collection copy for the formats buyers already search.</p>');
+  fillNotes('notes-search', search.insight, searchSg);
+  var aff = chanBlock(7, 'Affiliate');
+  var affSg = !chanOn(7) ? aff.suggest : (aff.down
+    ? '<p>Affiliate revenue slipped. Pause codes on slow movers and point the next partner drop at <b>' + (best >= 0 ? cats[best] : 'the leading category') + '</b>.</p>'
+    : '<p>Keep creator codes on the SKUs that already sell through affiliate, and brief the next drop around <b>' + (best >= 0 ? cats[best] : 'the leading category') + '</b>.</p>');
+  fillNotes('notes-affiliate', aff.insight, affSg);
+  var direct = chanBlock(6, 'Direct');
+  var directSg = !chanOn(6) ? direct.suggest : ((direct.share || 0) >= 0.12
+    ? '<p>Direct is a large share. Hold out branded paid search before buying more brand terms, so this traffic is not purchased twice.</p>'
+    : '<p>Direct is a smaller share. Make the return path obvious: recent artists, order status, and site search.</p>');
+  fillNotes('notes-direct', direct.insight, directSg);
+
+  if (!(dtc && (F.chan < 0 || F.chan === 1))) {
+    fillNotes('notes-social', '<p>' + (F.chan >= 0 && F.chan !== 1 ? 'The channel filter excludes Organic Social.' : 'Organic social is a Shopify DTC session source. This storefront has no DTC orders.') + '</p>', '<p>Include Shopify DTC and the Organic Social channel to get a platform suggestion.</p>');
+  } else if (!(cur.socNet > 0)) {
+    fillNotes('notes-social', '<p>Organic social revenue is <b>$0</b> in this cut.</p>', '<p>Widen the dates or clear the category filter before planning a social sprint.</p>');
+  } else {
     var tp = 0; for (var i = 1; i < 5; i++) if (cur.soc[i] > cur.soc[tp]) tp = i;
     var arts = Object.keys(cur.socArt).sort(function (a, b) { return cur.socArt[b] - cur.socArt[a]; });
     var dtcNet = state.dtcAll, psCac = null; if (m.plat.Meta || m.plat.TikTok) { var ps = (m.plat.Meta || { spend: 0, newc: 0 }), pt = (m.plat.TikTok || { spend: 0, newc: 0 }); psCac = (ps.spend + pt.spend) / Math.max(1, ps.newc + pt.newc); }
     var gTik = cmp && cmp.soc[1] ? pct(cur.soc[1], cmp.soc[1]) : null;
-    out.push(['📣', '<b>Organic social</b> (social referrer, no paid UTM or affiliate link) drove <b>' + fm(cur.socNet) + '</b> — ' + fp(cur.socNet / (dtcNet || 1)) + ' of Shopify DTC revenue' + (cmp ? ', <b>' + sgn(pct(cur.socNet, cmp.socNet)) + '</b> ' + cmpLbl : '') + '. <b>' + D.social[tp] + '</b> leads with ' + fm(cur.soc[tp]) + ' (' + fp(cur.soc[tp] / cur.socNet, 0) + ')' + (gTik != null && tp === 1 ? ', TikTok ' + sgn(gTik) : '') + '; top artist from organic posts: <b>' + arts[0] + '</b>. ' + fp(cur.socNew / Math.max(1, cur.socOrders), 0) + ' of these orders were new customers' + (psCac ? ' — worth ≈<b>' + fm(cur.socNew * psCac) + '</b> at paid social\'s ' + fm(psCac) + ' CAC.' : '.')]);
+    var socIn = '<p><b>Organic social</b> (social referrer, no paid UTM or affiliate link) drove <b>' + fm(cur.socNet) + '</b> — ' + fp(cur.socNet / (dtcNet || 1)) + ' of Shopify DTC revenue' + (cmp ? ', <b>' + sgn(pct(cur.socNet, cmp.socNet)) + '</b> ' + cmpLbl : '') + '. <b>' + D.social[tp] + '</b> leads with ' + fm(cur.soc[tp]) + ' (' + fp(cur.soc[tp] / cur.socNet, 0) + ')' + (gTik != null && tp === 1 ? ', TikTok ' + sgn(gTik) : '') + '; top artist from organic posts: <b>' + (arts[0] || '—') + '</b>. ' + fp(cur.socNew / Math.max(1, cur.socOrders), 0) + ' of these orders were new customers' + (psCac ? ' — worth ≈<b>' + fm(cur.socNew * psCac) + '</b> at paid social\'s ' + fm(psCac) + ' CAC.' : '.') + '</p>';
+    fillNotes('notes-social', socIn, '<p>Put the next content sprint on <b>' + D.social[tp] + '</b>' + (arts[0] ? ' around <b>' + arts[0] + '</b>' : '') + ', and keep the other platforms as supporting cuts.</p>');
   }
-  // Amazon
-  if (amz && cur.amzNet > 0) {
+
+  var drops = D.products.filter(function (p) { return p.alloc && p.launch > R.s - 60 && p.launch <= R.e && (F.store <= 0); });
+  var rr = cats.map(function (_, i) { var g = 0, r = 0; D.products.forEach(function (p, j) { if (p.cat === i) { g += cur.pu[j]; r += cur.pru[j]; } }); return [i, g > 50 ? r / g : 0]; }).sort(function (a, b) { return b[1] - a[1]; })[0];
+  var prodIn = '<p>Highest return rate: <b>' + cats[rr[0]] + '</b> at ' + fp(rr[1]) + ' of units (average ' + fp(cur.retRate) + ' of revenue).</p>';
+  var prodSg = rr[0] === 6 ? '<p>Check size guides and fit notes on <b>' + cats[rr[0]] + '</b>.</p>' : '<p>Most returns look like damaged sleeves or warped vinyl in transit. Review mailer packaging' + (amz ? ' (Amazon DE returns run highest)' : '') + '.</p>';
+  if (drops.length && dtc) {
+    var dd = drops.map(function (p) { return [p, p.alloc - p.stock[0]]; }).sort(function (a, b) { return b[0].launch - a[0].launch; }).slice(0, 3);
+    prodIn += '<p><b>Limited and signed drops:</b> ' + dd.map(function (x) { return '<b>' + x[0].artist + ' – ' + x[0].title + '</b> ' + fp(x[1] / x[0].alloc, 0) + ' sold-through of ' + fn(x[0].alloc) + (x[0].stock[0] === 0 ? ' (sold out)' : ''); }).join('; ') + '.</p>';
+    prodSg += '<p>Fast sell-through on those drops: consider a second color variant or a waitlist.</p>';
+  } else prodIn += '<p>No limited or signed drop launched in this window' + (dtc ? '' : ' for a Shopify storefront') + '.</p>';
+  fillNotes('notes-products', prodIn, prodSg);
+
+  var top = D.products.map(function (p, i) { return { p: p, r: cur.pr[i], inv: invFor(p, F.store), fc: FC.prods[i] }; }).sort(function (a, b) { return b.r - a.r; }).slice(0, 15);
+  var risk = top.filter(function (x) { return x.inv.vel > 0 && x.inv.onHand > 0 && (x.inv.onHand / x.inv.vel < 21 || (x.fc.so && x.fc.so - T < 45)); }).slice(0, 4);
+  var over = D.products.filter(function (p) { var iv = invFor(p, F.store); return iv.vel > 0 && iv.onHand / iv.vel > 180 && !p.alloc; }), oc = over.reduce(function (a, p) { return a + invFor(p, F.store).onHand * p.cost; }, 0);
+  var stockIn = risk.length
+    ? '<p><b>Inventory risk on best sellers (' + storeLabel(F.store) + '):</b> ' + risk.map(function (x) { return '<b>' + x.p.artist + ' – ' + x.p.title + '</b> (' + Math.round(x.inv.onHand / x.inv.vel) + ' days of cover' + (x.fc.so ? ', stockout ~' + D.iso(x.fc.so).slice(5) : '') + ')'; }).join(', ') + '.</p>'
+    : '<p>None of the top sellers are inside 21 days of cover or a 45-day stockout for ' + storeLabel(F.store) + '.</p>';
+  var stockSg = (risk.length ? '<p>Vinyl re-presses take 6–10 weeks. Place the PO or FBA replenishment now for BFCM.</p>' : '<p>No urgent replenishment on the current best sellers.</p>');
+  stockSg += over.length ? '<p><b>' + over.length + ' slow movers</b> hold ' + fm(oc) + ' of inventory at cost with more than 180 days of cover (for example ' + over.slice(0, 3).map(function (p) { return p.artist + ' – ' + p.title; }).join(', ') + '). Bundle them or mark them down for BFCM.</p>' : '<p>No unallocated SKU is sitting on more than 180 days of cover.</p>';
+  fillNotes('notes-stock', stockIn, stockSg);
+
+  if (!(amz && cur.amzNet > 0)) {
+    fillNotes('notes-amazon', '<p>' + (amz ? 'Amazon net revenue is $0 in this cut.' : 'The storefront filter is Shopify DTC, so Amazon is excluded.') + '</p>', '<p>Switch to All storefronts or an Amazon marketplace to get a fee and ads suggestion.</p>');
+  } else {
     var mk3 = [1, 2, 3].filter(function (s) { return stOk(s, F.store); });
     var aRev = mk3.reduce(function (a, s) { return a + cur.st[s]; }, 0), aFee = mk3.reduce(function (a, s) { return a + cur.stFee[s]; }, 0);
     var gro = mk3.map(function (s) { return [s, cmp && cmp.st[s] ? pct(cur.st[s], cmp.st[s]) : null]; }).sort(function (a, b) { return (b[1] || -9) - (a[1] || -9); });
     var feeHi = mk3.slice().sort(function (a, b) { return cur.stFee[b] / (cur.st[b] || 1) - cur.stFee[a] / (cur.st[a] || 1); })[0];
-    out.push(['🛒', '<b>Amazon</b> ' + (F.store === -1 ? 'storefronts are <b>' + fp(aRev / (cur.net || 1)) + '</b> of total net revenue (' + fm(aRev) + ')' : 'net revenue is <b>' + fm(aRev) + '</b>') + (mk3.length > 1 ? ': ' + mk3.map(function (s) { return D.stores[s].replace('Amazon ', '') + ' ' + fm(cur.st[s]); }).join(' · ') : '') + '. ' + (gro[0][1] != null ? '<b>' + D.stores[gro[0][0]] + '</b> is growing fastest (' + sgn(gro[0][1]) + '). ' : '') + 'Fees take <b>' + fp(aFee / (aRev || 1)) + '</b> of Amazon revenue' + (mk3.length > 1 ? ', highest in <b>' + D.stores[feeHi] + '</b> (' + fp(cur.stFee[feeHi] / (cur.st[feeHi] || 1)) + ')' : '') + ' — low-priced CDs and 7"s lose ~40% to referral + FBA + closing fees, so steer them to DTC bundles.']);
+    var amzIn = '<p><b>Amazon</b> ' + (F.store === -1 ? 'storefronts are <b>' + fp(aRev / (cur.net || 1)) + '</b> of total net revenue (' + fm(aRev) + ')' : 'net revenue is <b>' + fm(aRev) + '</b>') + (mk3.length > 1 ? ': ' + mk3.map(function (s) { return D.stores[s].replace('Amazon ', '') + ' ' + fm(cur.st[s]); }).join(' · ') : '') + '. ' + (gro[0][1] != null ? '<b>' + D.stores[gro[0][0]] + '</b> is growing fastest (' + sgn(gro[0][1]) + '). ' : '') + 'Fees take <b>' + fp(aFee / (aRev || 1)) + '</b> of Amazon revenue' + (mk3.length > 1 ? ', highest in <b>' + D.stores[feeHi] + '</b> (' + fp(cur.stFee[feeHi] / (cur.st[feeHi] || 1)) + ')' : '') + '.</p>';
     var aStore = F.store === -1 ? 10 : F.store, ads = mediaAgg(R.s, R.e, 'Amazon Ads', aStore);
     var bad = ads.rows.filter(function (x) { return x.spend > 500; }).sort(function (a, b) { return b.acos - a.acos; })[0], good = ads.rows.filter(function (x) { return x.spend > 500; }).sort(function (a, b) { return a.acos - b.acos; })[0];
-    if (bad && good && bad !== good) out.push(['🎯', 'Amazon Sponsored ads: ' + fm(ads.spend) + ' spend at <b>' + fp(ads.acos) + ' ACoS</b> (TACoS ' + fp(ads.spend / (aRev || 1)) + '). <b>' + bad.m.name + '</b> runs at ' + fp(bad.acos) + ' ACoS — above the ~35% break-even after fees; move budget to <b>' + good.m.name + '</b> (' + fp(good.acos) + ' ACoS, ' + good.roas.toFixed(2) + 'x).']);
+    var amzSg = '<p>Low-priced CDs and 7"s lose about 40% to referral, FBA, and closing fees. Steer those to DTC bundles.</p>';
+    if (bad && good && bad !== good) amzSg = '<p>Sponsored ads spent ' + fm(ads.spend) + ' at <b>' + fp(ads.acos) + ' ACoS</b> (TACoS ' + fp(ads.spend / (aRev || 1)) + '). <b>' + bad.m.name + '</b> is at ' + fp(bad.acos) + ' ACoS, above the ~35% break-even after fees. Move budget to <b>' + good.m.name + '</b> (' + fp(good.acos) + ' ACoS, ' + good.roas.toFixed(2) + 'x).</p>' + amzSg;
+    fillNotes('notes-amazon', amzIn, amzSg);
   }
+
   var act = m.rows.filter(function (x) { return x.spend > 1000 && x.m.platform !== 'Amazon Ads'; });
+  var paidIn, paidSg;
+  if (m.spend) {
+    var pl = Object.keys(m.plat).map(function (k) { var x = m.plat[k]; return [k, x.rev / x.spend]; }).sort(function (a, b) { return b[1] - a[1]; });
+    paidIn = '<p>Paid media: ' + fm(m.spend) + ' spend → ' + fm(m.rev) + ' attributed (<b>' + m.roas.toFixed(2) + 'x</b>' + (mc && mc.roas ? ', ' + (m.roas >= mc.roas ? 'up' : 'down') + ' from ' + mc.roas.toFixed(2) + 'x' : '') + '). Platform ROAS: ' + pl.map(function (x) { return x[0] + ' ' + x[1].toFixed(2) + 'x'; }).join(' · ') + '.</p>';
+  } else paidIn = '<p>Paid media has no spend for this storefront in the selected window.</p>';
   if (act.length > 1) {
     var w = act.reduce(function (a, b) { return b.roas < a.roas ? b : a; }), bnb = act.filter(function (x) { return x.m.name.indexOf('Brand Search') < 0; }).reduce(function (a, b) { return b.roas > a.roas ? b : a; });
-    out.push(['⚠️', 'Worst DTC ROAS: <b>' + w.m.platform + ' · ' + w.m.name + '</b> at <b>' + w.roas.toFixed(2) + 'x</b> on ' + fm(w.spend) + ' spend (CAC ' + fm(w.cac) + '). Shifting 50% of its budget to <b>' + bnb.m.name + '</b> (' + bnb.roas.toFixed(2) + 'x) would add ≈<b>' + fm(w.spend * .5 * (bnb.roas - w.roas) * .6) + '</b> revenue (assuming 60% marginal efficiency).']);
-  }
-  if (m.spend) { var pl = Object.keys(m.plat).map(function (k) { var x = m.plat[k]; return [k, x.rev / x.spend]; }).sort(function (a, b) { return b[1] - a[1]; });
-    out.push(['💸', 'Paid media: ' + fm(m.spend) + ' spend → ' + fm(m.rev) + ' attributed (<b>' + m.roas.toFixed(2) + 'x</b>' + (mc && mc.roas ? ', ' + (m.roas >= mc.roas ? 'up' : 'down') + ' from ' + mc.roas.toFixed(2) + 'x' : '') + '). Platform ROAS: ' + pl.map(function (x) { return x[0] + ' ' + x[1].toFixed(2) + 'x'; }).join(' · ') + '.']); }
-  var top = D.products.map(function (p, i) { return { p: p, r: cur.pr[i], inv: invFor(p, F.store), fc: FC.prods[i] }; }).sort(function (a, b) { return b.r - a.r; }).slice(0, 15);
-  var risk = top.filter(function (x) { return x.inv.vel > 0 && x.inv.onHand > 0 && (x.inv.onHand / x.inv.vel < 21 || (x.fc.so && x.fc.so - T < 45)); }).slice(0, 4);
-  if (risk.length) out.push(['📦', '<b>Inventory risk on best sellers (' + storeLabel(F.store) + '):</b> ' + risk.map(function (x) { return '<b>' + x.p.artist + ' – ' + x.p.title + '</b> (' + Math.round(x.inv.onHand / x.inv.vel) + ' days of cover' + (x.fc.so ? ', stockout ~' + D.iso(x.fc.so).slice(5) : '') + ')'; }).join(', ') + '. Vinyl re-presses take 6–10 weeks: place PO / FBA replenishment now for BFCM.']);
-  var lostTot = FC.prods.reduce(function (a, x) { return a + x.lost; }, 0);
-  out.push(['🔮', 'Next 90 days forecast (' + storeLabel(F.store) + '): <b>' + fm(FC.tot) + '</b> net revenue (' + sgn(pct(FC.tot, FC.ly)) + ' vs LY), peaking on <b>' + D.iso(FC.peak.d) + '</b> ' + peakLabel(FC.peak.d) + '. Projected stockouts put ≈<b>' + fm(lostTot) + '</b> of demand at risk.']);
-  var drops = D.products.filter(function (p) { return p.alloc && p.launch > R.s - 60 && p.launch <= R.e && (F.store <= 0); });
-  if (drops.length && dtc) { var dd = drops.map(function (p) { return [p, p.alloc - p.stock[0]]; }).sort(function (a, b) { return b[0].launch - a[0].launch; }).slice(0, 3);
-    out.push(['💿', '<b>Limited & signed drops:</b> ' + dd.map(function (x) { return '<b>' + x[0].artist + ' – ' + x[0].title + '</b> ' + fp(x[1] / x[0].alloc, 0) + ' sold-through of ' + fn(x[0].alloc) + (x[0].stock[0] === 0 ? ' (sold out)' : ''); }).join('; ') + '. Fast sell-through → consider a second color variant or waitlist capture.']); }
-  if (dtc) {
+    paidSg = '<p>Worst DTC ROAS: <b>' + w.m.platform + ' · ' + w.m.name + '</b> at <b>' + w.roas.toFixed(2) + 'x</b> on ' + fm(w.spend) + ' (CAC ' + fm(w.cac) + '). Shifting half of that budget to <b>' + bnb.m.name + '</b> (' + bnb.roas.toFixed(2) + 'x) would add about <b>' + fm(w.spend * .5 * (bnb.roas - w.roas) * .6) + '</b>, assuming 60% of the ROAS gap holds.</p>';
+  } else paidSg = '<p>Keep spend with the higher-ROAS campaigns. No weak campaign clears the $1,000 bar used for a shift.</p>';
+  fillNotes('notes-paid', paidIn, paidSg);
+
+  if (!dtc) {
+    fillNotes('notes-crm', '<p>This storefront filter excludes Shopify DTC. The CRM charts are still the Klaviyo-style DTC read, not Amazon orders. CRM revenue on that read is <b>' + fm(c.rev) + '</b>.</p>', '<p>Do not apply this CRM suggestion to Amazon orders. Switch the storefront to Shopify or All before acting on flows.</p>');
+  } else {
     var ft = c.flows.slice().sort(function (a, b) { return b.rev - a.rev; })[0];
-    out.push(['✉️', 'CRM drove <b>' + fm(c.rev) + '</b> (' + fp(c.rev / (state.dtcAll || 1)) + ' of DTC revenue); flows were ' + fp(c.flowRev / (c.rev || 1)) + ' of it. Top flow: <b>' + ft.name + '</b> (' + fm(ft.rev) + ', $' + ft.rpr.toFixed(2) + ' per recipient).']);
-    var hu = c.camps.filter(function (x) { return x.unsubs / x.recipients > .005; }).sort(function (a, b) { return b.unsubs / b.recipients - a.unsubs / a.recipients; })[0];
-    if (hu) out.push(['🚨', 'Unsubscribe spike: <b>' + hu.name + '</b> (' + hu.date + ', ' + hu.channel.toUpperCase() + ') hit ' + fp(hu.unsubs / hu.recipients, 2) + ' unsubs. Review frequency or segmentation for this audience.']);
+    var crmIn = '<p>CRM drove <b>' + fm(c.rev) + '</b> (' + fp(c.rev / (state.dtcAll || 1)) + ' of DTC revenue); flows were ' + fp(c.flowRev / (c.rev || 1)) + ' of it. Top flow: <b>' + ft.name + '</b> (' + fm(ft.rev) + ', $' + ft.rpr.toFixed(2) + ' per recipient).</p>';
+    var hu = c.camps.filter(function (x) { return x.recipients && x.unsubs / x.recipients > .005; }).sort(function (a, b) { return b.unsubs / b.recipients - a.unsubs / a.recipients; })[0];
+    var crmSg = hu
+      ? '<p>Unsubscribe spike: <b>' + hu.name + '</b> (' + hu.date + ', ' + hu.channel.toUpperCase() + ') hit ' + fp(hu.unsubs / hu.recipients, 2) + ' unsubs. Review frequency or segmentation before the next send.</p>'
+      : '<p>No campaign cleared a 0.5% unsub rate. Put the next test on <b>' + ft.name + '</b>, the top flow by revenue.</p>';
+    fillNotes('notes-crm', crmIn, crmSg);
   }
-  var rr = cats.map(function (_, i) { var g = 0, r = 0; D.products.forEach(function (p, j) { if (p.cat === i) { g += cur.pu[j]; r += cur.pru[j]; } }); return [i, g > 50 ? r / g : 0]; }).sort(function (a, b) { return b[1] - a[1]; })[0];
-  out.push(['↩️', 'Highest return rate: <b>' + cats[rr[0]] + '</b> at ' + fp(rr[1]) + ' of units (avg ' + fp(cur.retRate) + ' of revenue). ' + (rr[0] === 6 ? 'Check size guides and fit notes.' : 'Mostly damaged sleeves / warped vinyl in transit — review mailer packaging' + (amz ? ' (Amazon DE returns run highest)' : '') + '.')]);
-  var over = D.products.filter(function (p) { var iv = invFor(p, F.store); return iv.vel > 0 && iv.onHand / iv.vel > 180 && !p.alloc; }), oc = over.reduce(function (a, p) { return a + invFor(p, F.store).onHand * p.cost; }, 0);
-  if (over.length) out.push(['🐢', '<b>' + over.length + ' slow movers</b> hold ' + fm(oc) + ' of inventory at cost with >180 days of cover (e.g. ' + over.slice(0, 3).map(function (p) { return p.artist + ' – ' + p.title; }).join(', ') + '). Candidates for bundles or a BFCM markdown.']);
-  $('insightList').innerHTML = out.map(function (x) { return '<li><span class="ic">' + x[0] + '</span><span>' + x[1] + '</span></li>'; }).join('');
+
+  var lostTot = FC.prods.reduce(function (a, x) { return a + x.lost; }, 0);
+  var peak = peakLabel(FC.peak.d);
+  fillNotes('notes-forecast',
+    '<p>Next 90 days (' + storeLabel(F.store) + '): <b>' + fm(FC.tot) + '</b> net revenue (' + sgn(pct(FC.tot, FC.ly)) + ' vs last year), peaking on <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. Projected stockouts put about <b>' + fm(lostTot) + '</b> of demand at risk.</p>',
+    '<p>Cover the stockout risk before <b>' + D.iso(FC.peak.d) + '</b>' + (peak ? ' (' + peak + ')' : '') + '. The forecast follows the storefront only.</p>');
+
+  renderAuditNotes();
+  renderSuggestNotes();
+}
+function renderAuditNotes() {
+  var A = window.WRAudit, homeM = auditRun('home', 'mobile'), homeD = auditRun('home', 'desktop');
+  var demo = state.R ? auditDemo(state.R.s, state.R.e, state.F) : null;
+  if (!A || !homeM) {
+    fillNotes('notes-seo', '<p>The public audit is not in this build.</p>', '<p>Rebuild so the Lighthouse results are inlined.</p>');
+    fillNotes('notes-ux', '<p>The public audit is not in this build.</p>', '<p>Rebuild so the Lighthouse results are inlined.</p>');
+    return;
+  }
+  var seoIssues = (A.issues || []).filter(function (i) { return i.area === 'seo' || i.area === 'both'; });
+  var seoIn = '<p>Homepage lab performance is <b>' + homeM.scores.performance + '</b> on mobile (LCP ' + (homeM.lab.lcpMs / 1000).toFixed(1) + 's) and <b>' + (homeD ? homeD.scores.performance : '—') + '</b> on desktop. The SEO score is <b>' + homeM.scores.seo + '</b>.</p>';
+  if (seoIssues[0]) seoIn += '<p><b>' + seoIssues[0].title + '.</b> ' + seoIssues[0].detail + '</p>';
+  if (demo && demo.keywords && demo.keywords.length) {
+    var topKw = demo.keywords.slice().sort(function (a, b) { return b.revenue - a.revenue; })[0];
+    seoIn += '<p class="muted">DEMO keyword model, not Search Console: <b>' + topKw.query + '</b> is the largest share (' + fm(topKw.revenue) + ').</p>';
+  } else if (demo && demo.organicBlocked) seoIn += '<p class="muted">DEMO keywords are hidden because the channel filter excludes Organic Search.</p>';
+  else if (demo && !demo.dtc) seoIn += '<p class="muted">DEMO keywords are hidden because the storefront is Amazon.</p>';
+  var seoFixes = (A.fixes || []).filter(function (x) { return x.area === 'seo' || x.source === 'DEMO' && x.area !== 'ux'; });
+  var realFix = (A.fixes || []).filter(function (x) { return x.area === 'seo' && x.source === 'REAL'; })[0];
+  var demoFix = (A.fixes || []).filter(function (x) { return x.source === 'DEMO'; })[0];
+  var seoSg = (realFix ? '<p>' + realFix.title + '</p>' : '<p>No ranked SEO fix is in the audit file.</p>') + (demoFix ? '<p class="muted">DEMO: ' + demoFix.title + '</p>' : '');
+  fillNotes('notes-seo', seoIn, seoSg);
+  var cartM = auditRun('cart', 'mobile'), uxIssues = (A.issues || []).filter(function (i) { return i.area === 'ux' || i.area === 'both'; });
+  var uxIn = '<p><b>' + (uxIssues[0] ? uxIssues[0].title : 'Lab performance') + '.</b> Homepage LCP is ' + (homeM.lab.lcpMs / 1000).toFixed(1) + 's on mobile' + (homeD ? ' and ' + (homeD.lab.lcpMs / 1000).toFixed(1) + 's on desktop' : '') + (cartM ? '. Cart CLS is ' + cartM.lab.cls + ' on mobile' : '') + '.</p>';
+  if (demo && demo.devices) {
+    var mob = demo.devices.mobile, desk = demo.devices.desktop;
+    uxIn += '<p class="muted">DEMO device split of filtered Shopify DTC: mobile AOV ' + fm(mob.aov, 2) + ' vs desktop ' + fm(desk.aov, 2) + (mob.cvr == null ? '.' : ', conversion ' + fp(mob.cvr, 2) + ' vs ' + fp(desk.cvr, 2) + '.') + '</p>';
+  } else uxIn += '<p class="muted">DEMO device split is hidden for this storefront or channel.</p>';
+  var uxFixes = (A.fixes || []).filter(function (x) { return x.area === 'ux'; });
+  fillNotes('notes-ux', uxIn, uxFixes.length ? '<p>' + uxFixes.map(function (x) { return x.title; }).join('</p><p>') + '</p>' : '<p>No ranked UX fix is in the audit file.</p>');
+  void seoFixes;
+}
+function renderSuggestNotes() {
+  var C = window.WRCatalog;
+  if (!C || !$('notes-suggest')) return;
+  mountNotes('notes-suggest', '', 'pub');
+  if (sug.view === 'roster' || !sugCurrent()) {
+    var counts = {};
+    C.artists.forEach(function (a) { a.suggestions.forEach(function (s) { var g = counts[s.text] || (counts[s.text] = { text: s.text, n: 0, reason: s.reason }); g.n++; }); });
+    var top = Object.keys(counts).map(function (k) { return counts[k]; }).sort(function (a, b) { return b.n - a.n; })[0];
+    var nSug = C.artists.reduce(function (n, a) { return n + a.suggestions.length; }, 0);
+    fillNotes('notes-suggest',
+      '<p>The roster has <b>' + fn(nSug) + '</b> suggestions across <b>' + C.artists.length + '</b> public stores.' + (top ? ' The most common gap is <b>' + esc(top.text) + '</b> (' + top.n + ' stores).' : '') + '</p>',
+      top ? '<p>' + esc(top.reason) + '</p>' : '<p>No catalog gaps were flagged.</p>');
+    return;
+  }
+  var a = sugCurrent();
+  var gap = a.suggestions[0];
+  fillNotes('notes-suggest',
+    '<p><b>' + esc(a.name) + '</b> lists ' + fn(a.products) + ' products and <b>' + a.suggestions.length + '</b> gap' + (a.suggestions.length === 1 ? '' : 's') + ' versus the roster. In stock: ' + (a.inStock == null ? '—' : a.inStock.toFixed(1) + '%') + '.</p>',
+    gap ? '<p><b>' + esc(gap.text) + '</b> ' + esc(gap.reason) + '</p>' : '<p>No gap was flagged. If nothing new landed in 90 days, the freshness note on the cards is the next check.</p>');
 }
 
 // ---------- product suggestions (public catalogs; not the demo dataset) ----------
@@ -676,6 +830,7 @@ function sugRender() {
   $('sugRosterPane').classList.toggle('hide', artistMode);
   $('sugView').querySelectorAll('button').forEach(function (btn) { btn.classList.toggle('on', btn.getAttribute('data-v') === sug.view); });
   if (artistMode) sugRenderArtist(); else sugRenderRoster();
+  renderSuggestNotes();
 }
 function sugJump(name) {
   sug.name = name; sug.view = 'artist'; sug.q = ''; sug.group = 'all';
