@@ -4,7 +4,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "build:encrypted": "node scripts/encrypt-site.mjs"
+    "build": "node build.js",
+    "build:encrypted": "node scripts/encrypt-site.mjs",
+    "test:gmail-mime": "node scripts/test-gmail-mime.mjs"
   },
   "devDependencies": {
     "staticrypt": "3.5.4"
