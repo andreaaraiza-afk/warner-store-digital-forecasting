@@ -40,8 +40,15 @@ The recaps are generated ahead of time with Kokoro (`af_heart`) and committed, b
 
 The sales generator is deterministic (seed `20261027`, range ending 2026-10-27). The catalog trim keeps roster benchmarks, all 358 suggestions, and up to 12 newest products per artist from the last 90 days (with store URLs) instead of embedding the full product feed.
 
+## Private Pages deploy
+`.github/workflows/pages.yml` encrypts `dist/index.html` and `dist/recap.html` with StatiCrypt (AES-256) before upload. The password is the Actions secret `DASHBOARD_PASSWORD`. The job reads that secret and does not print it. If the secret is empty, the job stops before upload, so a previous deployment is left as-is.
+
+The published artifact is only the password pages, `robots.txt` (`Disallow: /`), and `.nojekyll`. Raw `data.json`, MP3 recaps, the audio manifest, and the SEO/UX screenshots are not uploaded. Audit images are inlined into the encrypted dashboard, and the three recap MP3s are inlined into the encrypted player, so they play after the password is entered. "Remember me" lasts 30 days in this browser. Both the password page and the decrypted pages send `noindex`.
+
+This git repository is public, so the source, `dist/`, and `data/public-audit.json` are readable without the password. Free GitHub Pages cannot serve a private repository. For a login per person, use GitHub Enterprise private Pages, Cloudflare Pages with Cloudflare Access (email allowlist), or the DigitalOcean App Platform spec in `.do/app.yaml` behind authentication.
+
 ## GitHub Pages
-`.github/workflows/pages.yml` publishes the committed `dist/` folder to GitHub Pages on pushes to `main` (and on manual dispatch). The live site is https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/ . This repository is private; Pages on a private repo needs a plan that includes it (GitHub Pro, Team, or Enterprise). That plan is enabled here, so a push to `main` redeploys the dashboard. Opening `dist/index.html` locally does not require Pages.
+The live URL is https://andreaaraiza-afk.github.io/warner-store-digital-forecasting/ . Opening `dist/index.html` locally does not ask for the Pages password.
 
 ## DigitalOcean App Platform
 `.do/app.yaml` is a static site spec that serves `dist/` (`index_document: index.html`) from this repo's `main` branch.

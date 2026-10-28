@@ -1,7 +1,6 @@
-# Optional. This repo is private; GitHub Pages on a private repository
-# needs a paid plan (Pro, Team, or Enterprise). The workflow is included
-# so a public or eligible repo can publish dist/, and it is fine if it
-# cannot run here.
+# Publishes an encrypted static site. The password is the Actions secret
+# DASHBOARD_PASSWORD. If that secret is missing, this job fails before upload
+# and the previous GitHub Pages deployment stays in place.
 name: Deploy dashboard to GitHub Pages
 
 on:
@@ -31,13 +30,19 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      # dist/ is already built and committed (node build.js), including the
-      # Kokoro MP3 recaps. Publishing that folder avoids running the neural
-      # model in CI. Regenerating audio is a local step (scripts/render-recaps.mjs).
-      - name: Upload dist
+      - name: Install StatiCrypt
+        run: npm install --prefix /tmp/staticrypt-ci --no-fund --no-audit staticrypt@3.5.4
+
+      - name: Encrypt the site
+        env:
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+          STATICRYPT_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: node scripts/encrypt-site.mjs
+
+      - name: Upload encrypted site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site-private/encrypted
 
       - name: Deploy to GitHub Pages
         id: deployment

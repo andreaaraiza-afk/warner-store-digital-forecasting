@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Warner Records Store · Audio recap</title>
 <style>
 :root{--bg:#0b0b0f;--panel:#14141b;--line:#262632;--txt:#ececf1;--mut:#8d8da0;--acc:#f5c542;--paper:#f7f4ee;--ink:#1c1b18}
@@ -74,6 +75,7 @@ input[type=range]{flex:1;height:28px;accent-color:#c8962e}
 <script>
 (function () {
   var RECAPS = {"placeholder":1};
+  var AUDIO_BLOBS = window.WRAudioBlobs || {};
   var audio = document.getElementById('audio');
   var play = document.getElementById('play');
   var scrub = document.getElementById('scrub');
@@ -165,7 +167,7 @@ input[type=range]{flex:1;height:28px;accent-color:#c8962e}
   $('transcript').innerHTML = paras.map(function (p) {
     return '<p>' + p.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }) + '</p>';
   }).join('');
-  audio.src = rec.file;
+  audio.src = AUDIO_BLOBS[rec.id] || rec.file;
   if (rec.duration) total.textContent = clock(rec.duration);
 })();
 </script>

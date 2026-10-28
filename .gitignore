@@ -4,6 +4,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Encrypted Pages output and StatiCrypt local config
+site-private/
+.staticrypt.json
+
 # Secrets and local env
 .env
 .env.*
